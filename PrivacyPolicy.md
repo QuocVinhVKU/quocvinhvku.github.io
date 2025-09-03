@@ -6,6 +6,7 @@ Privacy Policy: ZinhPixry
 Publisher: ZinhPixry
 
 Store Play: [https://play.google.com/store/apps/developer?id=Zinh+Pixry](https://play.google.com/store/apps/developer?id=Zinh+Pixry)
+Users can request data deletion by sending an email to dqvinh@zinhpixry.website
 
 
 ZinhPixry built the free game. This service is provided by ZinhPixry at no cost and is intended for use as is.
