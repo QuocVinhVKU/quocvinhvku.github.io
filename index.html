@@ -16,22 +16,26 @@
             font-weight: bold;
             color: #2c3e50;
         }
-        .furry-icon {
-            vertical-align: middle;
-            margin-left: 5px;
+        /* CSS cho Icon Game Hình Vuông */
+        .game-icon-container {
+            padding-top: 30px;
+            display: flex;
+            justify-content: center;
+        }
+        .game-icon {
+            width: 180px; /* Độ rộng hình vuông */
+            height: 180px; /* Chiều cao hình vuông */
+            object-fit: cover;
+            border-radius: 35px; /* Bo góc kiểu App Icon */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .game-card:hover .game-icon {
+            transform: scale(1.05);
         }
         .game-card {
+            background: transparent;
             transition: transform 0.3s;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        .game-card:hover {
-            transform: translateY(-10px);
-        }
-        .banner-img {
-            height: 220px;
-            object-fit: cover;
-            width: 100%;
         }
         .btn-download {
             display: flex;
@@ -39,6 +43,7 @@
             justify-content: center;
             gap: 8px;
             font-weight: 500;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -70,19 +75,13 @@
                      class="rounded-circle shadow-sm border border-4 border-white" 
                      style="width: 120px; height: 120px; object-fit: cover;">
             </div>
-
             <p class="text-muted mb-4">Follow me for more fluff and games! (≧◡≦)♡</p>
-            
             <div class="row g-3 justify-content-center">
                 <div class="col-6 col-md-3">
-                    <a href="https://www.facebook.com/furryzinzin/" target="_blank" class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                        Official Fanpage
-                    </a>
+                    <a href="https://www.facebook.com/furryzinzin/" target="_blank" class="btn btn-primary w-100 py-2">Official Fanpage</a>
                 </div>
                 <div class="col-6 col-md-3">
-                    <a href="https://x.com/ZinZin_Furry" target="_blank" class="btn btn-dark w-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                        Twitter (X)
-                    </a>
+                    <a href="https://x.com/ZinZin_Furry" target="_blank" class="btn btn-dark w-100 py-2">Twitter (X)</a>
                 </div>
             </div>
         </div>
@@ -97,16 +96,18 @@
 
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
-                    <div class="card game-card shadow border-0">
-                        <img src="https://play-lh.googleusercontent.com/lnhtRRDNAeLzciSB8zIolRd6spTIipLjqd7O5EXy1vQLDQRoxbbooGC1ZhtZW6zQmDucr7O4djKP7h-Te0rRWA" class="banner-img" alt="Game 1">
+                    <div class="card game-card border-0 text-center">
+                        <div class="game-icon-container">
+                            <img src="image/icon_defense.png" class="game-icon" alt="Furry Defense">
+                        </div>
                         <div class="card-body">
-                            <h4 class="text-center mb-3">Furry Defense: Paws battle</h4>
+                            <h4 class="mb-3">Furry Defense</h4>
                             <div class="d-grid gap-2">
                                 <a href="https://play.google.com/store/apps/details?id=furry.defense.paws.battle" class="btn btn-success btn-download">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" width="20"> Google Play
+                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" width="18"> Google Play
                                 </a>
                                 <a href="https://apps.apple.com/us/app/furry-defense-paws-battle/id6746959264" class="btn btn-secondary btn-download">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888841.png" width="20"> App Store
+                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888841.png" width="18"> App Store
                                 </a>
                             </div>
                         </div>
@@ -114,16 +115,18 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="card game-card shadow border-0">
-                        <img src="https://play-lh.googleusercontent.com/7-uXOxYnyQ9XPnqQiIClTEzI6QIfK958dlkVygksWhuWz6zmxP_ibfOy9BY70RQbfwBBJr_g6XvhmydGC48f7A" class="banner-img" alt="Game 2">
+                    <div class="card game-card border-0 text-center">
+                        <div class="game-icon-container">
+                            <img src="image/icon_pop.png" class="game-icon" alt="Furry Pop">
+                        </div>
                         <div class="card-body">
-                            <h4 class="text-center mb-3">Furry Pop: Blocks blast</h4>
+                            <h4 class="mb-3">Furry Pop</h4>
                             <div class="d-grid gap-2">
                                 <a href="https://play.google.com/store/apps/details?id=furry.pop.blocks.blast" class="btn btn-success btn-download">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" width="20"> Google Play
+                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" width="18"> Google Play
                                 </a>
                                 <a href="https://apps.apple.com/us/app/furry-pop-blocks-blast/id6739349422" class="btn btn-secondary btn-download">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888841.png" width="20"> App Store
+                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888841.png" width="18"> App Store
                                 </a>
                             </div>
                         </div>
@@ -131,16 +134,18 @@
                 </div>
 
                 <div class="col-lg-4 col-md-6">
-                    <div class="card game-card shadow border-0">
-                        <img src="https://play-lh.googleusercontent.com/_Wv8jERPiIog9DxsiT5sXH6ZLrsZBcxYae8etQx6GKf5EwAaAkdHr_irkR9w1Rr_9_QXkX7Ie4z_wVsYfTwKsg" class="banner-img" alt="Game 3">
+                    <div class="card game-card border-0 text-center">
+                        <div class="game-icon-container">
+                            <img src="image/icon_puzzle.png" class="game-icon" alt="Furry Blocks">
+                        </div>
                         <div class="card-body">
-                            <h4 class="text-center mb-3">Furry Blocks Puzzle</h4>
+                            <h4 class="mb-3">Furry Blocks Puzzle</h4>
                             <div class="d-grid gap-2">
                                 <a href="https://play.google.com/store/apps/details?id=furry.hexablocks.puzzle" class="btn btn-success btn-download">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" width="20"> Google Play
+                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888857.png" width="18"> Google Play
                                 </a>
                                 <a href="https://apps.apple.com/us/app/furry-blocks-puzzle/id6759550115" class="btn btn-secondary btn-download">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888841.png" width="20"> App Store
+                                    <img src="https://cdn-icons-png.flaticon.com/512/888/888841.png" width="18"> App Store
                                 </a>
                             </div>
                         </div>
@@ -150,25 +155,8 @@
         </div>
     </section>
 
-    <!-- <section class="section-padding bg-light mt-5">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="section-title">📸 My Photo Gallery</h2>
-                <p class="text-muted">Downloading my games is the best way to support me! 😎📱</p>
-            </div>
-            <div class="row g-3">
-                <div class="col-6 col-md-4 col-lg-3">
-                    <img src="image/img17.png" class="img-fluid rounded shadow-sm" style="height:200px; object-fit:cover; width:100%;">
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <img src="image/img18.png" class="img-fluid rounded shadow-sm" style="height:200px; object-fit:cover; width:100%;">
-                </div>
-                </div>
-        </div>
-    </section> -->
-
     <footer class="text-center py-4 bg-white border-top">
-        <p class="mb-0 text-muted">&copy; 2026 ZinZin Furry Studio. All rights reserved.</p>
+        <p class="mb-0 text-muted">© 2026 ZinZin Furry Studio. All rights reserved.</p>
     </footer>
 </body>
 </html>
