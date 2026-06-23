@@ -369,6 +369,7 @@ h3 {
 .wiki-card,
 .place-card,
 .map-card,
+.download-card,
 .glossary-grid article {
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -381,6 +382,44 @@ h3 {
   grid-column: span 2;
   display: grid;
   grid-template-columns: 0.58fr 1fr;
+}
+
+.download-card {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 28px;
+  padding: 24px;
+  align-items: center;
+}
+
+.download-icon-wrap {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(244, 83, 199, 0.18), transparent 55%),
+    rgba(0, 0, 0, 0.22);
+}
+
+.download-icon {
+  width: 168px;
+  height: 168px;
+  border-radius: 34px;
+  object-fit: cover;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.34);
+}
+
+.download-copy p {
+  color: var(--muted);
+  line-height: 1.72;
+}
+
+.download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .card-media {
@@ -600,7 +639,8 @@ h3 {
   .hero-grid,
   .quick-search,
   .split-section,
-  .map-card {
+  .map-card,
+  .download-card {
     grid-template-columns: 1fr;
   }
 
@@ -647,5 +687,9 @@ h3 {
 
   .timeline li {
     grid-template-columns: 1fr;
+  }
+
+  .download-actions .button {
+    width: 100%;
   }
 }
