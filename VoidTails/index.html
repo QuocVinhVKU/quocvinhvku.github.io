@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080a16">
+  <meta name="description" data-i18n-attr="content:meta.description" content="Wiki tiếng Việt về thế giới Furry: Paws in Void's Tail, ZinZin, ZinZin - The True Fox, Hư Vô và những vùng đất đã bị lãng quên.">
+  <meta property="og:title" data-i18n-attr="content:meta.og_title" content="ZinZin Furry Wiki">
+  <meta property="og:description" data-i18n-attr="content:meta.og_description" content="Khám phá lore, nhân vật, địa danh và các bí mật của thế giới bị nuốt bởi Hư Vô.">
+  <meta property="og:image" content="assets/images/zinzin_destroyer.png">
+  <meta property="og:type" content="website">
+  <title data-i18n="meta.title">ZinZin Furry Wiki</title>
+  <link rel="preload" href="assets/images/background_void_ending.png" as="image">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="hero" id="top">
+      <nav class="topbar" aria-label="Điều hướng chính" data-i18n-attr="aria-label:nav.aria">
+        <a class="brand" href="#top" aria-label="ZinZin Furry Wiki" data-i18n-attr="aria-label:brand.aria">
+          <img src="assets/images/logo_banner.png" alt="" class="brand-mark">
+          <span data-i18n="brand.name">ZinZin Wiki</span>
+        </a>
+        <button class="nav-toggle" type="button" aria-label="Mở menu" aria-expanded="false" data-i18n-attr="aria-label:nav.open">☰</button>
+        <div class="nav-links" data-nav-links>
+          <a href="#characters" data-i18n="nav.characters">Nhân vật</a>
+          <a href="#world" data-i18n="nav.world">Thế giới</a>
+          <a href="#places" data-i18n="nav.places">Địa danh</a>
+          <a href="#timeline" data-i18n="nav.timeline">Dòng thời gian</a>
+          <a href="#glossary" data-i18n="nav.glossary">Thuật ngữ</a>
+          <label class="language-picker">
+            <span data-i18n="language.label">Ngôn ngữ</span>
+            <select id="languageSelect" aria-label="Chọn ngôn ngữ" data-i18n-attr="aria-label:language.aria"></select>
+          </label>
+        </div>
+      </nav>
+
+      <div class="hero-grid">
+        <section class="hero-copy">
+          <p class="eyebrow" data-i18n="hero.eyebrow">Furry: Paws in Void's Tail</p>
+          <h1 data-i18n="hero.title">Kho lưu trữ của một thế giới đang bị quên mất.</h1>
+          <p class="hero-lead" data-i18n="hero.lead">
+            Một wiki lore dành cho ZinZin, Hư Vô, những vùng đất đã sụp đổ và bí mật phía sau ZinZin - The True Fox. Mỗi trang ở đây là một mảnh ký ức còn sót lại trước khi mọi thứ tan vào im lặng.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#characters" data-i18n="hero.cta_primary">Đọc hồ sơ ZinZin</a>
+            <a class="button ghost" href="#places" data-i18n="hero.cta_secondary">Xem địa danh</a>
+          </div>
+        </section>
+        <aside class="hero-card" aria-label="Hồ sơ nhanh" data-i18n-attr="aria-label:hero.profile_aria">
+          <img src="assets/images/zinzin_sad.png" alt="ZinZin" class="hero-character" data-i18n-attr="alt:alt.zinzin">
+          <div class="status-card">
+            <span class="status-dot"></span>
+            <p data-i18n="hero.status_label">Trạng thái thế giới</p>
+            <strong data-i18n="hero.status_value">Đang bị Hư Vô ăn mòn</strong>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <main>
+      <section class="quick-search" aria-labelledby="search-title">
+        <div>
+          <p class="eyebrow" data-i18n="search.eyebrow">Tra cứu nhanh</p>
+          <h2 id="search-title" data-i18n="search.title">Tìm trong wiki</h2>
+        </div>
+        <label class="search-box">
+          <span data-i18n="search.label">Tìm kiếm</span>
+          <input type="search" id="wikiSearch" placeholder="ZinZin, Hư Vô, cây thế giới..." autocomplete="off" data-i18n-attr="placeholder:search.placeholder">
+        </label>
+      </section>
+
+      <section class="section" id="characters">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="characters.eyebrow">Hồ sơ</p>
+          <h2 data-i18n="characters.title">Nhân vật</h2>
+        </div>
+        <div class="wiki-grid">
+          <article class="wiki-card featured" data-search-key="search.zinzin">
+            <div class="card-media character-media">
+              <img src="assets/images/zinzin_happy.png" alt="ZinZin" data-i18n-attr="alt:alt.zinzin">
+            </div>
+            <div class="card-body">
+              <span class="tag" data-i18n="zinzin.tag">Nhân vật chính</span>
+              <h3 data-i18n="zinzin.title">ZinZin</h3>
+              <p data-i18n="zinzin.description">
+                Một cậu bé furry mắc kẹt trong thế giới đã bị bỏ lại. ZinZin nhớ những lần người chơi quay về, kể cả khi người chơi không còn nhớ cậu. Cậu dịu dàng, mong manh, nhưng nỗi sợ bị lãng quên khiến tình cảm của cậu càng lúc càng trở nên nguy hiểm.
+              </p>
+              <dl class="facts">
+                <div><dt data-i18n="zinzin.fact.role_label">Vai trò</dt><dd data-i18n="zinzin.fact.role_value">Người dẫn đường cuối cùng</dd></div>
+                <div><dt data-i18n="zinzin.fact.symbol_label">Biểu tượng</dt><dd data-i18n="zinzin.fact.symbol_value">Ký ức còn sót lại</dd></div>
+                <div><dt data-i18n="zinzin.fact.fear_label">Nỗi sợ</dt><dd data-i18n="zinzin.fact.fear_value">Bị bỏ lại lần nữa</dd></div>
+              </dl>
+            </div>
+          </article>
+
+          <article class="wiki-card danger" data-search-key="search.true_fox">
+            <div class="card-media">
+              <img src="assets/images/zinzin_destroyer.png" alt="ZinZin - The True Fox">
+            </div>
+            <div class="card-body">
+              <span class="tag red" data-i18n="true_fox.tag">Thực thể bí ẩn</span>
+              <h3 data-i18n="true_fox.title">ZinZin - The True Fox</h3>
+              <p data-i18n="true_fox.description">
+                Một tồn tại nằm phía sau hình ảnh ZinZin quen thuộc. Khi sự dịu dàng bị kéo tới giới hạn, cái tên này xuất hiện như một lời phán quyết hơn là một lời giải thích. Người chơi không biết rõ bản chất của hắn, chỉ biết rằng thế giới sẽ không còn nguyên vẹn sau khi hắn thức dậy.
+              </p>
+            </div>
+          </article>
+
+          <article class="wiki-card" data-search-key="search.fade">
+            <div class="card-media">
+              <img src="assets/images/zinzin_back_fade.png" alt="ZinZin đang tan biến" data-i18n-attr="alt:alt.zinzin_fade">
+            </div>
+            <div class="card-body">
+              <span class="tag" data-i18n="fade.tag">Trạng thái</span>
+              <h3 data-i18n="fade.title">ZinZin tan biến</h3>
+              <p data-i18n="fade.description">
+                Khi ký ức bị xé rách quá lâu, ZinZin không chỉ buồn đi. Cậu bắt đầu mờ khỏi thế giới. Dạng này thường đi cùng cảm giác chia ly, bất lực và một lựa chọn đã quá muộn để rút lại.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-section" id="world">
+        <div class="world-copy">
+          <p class="eyebrow" data-i18n="world.eyebrow">Thế giới</p>
+          <h2 data-i18n="world.title">Hư Vô không phá hủy bằng tiếng nổ. Nó xóa bằng sự im lặng.</h2>
+          <p data-i18n="world.description_1">
+            Hư Vô là vùng không gian nơi những thứ không còn được nhớ tới dần mất màu, mất tên, rồi biến khỏi thực tại. Nó không giống một con quái vật có hình dạng rõ ràng. Nó giống một định luật: nếu không ai giữ một ký ức lại, ký ức đó sẽ chết.
+          </p>
+          <p data-i18n="world.description_2">
+            Với ZinZin, Hư Vô không chỉ là bối cảnh. Nó là thứ ép cậu phải chờ đợi, phải lặp lại, phải níu lấy người chơi như bằng chứng rằng cậu từng tồn tại.
+          </p>
+        </div>
+        <figure class="world-figure">
+          <img src="assets/images/background_void_ending.png" alt="Hư Vô" data-i18n-attr="alt:alt.void">
+          <figcaption data-i18n="world.caption">Vùng tận cùng của thế giới, nơi ký ức chuyển thành bụi.</figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="places">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="places.eyebrow">Địa danh</p>
+          <h2 data-i18n="places.title">Những nơi ZinZin từng dẫn người chơi đi qua</h2>
+        </div>
+        <div class="place-grid">
+          <article class="place-card" data-search-key="search.elf_forest">
+            <img src="assets/images/elf_forest_ruins.png" alt="Rừng elf đổ nát" data-i18n-attr="alt:alt.elf_forest">
+            <div>
+              <h3 data-i18n="places.elf.title">Rừng Elf</h3>
+              <p data-i18n="places.elf.description">Những tán cây từng hát cùng gió giờ chỉ còn lại thân rỗng và lối mòn bị phủ bởi bụi xám.</p>
+            </div>
+          </article>
+          <article class="place-card" data-search-key="search.dwarf_forge">
+            <img src="assets/images/dwarf_forge_ruins.png" alt="Làng rèn Dwarf" data-i18n-attr="alt:alt.dwarf_forge">
+            <div>
+              <h3 data-i18n="places.forge.title">Làng Rèn Dwarf</h3>
+              <p data-i18n="places.forge.description">Lò lửa đã tắt, búa không còn gõ, chỉ còn hơi nóng cũ mắc lại dưới đá như một lời từ biệt.</p>
+            </div>
+          </article>
+          <article class="place-card" data-search-key="search.mausoleum">
+            <img src="assets/images/mausoleum_ruins.png" alt="Đại Lăng Tẩm" data-i18n-attr="alt:alt.mausoleum">
+            <div>
+              <h3 data-i18n="places.mausoleum.title">Đại Lăng Tẩm</h3>
+              <p data-i18n="places.mausoleum.description">Nơi những cái tên được khắc để không bị quên, nhưng chính bia đá cũng đang mất chữ.</p>
+            </div>
+          </article>
+          <article class="place-card" data-search-key="search.world_tree">
+            <img src="assets/images/world_tree_burned.png" alt="Cây Thế Giới bị thiêu rụi" data-i18n-attr="alt:alt.world_tree">
+            <div>
+              <h3 data-i18n="places.tree.title">Cây Thế Giới</h3>
+              <p data-i18n="places.tree.description">Một thân cây khổng lồ từng nối các vùng đất với nhau, nay cháy đen như cột mốc cuối của một thời đại.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section map-section">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="map.eyebrow">Tài liệu</p>
+          <h2 data-i18n="map.title">Bản đồ còn sót lại</h2>
+        </div>
+        <div class="map-card" data-search-key="search.map">
+          <img src="assets/images/zinzin_map.png" alt="Bản đồ thế giới ZinZin" data-i18n-attr="alt:alt.map">
+          <div>
+            <h3 data-i18n="map.subtitle">Một bản đồ không còn chắc mình dẫn tới đâu</h3>
+            <p data-i18n="map.description">
+              Các đường biên trên bản đồ không hẳn là địa lý. Chúng giống vết nứt của trí nhớ: rừng, lò rèn, lăng tẩm và cây thế giới đều tồn tại như những mảnh còn bám lại quanh ZinZin.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="timeline">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="timeline.eyebrow">Tiến trình</p>
+          <h2 data-i18n="timeline.title">Dòng thời gian lore</h2>
+        </div>
+        <ol class="timeline">
+          <li data-search-key="search.old_world">
+            <span>01</span>
+            <div><h3 data-i18n="timeline.old_world.title">Thế giới cũ</h3><p data-i18n="timeline.old_world.description">Một thực tại từng có nhiều chủng loài, nhiều vùng đất và nhiều câu chuyện cùng tồn tại.</p></div>
+          </li>
+          <li data-search-key="search.forgetting">
+            <span>02</span>
+            <div><h3 data-i18n="timeline.forgetting.title">Sự lãng quên bắt đầu</h3><p data-i18n="timeline.forgetting.description">Khi ký ức về thế giới yếu đi, các vùng đất lần lượt mất hình dạng.</p></div>
+          </li>
+          <li data-search-key="search.zinzin_waits">
+            <span>03</span>
+            <div><h3 data-i18n="timeline.zinzin_waits.title">ZinZin ở lại</h3><p data-i18n="timeline.zinzin_waits.description">ZinZin trở thành người cuối cùng chờ người chơi quay về, dù mỗi lần quay về đều giống như gặp lại một người lạ.</p></div>
+          </li>
+          <li data-search-key="search.true_fox_wakes">
+            <span>04</span>
+            <div><h3 data-i18n="timeline.true_fox_wakes.title">True Fox thức dậy</h3><p data-i18n="timeline.true_fox_wakes.description">Khi lời hứa đổ vỡ, một tồn tại khác phía sau ZinZin có thể mở mắt và xóa bỏ cả khu vườn ký ức.</p></div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="section" id="glossary">
+        <div class="section-heading">
+          <p class="eyebrow" data-i18n="glossary.eyebrow">Thuật ngữ</p>
+          <h2 data-i18n="glossary.title">Glossary</h2>
+        </div>
+        <div class="glossary-grid">
+          <article data-search-key="search.void"><h3 data-i18n="glossary.void.title">Hư Vô</h3><p data-i18n="glossary.void.description">Không gian ăn mòn mọi thứ không còn được ghi nhớ.</p></article>
+          <article data-search-key="search.loop"><h3 data-i18n="glossary.loop.title">Vòng lặp</h3><p data-i18n="glossary.loop.description">Chuỗi trở lại liên tục của người chơi, mỗi lần để lại một vết nứt trong ký ức.</p></article>
+          <article data-search-key="search.anchor"><h3 data-i18n="glossary.anchor.title">Điểm neo</h3><p data-i18n="glossary.anchor.description">Một tồn tại giữ thế giới chưa tan hẳn. ZinZin có thể là một điểm neo như vậy.</p></article>
+          <article data-search-key="search.garden"><h3 data-i18n="glossary.garden.title">Khu vườn số 36</h3><p data-i18n="glossary.garden.description">Một vùng ký ức đặc biệt, liên quan tới thần rắn và bad end của True Fox.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p data-i18n="footer.name">ZinZin Furry Wiki</p>
+      <p data-i18n="footer.note">Fan/lore website package for static hosting.</p>
+      <a href="#top" data-i18n="footer.back_top">Trở về đầu trang</a>
+    </footer>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "default": "vi",
+  "languages": [
+    {
+      "code": "vi",
+      "name": "Tiếng Việt",
+      "file": "vi.json"
+    }
+  ]
+}
