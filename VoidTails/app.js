@@ -1,5 +1,7 @@
-const defaultLanguage = "vi";
+const defaultLanguage = "en";
 const languageManifestPath = "locales/languages.json";
+const languageStorageKey = "zinzin_wiki_language_v2";
+const rtlLanguages = new Set(["ar", "fa", "he", "ur"]);
 const navToggle = document.querySelector(".nav-toggle");
 const navLinks = document.querySelector("[data-nav-links]");
 const searchInput = document.querySelector("#wikiSearch");
@@ -9,9 +11,9 @@ const searchableItems = Array.from(document.querySelectorAll("[data-search-key]"
 let activeStrings = {};
 let availableLanguages = [
   {
-    code: "vi",
-    name: "Tiếng Việt",
-    file: "vi.json"
+    code: "en",
+    name: "English",
+    file: "en.json"
   }
 ];
 
@@ -53,7 +55,7 @@ async function initLocalization() {
   }
 
   const manifestDefault = manifest && manifest.default ? manifest.default : defaultLanguage;
-  const savedLanguage = localStorage.getItem("zinzin_wiki_language");
+  const savedLanguage = localStorage.getItem(languageStorageKey);
   const initialLanguage = getLanguageConfig(savedLanguage) ? savedLanguage : manifestDefault;
 
   buildLanguageSelect(initialLanguage);
@@ -67,16 +69,13 @@ function buildLanguageSelect(selectedCode) {
 
   languageSelect.innerHTML = "";
 
-  availableLanguages
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .forEach((language) => {
-      const option = document.createElement("option");
-      option.value = language.code;
-      option.textContent = language.name;
-      option.selected = language.code === selectedCode;
-      languageSelect.appendChild(option);
-    });
+  availableLanguages.forEach((language) => {
+    const option = document.createElement("option");
+    option.value = language.code;
+    option.textContent = language.name;
+    option.selected = language.code === selectedCode;
+    languageSelect.appendChild(option);
+  });
 
   languageSelect.addEventListener("change", async () => {
     await applyLanguage(languageSelect.value);
@@ -99,7 +98,8 @@ async function applyLanguage(languageCode) {
 
   activeStrings = strings;
   document.documentElement.lang = config.code;
-  localStorage.setItem("zinzin_wiki_language", config.code);
+  document.documentElement.dir = config.dir || (rtlLanguages.has(config.code) ? "rtl" : "ltr");
+  localStorage.setItem(languageStorageKey, config.code);
 
   if (languageSelect) {
     languageSelect.value = config.code;
@@ -144,6 +144,11 @@ function getLanguageConfig(languageCode) {
 }
 
 async function loadJson(path) {
+  const bundledJson = getBundledJson(path);
+  if (bundledJson) {
+    return bundledJson;
+  }
+
   try {
     const response = await fetch(path, { cache: "no-cache" });
     if (!response.ok) {
@@ -182,4 +187,18 @@ function normalize(value) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
+}
+
+function getBundledJson(path) {
+  const bundle = window.zinzinWikiLocaleBundle;
+  if (!bundle) {
+    return null;
+  }
+
+  if (path === languageManifestPath) {
+    return bundle.manifest || null;
+  }
+
+  const fileName = path.split("/").pop();
+  return bundle.locales && fileName ? bundle.locales[fileName] || null : null;
 }

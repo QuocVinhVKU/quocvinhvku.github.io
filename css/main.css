@@ -212,7 +212,7 @@
 }
 
 .home-language-picker select {
-  min-width: 54px;
+  min-width: 116px;
   border: 0;
   outline: none;
   color: var(--home-text);
