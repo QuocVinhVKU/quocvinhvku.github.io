@@ -1,3 +1,4 @@
+OWNERDOMAIN=zinhpixry.website
 google.com, pub-1450621372245226, DIRECT, f08c47fec0942fa0
 mintegral.com, 52759, DIRECT, 0aeed750c80d6423
 pokkt.com, 7139, RESELLER, c45702d9311e25fd
