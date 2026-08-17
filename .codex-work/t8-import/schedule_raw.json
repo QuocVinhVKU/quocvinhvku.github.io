@@ -1,0 +1,2996 @@
+{
+  "columns": [
+    {
+      "column": "C",
+      "header": "MAI ANH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "8h",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 37
+        }
+      ]
+    },
+    {
+      "column": "D",
+      "header": "DÂU",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "9h",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 38
+        }
+      ]
+    },
+    {
+      "column": "E",
+      "header": "MINH QUANG",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "bù 9h",
+          "fill": "FFFFFF",
+          "font": "theme:1",
+          "styleId": 39
+        }
+      ]
+    },
+    {
+      "column": "F",
+      "header": "HUY - BẮP",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        }
+      ]
+    },
+    {
+      "column": "G",
+      "header": "DUY THÔNG",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "8H-9H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "8H-9H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "8H-9H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "8H-9H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "8H-9H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "8H-9H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 40
+        }
+      ]
+    },
+    {
+      "column": "H",
+      "header": "ĐÌNH BẢO",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "có học",
+          "fill": "theme:0",
+          "font": "theme:1",
+          "styleId": 30
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "8H-9H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        }
+      ]
+    },
+    {
+      "column": "I",
+      "header": "TRIẾT",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        }
+      ]
+    },
+    {
+      "column": "J",
+      "header": "MON",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "9h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 12
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "8h",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 42
+        }
+      ]
+    },
+    {
+      "column": "K",
+      "header": "M.HOÀNG -MON",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "9h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 14
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "9h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 14
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "9h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 14
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "9h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 14
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "9h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 14
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "9h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 43
+        }
+      ]
+    },
+    {
+      "column": "L",
+      "header": "HY",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "9h",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "9h",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "9h",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "9h",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "9h",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        }
+      ]
+    },
+    {
+      "column": "M",
+      "header": "BEN 9H",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "8H-9H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "8H-9H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "8H-9H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "8H-9H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "8H-9H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        }
+      ]
+    },
+    {
+      "column": "O",
+      "header": "LUCAS",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "3H-4H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "3H-4H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "3H-4H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 45
+        }
+      ]
+    },
+    {
+      "column": "P",
+      "header": "XÁ XÍU",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "3H-4H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "3H-4H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "3H-4H",
+          "fill": "38761D",
+          "font": "theme:1",
+          "styleId": 11
+        }
+      ]
+    },
+    {
+      "column": "Q",
+      "header": "UY LẠC",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "3H-4H",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "3H-4H",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "3H-4H",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 47
+        }
+      ]
+    },
+    {
+      "column": "R",
+      "header": "MỠ",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "3H-4H",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "3H-4H",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "3H-4H",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        }
+      ]
+    },
+    {
+      "column": "S",
+      "header": "BÁ PHÚC",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "3H-4H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "3H-4H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "3H-4H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "3H-4H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "3H-4H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "3H-4H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 38
+        }
+      ]
+    },
+    {
+      "column": "T",
+      "header": "BẢO BẢO",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "3H-4H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "3H-4H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "3H-4H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "3H-4H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "3H-4H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "3H-4H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 40
+        }
+      ]
+    },
+    {
+      "column": "U",
+      "header": "VÂN MY",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "3H-4H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "3H-4H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "3H-4H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "3H-4H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "3H-4H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        }
+      ]
+    },
+    {
+      "column": "V",
+      "header": "VY",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "3H-4H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 48
+        }
+      ]
+    },
+    {
+      "column": "W",
+      "header": "MAI ANH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "3H-4H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "3H-4H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "3H-4H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "3H-4H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "3H-4H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "8h",
+          "fill": "",
+          "font": "theme:1",
+          "styleId": 41
+        }
+      ]
+    },
+    {
+      "column": "X",
+      "header": "THẢO  MY",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "3H-4H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "3H-4H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "3H-4H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "3H-4H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "3H-4H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "3H-4H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 48
+        }
+      ]
+    },
+    {
+      "column": "Z",
+      "header": "MINH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "4-5H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "4-5H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "4-5H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "4-5H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "4-5H",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        }
+      ]
+    },
+    {
+      "column": "AA",
+      "header": "MINH KEN ALN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "4-5H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "4-5H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "4-5H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 48
+        }
+      ]
+    },
+    {
+      "column": "AB",
+      "header": "MINH DUY",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "4-5H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "4-5H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "4-5H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        }
+      ]
+    },
+    {
+      "column": "AC",
+      "header": "XOÀI",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 5
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "4-5H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "4-5H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "4-5H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "4-5H",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "4-5H",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        }
+      ]
+    },
+    {
+      "column": "AD",
+      "header": "GIA KHÁNH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "4-5H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "4-5H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "4-5H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "4-5H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "4-5H",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        }
+      ]
+    },
+    {
+      "column": "AE",
+      "header": "PHÚC LỚN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "4-5H",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "4-5H",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "4-5H",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "4-5H",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "4-5H",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "4-5H",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 50
+        }
+      ]
+    },
+    {
+      "column": "AF",
+      "header": "TIGER",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "4H-5H",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "4H-5H",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "4H-5H",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "4H-5H",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "4H-5H",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "4H-5H",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 51
+        }
+      ]
+    },
+    {
+      "column": "AG",
+      "header": "THƯ",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "4H-5H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "4H-5H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "4H-5H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 38
+        }
+      ]
+    },
+    {
+      "column": "AH",
+      "header": "ĐẬU",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "4H-5H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "4H-5H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "4H-5H",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        }
+      ]
+    },
+    {
+      "column": "AJ",
+      "header": "BỘT",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "5H5-6H5",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 24
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "5H5-6H5",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 24
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "5H5-6H5",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 24
+        }
+      ]
+    },
+    {
+      "column": "AK",
+      "header": "BẮP",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "5H5-6H5",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "5H5-6H5",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "5H5-6H5",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 53
+        }
+      ]
+    },
+    {
+      "column": "AL",
+      "header": "Hoàng Phúc",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "5H5-6H5",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "5H5-6H5",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "5H5-6H5",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 51
+        }
+      ]
+    },
+    {
+      "column": "AM",
+      "header": "DẦN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "5H5 -6H5",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "5H5 -6H5",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "5H5 -6H5",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        }
+      ]
+    },
+    {
+      "column": "AN",
+      "header": "RIN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "5H5 -6H5",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "5H5 -6H5",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "5H5 -6H5",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "5H5 -6H5",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "5H5 -6H5",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "5H5 -6H5",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 48
+        }
+      ]
+    },
+    {
+      "column": "AO",
+      "header": "THIÊN MỸ",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "5H5 -6H5",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "5H5 -6H5",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "9h",
+          "fill": "theme:0",
+          "font": "theme:1",
+          "styleId": 54
+        }
+      ]
+    },
+    {
+      "column": "AP",
+      "header": "THIÊN AN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "5H5 -6H5",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "5H5 -6H5",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "5H5 -6H5",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "5H5 -6H5",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "5H5 -6H5",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        }
+      ]
+    },
+    {
+      "column": "AQ",
+      "header": "MIE",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "5H5 -6H5",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "5H5 -6H5",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "5H5 -6H5",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        }
+      ]
+    },
+    {
+      "column": "AR",
+      "header": "BUN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "5H5 -6H5",
+          "fill": "FFC000",
+          "font": "theme:1",
+          "styleId": 26
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "5H5 -6H5",
+          "fill": "FFC000",
+          "font": "theme:1",
+          "styleId": 26
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "5H5 -6H5",
+          "fill": "FFC000",
+          "font": "theme:1",
+          "styleId": 26
+        }
+      ]
+    },
+    {
+      "column": "AS",
+      "header": "SÓC",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "5h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "5h",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        }
+      ]
+    },
+    {
+      "column": "AT",
+      "header": "D.KHANG",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "5H5 -6H5",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "5H5 -6H5",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "5H5 -6H5",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "5H5 -6H5",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "5H5 -6H5",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        }
+      ]
+    },
+    {
+      "column": "AV",
+      "header": "KHÁNH NGỌC - NA",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "6H10-7H10",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "6H10-7H10",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "6H10-7H10",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        }
+      ]
+    },
+    {
+      "column": "AW",
+      "header": "Gia Khang 3t",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "6H10-7H10",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "6H10-7H10",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "6H10-7H10",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 53
+        }
+      ]
+    },
+    {
+      "column": "AX",
+      "header": "MINH ANH ALN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "6H10-7H10",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "6H10-7H10",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "6H10-7H10",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        }
+      ]
+    },
+    {
+      "column": "AY",
+      "header": "NEMO",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "6H10-7H10",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "6H10-7H10",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "6H10-7H10",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 55
+        }
+      ]
+    },
+    {
+      "column": "AZ",
+      "header": "TUỆ MINH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "6H10-7H10",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "6H10-7H10",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "6H10-7H10",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "6H10-7H10",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 51
+        }
+      ]
+    },
+    {
+      "column": "BA",
+      "header": "ANH MINH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "6H10-7H10",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "6H10-7H10",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "6H10-7H10",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 51
+        }
+      ]
+    },
+    {
+      "column": "BB",
+      "header": "GẠO",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "6H10-7H10",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "6H10-7H10",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "6H10-7H10",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        }
+      ]
+    },
+    {
+      "column": "BC",
+      "header": "MIE",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "6H10-7H10",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "6H10-7H10",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "6H10-7H10",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 38
+        }
+      ]
+    },
+    {
+      "column": "BD",
+      "header": "TÚ ANH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 6
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "6H10 - 7H10",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "6H10 - 7H10",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "6H10 - 7H10",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 47
+        }
+      ]
+    },
+    {
+      "column": "BE",
+      "header": "CÁT TIÊN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "6H10 - 7H10",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "6H10 - 7H10",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "6H10 - 7H10",
+          "fill": "B6D7A8",
+          "font": "theme:1",
+          "styleId": 17
+        }
+      ]
+    },
+    {
+      "column": "BF",
+      "header": "BON",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "6H10 - 7H10",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "6H10 - 7H10",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "6H10 - 7H10",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "6H10 - 7H10",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "6H10 - 7H10",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        }
+      ]
+    },
+    {
+      "column": "BG",
+      "header": "SÓC",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "6H10-7H10",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "6H10-7H10",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "6H10-7H10",
+          "fill": "FBBC04",
+          "font": "theme:1",
+          "styleId": 13
+        }
+      ]
+    },
+    {
+      "column": "BH",
+      "header": "KEN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "6H10 - 7H10",
+          "fill": "FFC000",
+          "font": "theme:1",
+          "styleId": 26
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "6H10 - 7H10",
+          "fill": "FFC000",
+          "font": "theme:1",
+          "styleId": 26
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "6H10 - 7H10",
+          "fill": "FFC000",
+          "font": "theme:1",
+          "styleId": 56
+        }
+      ]
+    },
+    {
+      "column": "BJ",
+      "header": "DŨNG",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "7H15-8H15",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 24
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "7H15-8H15",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 32
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "7H15-8H15",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 24
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "7H15-8H15",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 32
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "7H15-8H15",
+          "fill": "134F5C",
+          "font": "FFFF00",
+          "styleId": 19
+        }
+      ]
+    },
+    {
+      "column": "BK",
+      "header": "THIÊN KHÔI",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "7H15-8H15",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "7H15-8H15",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "7H15-8H15",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 55
+        }
+      ]
+    },
+    {
+      "column": "BL",
+      "header": "CÁO",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 3
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "7H15-8H15",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "7H15-8H15",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "7H15-8H15",
+          "fill": "F48E93",
+          "font": "theme:1",
+          "styleId": 18
+        }
+      ]
+    },
+    {
+      "column": "BM",
+      "header": "THÀNH",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "7H15-8H15",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "7H15-8H15",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "7H15-8H15",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 38
+        }
+      ]
+    },
+    {
+      "column": "BN",
+      "header": "ĐỨC AN",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "7H15-8H15",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "7H15-8H15",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "7H15-8H15",
+          "fill": "C482D2",
+          "font": "theme:1",
+          "styleId": 15
+        }
+      ]
+    },
+    {
+      "column": "BO",
+      "header": "PHÚC",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "7H15-8H15",
+          "fill": "E0A31E",
+          "font": "theme:1",
+          "styleId": 29
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "7H15-8H15",
+          "fill": "E0A31E",
+          "font": "theme:1",
+          "styleId": 29
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "7H15-8H15",
+          "fill": "E0A31E",
+          "font": "theme:1",
+          "styleId": 57
+        }
+      ]
+    },
+    {
+      "column": "BP",
+      "header": "PHI PHI",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "7H15-8H15",
+          "fill": "E0A31E",
+          "font": "theme:1",
+          "styleId": 29
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "7H15-8H15",
+          "fill": "E0A31E",
+          "font": "theme:1",
+          "styleId": 29
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "7H15-8H15",
+          "fill": "E0A31E",
+          "font": "theme:1",
+          "styleId": 29
+        }
+      ]
+    },
+    {
+      "column": "BQ",
+      "header": "NAM",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "7H15-8H15",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "7H15-8H15",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "7H15-8H15",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 48
+        }
+      ]
+    },
+    {
+      "column": "BR",
+      "header": "VY",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "7H15-8H15",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "7H15-8H15",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 33
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "7H15-8H15",
+          "fill": "FF0000",
+          "font": "theme:1",
+          "styleId": 20
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "3H",
+          "fill": "FFFFFF",
+          "font": "theme:1",
+          "styleId": 46
+        }
+      ]
+    },
+    {
+      "column": "BS",
+      "header": "GURU",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "7H15-8H15",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "7H15-8H15",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "7H15-8H15",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        }
+      ]
+    },
+    {
+      "column": "BT",
+      "header": "ĐĂNG KHOA",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 7
+      },
+      "schedule": [
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "7H15-8H15",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "7H15-8H15",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 21
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "7H15-8H15",
+          "fill": "D9EAD3",
+          "font": "theme:1",
+          "styleId": 50
+        }
+      ]
+    },
+    {
+      "column": "BU",
+      "header": "GIA",
+      "headerStyle": {
+        "fill": "FFFF00",
+        "font": "theme:1",
+        "styleId": 2
+      },
+      "schedule": [
+        {
+          "row": 2,
+          "date": 3,
+          "day": 2,
+          "value": "7H15-8H15",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 3,
+          "date": 4,
+          "day": 3,
+          "value": "7H15-8H15",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 4,
+          "date": 5,
+          "day": 4,
+          "value": "7H15-8H15",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 5,
+          "date": 6,
+          "day": 5,
+          "value": "7H15-8H15",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 6,
+          "date": 7,
+          "day": 6,
+          "value": "7H15-8H15",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 22
+        },
+        {
+          "row": 7,
+          "date": 8,
+          "day": 7,
+          "value": "7H15-8H15",
+          "fill": "548235",
+          "font": "theme:1",
+          "styleId": 51
+        }
+      ]
+    }
+  ],
+  "fillCounts": {
+    "548235": 37,
+    "C482D2": 41,
+    "38761D": 14,
+    "FFFFFF": 2,
+    "FBBC04": 28,
+    "theme:0": 2,
+    "B6D7A8": 17,
+    "F48E93": 27,
+    "FF0000": 30,
+    "134F5C": 27,
+    "": 1,
+    "D9EAD3": 12,
+    "FFC000": 6,
+    "E0A31E": 6
+  }
+}

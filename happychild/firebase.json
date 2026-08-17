@@ -1,0 +1,15 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "../",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "HappyChild/**"],
+    "cleanUrls": false,
+    "trailingSlash": true,
+    "rewrites": [
+      { "source": "/happychild/**", "destination": "/happychild/index.html" }
+    ]
+  }
+}

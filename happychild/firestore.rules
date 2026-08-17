@@ -1,0 +1,127 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function owner() { return signedIn() && request.auth.uid == 'EplnbxgWTaal9N5QgflBWaT1LWG3'; }
+    function validTime(value) {
+      return value is string
+        && value.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$');
+    }
+    function validTemplate(data) {
+      return data.studentId is string && data.studentId.size() > 0 && data.studentId.size() <= 160
+        && data.teacherId is string && data.teacherId.size() > 0 && data.teacherId.size() <= 160
+        && data.dayOfWeek is int && data.dayOfWeek >= 0 && data.dayOfWeek <= 6
+        && validTime(data.startTime) && validTime(data.endTime)
+        && data.capacity is int && data.capacity >= 1 && data.capacity <= 20
+        && data.active is bool;
+    }
+    function validSession(data) {
+      return data.studentId is string && data.studentId.size() > 0 && data.studentId.size() <= 160
+        && data.teacherId is string && data.teacherId.size() > 0 && data.teacherId.size() <= 160
+        && data.dateKey is string && data.dateKey.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.dayOfWeek is int && data.dayOfWeek >= 0 && data.dayOfWeek <= 6
+        && validTime(data.startTime) && validTime(data.endTime)
+        && data.capacity is int && data.capacity >= 1 && data.capacity <= 20
+        && data.type in ['regular', 'makeup']
+        && (
+          (data.type == 'regular' && data.status in ['scheduled', 'attended', 'absent', 'cancelled'])
+          || (data.type == 'makeup' && data.status in ['makeup_scheduled', 'makeup_completed', 'cancelled'])
+        );
+    }
+    function validStudentForm(data) {
+      return data.keys().hasAll([
+          'displayOrder', 'studentId', 'teacherId', 'formLink', 'formTitle',
+          'courseStart', 'courseEnd', 'coursePeriod', 'resultRecordedDate',
+          'teacherHours', 'note', 'sourceRow', 'createdAt', 'updatedAt',
+          'createdBy', 'updatedBy'
+        ])
+        && data.keys().hasOnly([
+          'displayOrder', 'studentId', 'teacherId', 'formLink', 'formTitle',
+          'courseStart', 'courseEnd', 'coursePeriod', 'resultRecordedDate',
+          'teacherHours', 'note', 'sourceRow', 'createdAt', 'updatedAt',
+          'createdBy', 'updatedBy'
+        ])
+        && data.displayOrder is int && data.displayOrder >= 0
+        && data.sourceRow is int && data.sourceRow >= 0
+        && data.studentId is string && data.studentId.size() > 0 && data.studentId.size() <= 160
+        && data.teacherId is string && data.teacherId.size() > 0 && data.teacherId.size() <= 160
+        && exists(/databases/$(database)/documents/students/$(data.studentId))
+        && exists(/databases/$(database)/documents/teachers/$(data.teacherId))
+        && data.formLink is string && data.formLink.size() <= 2048
+        && (data.formLink.size() == 0 || data.formLink.matches('^https?://.+'))
+        && data.formTitle is string && data.formTitle.size() <= 500
+        && data.courseStart is string && data.courseStart.size() <= 40
+        && data.courseEnd is string && data.courseEnd.size() <= 40
+        && data.coursePeriod is string && data.coursePeriod.size() <= 100
+        && data.resultRecordedDate is string && data.resultRecordedDate.size() <= 10
+        && (data.resultRecordedDate.size() == 0 || data.resultRecordedDate.matches('^\\d{4}-\\d{2}-\\d{2}$'))
+        && data.teacherHours is number && data.teacherHours >= 0 && data.teacherHours <= 10000
+        && data.note is string && data.note.size() <= 5000
+        && data.createdAt is timestamp && data.updatedAt is timestamp
+        && data.createdBy is string && data.updatedBy is string;
+    }
+
+    // Nhật ký và sổ giao dịch không được sửa; chủ sở hữu có thể xóa dữ liệu test.
+    match /auditLogs/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if owner();
+    }
+    match /makeupTransactions/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if false;
+      allow delete: if owner();
+    }
+
+    // Mọi tài khoản Authentication đều được quản lý dữ liệu nghiệp vụ.
+    match /students/{id} {
+      allow read, delete: if signedIn();
+      allow create, update: if signedIn()
+        && request.resource.data.color is string
+        && request.resource.data.color.matches('^#[0-9a-fA-F]{6}$');
+    }
+    match /teachers/{id} {
+      allow read, delete: if signedIn();
+      allow create, update: if signedIn()
+        && request.resource.data.color is string
+        && request.resource.data.color.matches('^#[0-9a-fA-F]{6}$');
+    }
+    match /studentForms/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && validStudentForm(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn()
+        && validStudentForm(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayOrder', 'studentId', 'teacherId', 'formLink', 'formTitle',
+          'courseStart', 'courseEnd', 'coursePeriod', 'resultRecordedDate',
+          'teacherHours', 'note', 'sourceRow', 'updatedAt', 'updatedBy'
+        ]);
+      allow delete: if signedIn();
+    }
+    match /notes/{id} { allow read, write: if signedIn(); }
+    match /scheduleTemplates/{id} {
+      allow read, delete: if signedIn();
+      allow create, update: if signedIn() && validTemplate(request.resource.data);
+    }
+    match /users/{id} { allow read, write: if signedIn(); }
+    match /weeks/{weekId} {
+      allow read, write: if signedIn();
+      match /sessions/{sessionId} {
+        allow read, delete: if signedIn();
+        allow create, update: if signedIn() && validSession(request.resource.data);
+      }
+    }
+  }
+}

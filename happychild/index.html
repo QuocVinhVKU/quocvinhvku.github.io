@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>HappyChild · Quản lý lịch học</title>
+  <link rel="icon" type="image/jpeg" href="./assets/happychild-logo.jpg?v=20260814-10">
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="stylesheet" href="./styles.css?v=20260814-10">
+</head>
+<body>
+  <div id="loading" class="boot"><span class="spinner"></span><p>Đang kết nối HappyChild…</p></div>
+
+  <main id="loginView" class="login-shell hidden">
+    <section class="login-card">
+      <span class="brand-logo"><img src="./assets/happychild-logo.jpg?v=20260814-10" alt="Logo Happy Child"></span>
+      <p class="eyebrow">TRUNG TÂM HỌC TẬP</p>
+      <h1>HappyChild</h1>
+      <p class="muted">Đăng nhập để quản lý lịch học, nghỉ và học bù.</p>
+      <form id="loginForm" class="stack">
+        <label>Email<input id="loginEmail" type="email" autocomplete="username" required placeholder="email@domain.com"></label>
+        <label>Mật khẩu<input id="loginPassword" type="password" autocomplete="current-password" required minlength="6" placeholder="••••••••"></label>
+        <p id="loginError" class="form-error hidden" role="alert"></p>
+        <button class="button primary" type="submit">Đăng nhập</button>
+      </form>
+      <p class="login-note">Tài khoản do quản trị viên cấp. Không hỗ trợ đăng ký công khai.</p>
+    </section>
+  </main>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#dashboard"><span class="brand-logo small" aria-hidden="true"><img src="./assets/happychild-logo.jpg?v=20260814-10" alt=""></span><span><strong>HappyChild</strong><small>Lịch học thông minh</small></span></a>
+      <nav id="mainNav">
+        <a href="#dashboard" data-view="dashboard">⌂ <span>Tổng quan</span></a>
+        <a href="#calendar" data-view="calendar">▦ <span>Lịch tuần</span></a>
+        <a href="#students" data-view="students">♙ <span>Học sinh</span></a>
+        <a href="#teachers" data-view="teachers">♟ <span>Giáo viên</span></a>
+        <a href="#forms" data-view="forms">⌁ <span>Link Form</span></a>
+        <a href="#templates" data-view="templates">↻ <span>Lịch mẫu</span></a>
+        <a href="#makeup" data-view="makeup">＋ <span>Học bù</span></a>
+        <a href="#reports" data-view="reports">▤ <span>Báo cáo tháng</span></a>
+        <a href="#notes" data-view="notes">✎ <span>Ghi chú</span></a>
+        <a href="#history" data-view="history">◷ <span>Lịch sử</span></a>
+        <a href="#settings" data-view="settings">⚙ <span>Cài đặt</span></a>
+      </nav>
+      <div class="account">
+        <div class="avatar" id="userAvatar">A</div>
+        <div><strong id="userName">Quản trị viên</strong><small id="userRole">admin</small></div>
+        <button id="logoutBtn" class="icon-button" title="Đăng xuất" aria-label="Đăng xuất">↪</button>
+      </div>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <button id="menuBtn" class="icon-button mobile-only" aria-label="Mở menu">☰</button>
+        <div><p class="eyebrow" id="viewEyebrow">HAPPYCHILD</p><h1 id="viewTitle">Tổng quan</h1></div>
+        <div class="top-actions"><span id="connectionBadge" class="badge success">● Trực tuyến</span><button id="quickAddBtn" class="button primary admin-only">＋ Thêm nhanh</button></div>
+      </header>
+
+      <div id="content" class="content"></div>
+    </section>
+  </div>
+
+  <div id="drawerBackdrop" class="backdrop hidden"></div>
+  <aside id="sessionDrawer" class="drawer hidden" aria-label="Chi tiết buổi học"></aside>
+  <dialog id="briefingDialog" class="briefing-dialog">
+    <header><div><p class="eyebrow">NHẮC VIỆC HAPPYCHILD</p><h2>Hôm nay &amp; Ngày mai</h2></div><button id="briefingClose" type="button" class="icon-button" aria-label="Đóng">×</button></header>
+    <div id="briefingBody" class="briefing-body"></div>
+    <footer><button id="briefingDone" type="button" class="button primary">Đã xem</button></footer>
+  </dialog>
+  <dialog id="formDialog" class="dialog"><form id="dialogForm"><header><div><p class="eyebrow">HAPPYCHILD</p><h2 id="dialogTitle">Biểu mẫu</h2></div><button id="dialogClose" type="button" class="icon-button" aria-label="Đóng">×</button></header><div id="dialogBody" class="dialog-body"></div><p id="dialogError" class="dialog-error hidden" role="alert"></p><footer><button id="dialogCancel" type="button" class="button ghost">Hủy</button><button id="dialogSubmit" type="submit" class="button primary">Lưu</button></footer></form></dialog>
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+
+  <script>
+    if (location.protocol === "file:") {
+      document.getElementById("loading").innerHTML = '<section class="local-warning"><span class="brand-logo"><img src="./assets/happychild-logo.jpg?v=20260814-10" alt="Logo Happy Child"></span><p class="eyebrow">CẦN CHẠY QUA HTTP</p><h1>Không thể mở trực tiếp bằng file://</h1><p>Firebase và JavaScript module chỉ hoạt động khi website được phục vụ qua HTTP hoặc HTTPS.</p><ol><li>Đóng tab này.</li><li>Nhấp đúp <strong>start-local.bat</strong> trong thư mục <strong>happychild</strong>.</li><li>Mở <strong>http://localhost:8080/happychild/</strong>.</li></ol></section>';
+    }
+  </script>
+  <script type="module" src="./js/app.js?v=20260814-10"></script>
+</body>
+</html>
