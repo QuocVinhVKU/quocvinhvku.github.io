@@ -1,4 +1,14 @@
 import { chromium } from "file:///C:/Users/kurob/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs";
+import {T9_TEMPLATE_SOURCE} from "../js/t9-templates.js";
+import {planRosterReconciliation} from "../js/roster-reconcile.js";
+
+const sourceStudents=new Map();for(const item of T9_TEMPLATE_SOURCE)if(!sourceStudents.has(item.studentKey))sourceStudents.set(item.studentKey,{id:item.studentIdHint,fullName:item.studentName,active:true,makeupBalance:0});
+const reconciliationFixture=[...sourceStudents.values(),{id:"duplicate-duy-thong",fullName:"Duy Thông",active:true,makeupBalance:1},{id:"duplicate-dan",fullName:"Dần",active:true,makeupBalance:0},{id:"stale-ben-sang",fullName:"BEN SÁNG",active:true,makeupBalance:0},{id:"stale-duc-thanh",fullName:"ĐỨC THÀNH",active:true,makeupBalance:0}];
+const reconciliationPlan=planRosterReconciliation(reconciliationFixture,T9_TEMPLATE_SOURCE);
+if(reconciliationPlan.desired.length!==63||reconciliationPlan.keepers.length!==63||reconciliationPlan.missing.length)throw new Error("Danh sách T9 chưa giữ đúng 63 học sinh có lịch");
+if(JSON.stringify(reconciliationPlan.stale.map(item=>item.studentName).sort())!==JSON.stringify(["BEN SÁNG","ĐỨC THÀNH"]))throw new Error("Không xác định đúng học sinh đã rời danh sách tháng 9");
+if(!reconciliationPlan.duplicates.some(item=>item.studentName==="Duy Thông"&&item.keeperName==="Gấu")||!reconciliationPlan.duplicates.some(item=>item.studentName==="Dần"&&item.keeperName==="TRIẾT"))throw new Error("Quy tắc gộp Duy Thông/Gấu hoặc Dần/Triết chưa đúng");
+if(reconciliationPlan.desired.some(item=>item.scheduleCount<1))throw new Error("Có học sinh tháng 9 không được phân lịch");
 
 const browser = await chromium.launch({
   headless: true,
@@ -6,6 +16,7 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await page.addInitScript(() => {
+  localStorage.setItem("happychild:theme", "light");
   const NativeDate = Date;
   const fixedNow = new NativeDate("2026-08-14T12:00:00+07:00").getTime();
   class FixedDate extends NativeDate {
@@ -27,6 +38,7 @@ const storeMock = `
 const ts=value=>({seconds:Math.floor(new Date(value).getTime()/1000),toDate:()=>new Date(value)});
 const student={id:"student-1",fullName:"Bé An",shortName:"An",color:"#e879a9",active:true,makeupBalance:1,parentPhone:"",birthday:"2020-08-13"};
 const student2={id:"student-2",fullName:"Bé Bình",shortName:"Bình",color:"#4f86e8",active:true,makeupBalance:1,parentPhone:"",birthday:"2020-08-14"};
+const archivedStudent={id:"student-archived",fullName:"BEN SÁNG",shortName:"Ben",color:"#94a3b8",active:false,archived:true,archivedReason:"Không còn trong T9",makeupBalance:0,parentPhone:"",birthday:"2020-08-15"};
 const teacher={id:"teacher-1",fullName:"Cô Ngân",shortName:"Cô Ngân",color:"#7c5ce7",active:true,phone:""};
 const teacher2={id:"teacher-2",fullName:"Cô Mai",shortName:"Cô Mai",color:"#20a779",active:true,phone:""};
 const week={id:"week-2026-08-10",weekNumber:1,label:"Tuần 1 (10/08/2026–16/08/2026)",startDate:ts("2026-08-10T12:00:00"),endDate:ts("2026-08-16T12:00:00"),status:"active"};
@@ -35,8 +47,11 @@ const templatePeer={...template,id:"template-2",studentId:student2.id,note:"Mang
 const templateTeacher2={...template,id:"template-3",studentId:student2.id,teacherId:teacher2.id,dayOfWeek:1,startTime:"15:00",endTime:"16:00"};
 const templateSameTimeTeacher2={...template,id:"template-4",studentId:student2.id,teacherId:teacher2.id,note:"Cùng giờ khác cô"};
 const session={id:"session-1",studentId:student.id,teacherId:teacher.id,date:ts("2026-08-10T12:00:00"),dateKey:"2026-08-10",dayOfWeek:0,startTime:"13:00",endTime:"14:00",capacity:1,type:"regular",status:"absent",note:"Xin nghỉ"};
+const recurringStudentSessions=[{...session,id:"session-1-wed",date:ts("2026-08-12T12:00:00"),dateKey:"2026-08-12",dayOfWeek:2,status:"attended",note:""},{...session,id:"session-1-fri",date:ts("2026-08-14T12:00:00"),dateKey:"2026-08-14",dayOfWeek:4,status:"scheduled",note:""}];
 const groupedRegularPeers=Array.from({length:5},(_,index)=>({...session,id:"session-regular-"+(index+2),studentId:"slot-student-"+(index+2),status:"scheduled",note:""}));
-const sameTimeTeacher2={...session,id:"same-time-teacher-2",studentId:student2.id,teacherId:teacher2.id,status:"scheduled",note:""};
+const sameTimeTeacher2={...session,id:"same-time-teacher-2",studentId:"slot-student-teacher-2",teacherId:teacher2.id,status:"scheduled",note:""};
+const earlySlotSession={...session,id:"early-slot-session",studentId:"early-slot-student",startTime:"09:00",endTime:"10:00",status:"scheduled",note:""};
+const lateSlotSession={...session,id:"late-slot-session",studentId:"late-slot-student",startTime:"15:00",endTime:"16:00",status:"scheduled",note:""};
 const filledSlotRegulars=Array.from({length:6},(_,index)=>({...session,id:"filled-regular-"+(index+1),studentId:"filled-student-"+(index+1),date:ts("2026-08-11T12:00:00"),dateKey:"2026-08-11",dayOfWeek:1,status:index===0?"absent":"scheduled",note:index===0?"Xin nghỉ":""}));
 const filledSlotMakeup={...session,id:"filled-makeup",studentId:"makeup-student",date:ts("2026-08-11T12:00:00"),dateKey:"2026-08-11",dayOfWeek:1,capacity:20,type:"makeup",status:"makeup_scheduled",note:"Học bù vào chỗ trống"};
 const attack='"><img id="stored-xss-marker" src=x onerror="window.__storedXss=1">';
@@ -46,7 +61,7 @@ const reportSession={...session,id:"report-1",status:"attended",capacity:7};
 const reportSession2={...reportSession,id:"report-2",studentId:student2.id};
 const note={id:"note-1",dateKey:"2026-08-13",title:"Mang sách",details:"Nhắc phụ huynh mang sách."};
 const formCreated=ts("2026-04-01T12:00:00");
-const studentForm={id:"form-1",studentId:student.id,teacherId:teacher.id,formLink:"https://docs.google.com/forms/d/e/example/viewform",formTitle:"Bé An 8/6 - 8/9",courseStart:"8/6",courseEnd:"8/9",coursePeriod:"8/6-8/9",resultRecordedDate:"2026-08-13",teacherHours:1.5,note:"Đã ghi nhận",displayOrder:1,sourceRow:3,createdAt:formCreated};
+const studentForm={id:"form-1",studentId:student.id,teacherId:teacher.id,formLink:"https://docs.google.com/forms/d/e/example/viewform",formTitle:"Bé An 8/6 - 8/9",courseStart:"8/6",courseEnd:"8/9",coursePeriod:"8/6-8/9",resultRecordedDate:"2026-08-13",teacherHours:1.5,note:"Đã ghi nhận",displayOrder:1,sourceRow:3,createdAt:formCreated,linkHistory:[{formLink:"https://docs.google.com/forms/d/e/old-goal/viewform",formTitle:"Mục tiêu cũ của Bé An",coursePeriod:"1/3-1/6",archivedAt:ts("2026-06-02T12:00:00")}]};
 const incompleteStudentForm={id:"form-2",studentId:student2.id,teacherId:teacher2.id,formLink:"https://docs.google.com/forms/d/e/missing/viewform",formTitle:"",courseStart:"",courseEnd:"",coursePeriod:"",resultRecordedDate:"2026-08-14",teacherHours:0,note:"Thiếu tiêu đề",displayOrder:2,sourceRow:4,createdAt:formCreated};
 const noLinkStudentForm={id:"form-3",studentId:student2.id,teacherId:teacher.id,formLink:"",formTitle:"Bé Bình 1/1 - 1/2",courseStart:"1/1",courseEnd:"1/2",coursePeriod:"1/1-1/2",resultRecordedDate:"",teacherHours:1,note:"Thiếu link",displayOrder:3,sourceRow:5,createdAt:formCreated};
 const manualStudentForm={id:"form-4",studentId:student.id,teacherId:teacher2.id,formLink:"https://docs.google.com/forms/d/e/manual/viewform",formTitle:"Bé An khóa mùa hè",courseStart:"10/6",courseEnd:"10/9",coursePeriod:"10/6-10/9",resultRecordedDate:"",teacherHours:1,note:"Khoảng ngày nhập tay",displayOrder:4,sourceRow:6,createdAt:formCreated};
@@ -54,8 +69,8 @@ const invalidYearStudentForm={id:"form-5",studentId:student2.id,teacherId:teache
 const lateRecordedStudentForm={id:"form-6",studentId:student.id,teacherId:teacher.id,formLink:"https://docs.google.com/forms/d/e/late/viewform",formTitle:"Bé An 1/1/2026 - 1/2/2026",courseStart:"1/1/2026",courseEnd:"1/2/2026",coursePeriod:"1/1/2026-1/2/2026",resultRecordedDate:"2026-02-02",teacherHours:1,note:"Ghi muộn một ngày",displayOrder:6,sourceRow:8,createdAt:formCreated};
 const dueTodayStudentForm={id:"form-7",studentId:student2.id,teacherId:teacher2.id,formLink:"https://docs.google.com/forms/d/e/today/viewform",formTitle:"Bé Bình 14/5/2026 - 14/8/2026",courseStart:"14/5/2026",courseEnd:"14/8/2026",coursePeriod:"14/5/2026-14/8/2026",resultRecordedDate:"",teacherHours:1,note:"Đến hạn hôm nay",displayOrder:7,sourceRow:9,createdAt:formCreated};
 const beforeStartStudentForm={id:"form-8",studentId:student.id,teacherId:teacher.id,formLink:"https://docs.google.com/forms/d/e/before-start/viewform",formTitle:"Bé An 1/5/2026 - 1/8/2026",courseStart:"1/5/2026",courseEnd:"1/8/2026",coursePeriod:"1/5/2026-1/8/2026",resultRecordedDate:"2026-04-30",teacherHours:1,note:"Ngày ghi nhận sai",displayOrder:8,sourceRow:10,createdAt:formCreated};
-export const subscribe=(name,cb)=>{setTimeout(()=>cb(name==="students"?[student,student2]:name==="teachers"?[teacher,teacher2]:name==="scheduleTemplates"?[template,templatePeer,templateTeacher2,templateSameTimeTeacher2,maliciousTemplate]:name==="weeks"?[week]:[]),0);return()=>{}};
-export const subscribeSessions=(id,cb)=>{setTimeout(()=>cb([session,...groupedRegularPeers,sameTimeTeacher2,...filledSlotRegulars,filledSlotMakeup,maliciousSession]),0);return()=>{}};
+export const subscribe=(name,cb)=>{setTimeout(()=>cb(name==="students"?[student,student2,archivedStudent]:name==="teachers"?[teacher,teacher2]:name==="scheduleTemplates"?[template,templatePeer,templateTeacher2,templateSameTimeTeacher2,maliciousTemplate]:name==="weeks"?[week]:[]),0);return()=>{}};
+export const subscribeSessions=(id,cb)=>{setTimeout(()=>cb([earlySlotSession,session,...recurringStudentSessions,...groupedRegularPeers,sameTimeTeacher2,...filledSlotRegulars,filledSlotMakeup,lateSlotSession,maliciousSession]),0);return()=>{}};
 export const subscribeNotes=cb=>{setTimeout(()=>cb([note]),0);return()=>{}};
 export const subscribeStudentForms=cb=>{setTimeout(()=>cb([studentForm,incompleteStudentForm,noLinkStudentForm,manualStudentForm,invalidYearStudentForm,lateRecordedStudentForm,dueTodayStudentForm,beforeStartStudentForm]),0);return()=>{}};
 export const subscribeRecentAudit=cb=>{setTimeout(()=>cb([]),0);return()=>{}};
@@ -75,47 +90,87 @@ export const deleteMakeupTransaction=async()=>{};
 export const purgeAllData=async()=>0;
 export const removeRecord=async()=>{};
 export const createWeek=async()=>week.id;
+export const finalizeWeekSummary=async(id,summary)=>{window.__finalizedWeek={id,summary}};
 export const updateSessionStatus=async()=>{};
+export const autoCompleteElapsedSessions=async(id,sessions,user,now)=>{window.__autoCompleteCalls=(window.__autoCompleteCalls||0)+1;window.__autoCompletePayload={id,sessionCount:sessions.length,now:now instanceof Date};return {updated:0,failed:[]}};
 export const getTeacherAvailability=id=>id==="teacher-2"?({available:false,reason:"Giáo viên đã có lịch khác trùng giờ.",occupied:0,capacity:1}):({available:true,reason:"",occupied:5,capacity:6});
 export const addMakeupSession=async()=>{};
 export const seedData=async()=>{};
 export const loadMonthReport=async()=>[reportSession,reportSession2];
+export const loadStudentHistory=async id=>id===student.id?[session,{...session,id:"history-attended",status:"attended",note:"Hoàn thành tốt",weekId:week.id,weekNumber:week.weekNumber,weekLabel:week.label,weekStartDate:week.startDate,weekEndDate:week.endDate}]:[];
+export const normalizeAllScheduleHours=async()=>({templates:0,sessions:0,weeks:0});
+export const syncScheduleTemplatesFromSource=async templates=>({templates:templates.length,updated:0,deleted:0,createdStudents:[]});
+export const reconcileStudentRosterFromSource=async()=>({students:2,removed:[],archived:[],merged:[],stale:[],duplicates:[]});
 `;
 
 await page.route("**/happychild/js/auth.js*", route => route.fulfill({ contentType: "text/javascript", body: authMock }));
 await page.route("**/happychild/js/store.js*", route => route.fulfill({ contentType: "text/javascript", body: storeMock }));
 await page.goto("http://127.0.0.1:8080/happychild/", { waitUntil: "networkidle" });
 await page.waitForSelector("#appView:not(.hidden)");
+await page.waitForFunction(()=>Boolean(window.__autoCompleteCalls));
+const autoCompletePayload=await page.evaluate(()=>window.__autoCompletePayload);
+if (autoCompletePayload.id!=="week-2026-08-10" || !autoCompletePayload.sessionCount || !autoCompletePayload.now) throw new Error("Hệ thống chưa tự kiểm tra các buổi đã qua giờ sau khi tải lịch");
+const elapsedTargets=await page.evaluate(async()=>{const {elapsedSessionTarget}=await import("/happychild/js/utils.js?v=20260826-5");const now=new Date("2026-08-14T12:00:00");return [elapsedSessionTarget({type:"regular",status:"scheduled",dateKey:"2026-08-14",endTime:"11:59"},now),elapsedSessionTarget({type:"makeup",status:"makeup_scheduled",dateKey:"2026-08-13",endTime:"18:00"},now),elapsedSessionTarget({type:"regular",status:"absent",dateKey:"2026-08-13",endTime:"18:00"},now),elapsedSessionTarget({type:"regular",status:"scheduled",dateKey:"2026-08-14",endTime:"12:01"},now)]});
+if (JSON.stringify(elapsedTargets)!==JSON.stringify(["attended","makeup_completed",null,null])) throw new Error("Quy tắc tự hoàn thành buổi học theo thời gian chưa đúng");
+const parsedScheduleTimes=await page.evaluate(async()=>{const {parseScheduleTimeRange}=await import("/happychild/js/utils.js?v=20260829-1");return ["8h-10h","9h","3h","4-5h","5h5-6h5","7h15-8h15","3 giờ đến 8h15","8h15","18h10-19h10","19h15-20h15"].map(parseScheduleTimeRange)});
+const expectedScheduleTimes=[["08:00","10:00"],["09:00","10:00"],["15:00","16:00"],["16:00","17:00"],["17:00","18:00"],["19:00","20:00"],["15:00","20:00"],["08:00","09:00"],["18:00","19:00"],["19:00","20:00"]];
+if (JSON.stringify(parsedScheduleTimes)!==JSON.stringify(expectedScheduleTimes)) throw new Error("Quy tắc nhận diện giờ sáng/PM hoặc ca một giờ chưa đúng");
 if (await page.locator('.brand-logo.small img[src*="happychild-logo.jpg"]').count() !== 1) throw new Error("Logo Happy Child chưa xuất hiện ở thanh bên");
 if (!(await page.locator('.brand-logo.small img').evaluate(image=>image.complete&&image.naturalWidth>0))) throw new Error("Tệp logo Happy Child không tải được");
 await page.waitForSelector("#briefingDialog[open]");
 if (await page.locator("#briefingBody .brief-day").count() !== 2) throw new Error("Popup không đủ Hôm nay/Ngày mai");
 await page.click("#briefingDone");
+if (await page.locator("#themeToggleBtn").count() !== 1) throw new Error("Header thiếu nút chuyển chế độ sáng/tối");
+if (await page.locator("#themeToggleBtn").getAttribute("aria-pressed") !== "false") throw new Error("Nút giao diện không phản ánh chế độ sáng ban đầu");
+await page.click("#themeToggleBtn");
+if (await page.locator("html").getAttribute("data-theme") !== "dark" || await page.locator("#themeToggleBtn").getAttribute("aria-pressed") !== "true") throw new Error("Không chuyển được sang chế độ tối");
+if (await page.evaluate(()=>localStorage.getItem("happychild:theme")) !== "dark") throw new Error("Chế độ tối chưa được lưu trên trình duyệt");
+if ((await page.locator(".topbar").evaluate(element=>getComputedStyle(element).backgroundColor)) === "rgb(255, 255, 255)") throw new Error("Header vẫn dùng nền trắng trong chế độ tối");
+if(process.env.HAPPYCHILD_DARK_BRIEFING_SCREENSHOT){await page.evaluate(()=>document.querySelector("#briefingDialog").showModal());await page.screenshot({path:process.env.HAPPYCHILD_DARK_BRIEFING_SCREENSHOT,fullPage:true});await page.click("#briefingDone")}
+if (process.env.HAPPYCHILD_DARK_SCREENSHOT){await page.click('a[href="#templates"]');await page.waitForSelector(".template-day-group");await page.screenshot({path:process.env.HAPPYCHILD_DARK_SCREENSHOT,fullPage:true})}
+await page.click("#themeToggleBtn");
 
 await page.click('a[href="#calendar"]');
-await page.waitForSelector(".empty-slot.add-session");
-if (await page.locator("details.time-slot[open]").count()) throw new Error("Khung giờ chưa mặc định thu gọn");
-const sessionHardening=await page.evaluate(()=>{const card=[...document.querySelectorAll("[data-session]")].find(element=>element.dataset.session.startsWith("session-xss")),timeText=document.querySelector('[data-day-date="2026-08-16"] .slot-summary')?.textContent||"";return {marker:Boolean(document.querySelector("#stored-xss-marker")),executed:Boolean(window.__storedXss),found:Boolean(card),safeStatus:card?.classList.contains("scheduled"),inlineHandler:card?.hasAttribute("onclick")||card?.hasAttribute("onmouseover"),text:card?.textContent||"",timeText}});
+await page.waitForSelector(".student-week-schedule");
+if (await page.locator("#calendarStudentSearch").count() !== 1) throw new Error("Lịch tuần thiếu tìm kiếm theo tên học sinh");
+await page.fill("#calendarStudentSearch", "Bé Bình");
+if (!(await page.locator("#content").textContent()).includes("Kết quả cho “Bé Bình”")) throw new Error("Tìm lịch học sinh không kích hoạt chế độ lọc");
+if (await page.locator('[data-session="session-1"]').count()) throw new Error("Tìm lịch vẫn hiển thị buổi của học sinh khác");
+if (await page.locator('.weekly-student-row[data-student-id="student-2"]').count() !== 1) throw new Error("Tìm lịch chưa đưa đúng học sinh về một dòng duy nhất");
+await page.click("#clearCalendarSearch");
+const timeCluster=page.locator('.student-schedule-cluster[data-time-slot="13:00|14:00"]');
+const timeClusterText=await timeCluster.textContent();
+if (await timeCluster.count() !== 1 || !["Cô Ngân","Cô Mai"].every(name=>timeClusterText.includes(name))) throw new Error("Lịch tuần chưa lấy khung giờ làm nhóm chính và liệt kê đủ giáo viên bên trong");
+if (await timeCluster.locator(".weekly-student-row").count() < 7) throw new Error("Các bé cùng khung giờ chưa được xếp liền nhau");
+const orderedSlots=await page.locator(".student-schedule-cluster .cluster-title strong").allTextContents();
+if (JSON.stringify(orderedSlots.slice(0,3))!==JSON.stringify(["09:00–10:00","13:00–14:00","15:00–16:00"]) || orderedSlots.at(-1)!=="Chưa xác định giờ") throw new Error("Các khung giờ chưa được xếp từ sớm đến muộn như T9.xlsx");
+const anRow=page.locator('.weekly-student-row[data-student-id="student-1"]');
+const anRowText=await anRow.textContent();
+if (await anRow.count() !== 1 || !["T2","T4","T6","Nghỉ"].every(label=>anRowText.includes(label))) throw new Error("Một bé chưa được gom thành một dòng có đủ ngày, giờ và trạng thái");
+if (await anRow.locator(".student-schedule-pattern").count() !== 1 || await anRow.locator(".weekly-day-session").count() !== 3) throw new Error("Các buổi cùng giờ/cùng cô của một bé chưa được gộp vào cùng một cụm");
+if (await page.locator('.weekly-student-row[data-student-id="student-2"]').count() !== 1) throw new Error("Một học sinh có nhiều buổi đang bị lặp thành nhiều dòng");
+const sessionHardening=await page.evaluate(()=>{const card=[...document.querySelectorAll("[data-session]")].find(element=>element.dataset.session.startsWith("session-xss")),pattern=card?.closest(".student-schedule-pattern"),timeText=pattern?.querySelector(".student-pattern-info strong")?.textContent||"";return {marker:Boolean(document.querySelector("#stored-xss-marker")),executed:Boolean(window.__storedXss),found:Boolean(card),safeStatus:card?.classList.contains("scheduled"),inlineHandler:card?.hasAttribute("onclick")||card?.hasAttribute("onmouseover"),text:card?.textContent||"",timeText}});
 if (sessionHardening.marker || sessionHardening.executed || !sessionHardening.found || !sessionHardening.safeStatus || sessionHardening.inlineHandler) throw new Error("Stored-XSS từ dữ liệu buổi học chưa được chặn");
-if (sessionHardening.text.includes("<img") || sessionHardening.timeText.includes("<img") || !sessionHardening.timeText.includes("—")) throw new Error("Giờ học không hợp lệ chưa được thay bằng giá trị an toàn");
-const monday=page.locator('[data-day-date="2026-08-10"]');
-if (await monday.locator("details.time-slot").count() !== 1 || await monday.locator(".teacher-slot").count() !== 2) throw new Error("Khung giờ trùng nhau chưa được gom một tầng rồi chia theo giáo viên");
-const mondaySummary=await monday.locator(".slot-summary").textContent();
-if (!mondaySummary.includes("Cô Ngân") || !mondaySummary.includes("Cô Mai")) throw new Error("Tóm tắt khung giờ thiếu giáo viên thực tế");
-const openGroupedSlot=monday.locator('[data-teacher-id="teacher-1"]');
-if (!(await openGroupedSlot.locator(".teacher-slot-head small").textContent()).startsWith("5/6") || (await openGroupedSlot.locator(".slot-add").getAttribute("data-capacity")) !== "6") throw new Error("Sáu lịch thường capacity 1 chưa được gộp thành sức chứa 6");
-if (await openGroupedSlot.locator(".slot-add").isDisabled()) throw new Error("Một học sinh xin nghỉ chưa giải phóng đúng một chỗ học bù");
-const filledGroupedSlot=page.locator('[data-day-date="2026-08-11"] [data-teacher-id="teacher-1"]');
-if (!(await filledGroupedSlot.locator(".teacher-slot-head small").textContent()).startsWith("6/6") || (await filledGroupedSlot.locator(".slot-add").getAttribute("data-capacity")) !== "6") throw new Error("Buổi học bù đã làm tăng sai sức chứa khung giờ");
-if (!(await filledGroupedSlot.locator(".teacher-slot-head small").textContent()).includes("1 học bù") || !(await filledGroupedSlot.locator(".slot-add").isDisabled())) throw new Error("Chỗ nghỉ chưa được lấp đầy đúng bởi một buổi học bù");
-if (await page.locator(".slot-add:not(:disabled)").count() !== 1) throw new Error("Số khung giờ còn một chỗ trống không đúng");
+if (sessionHardening.text.includes("<img") || sessionHardening.timeText.includes("<img") || !sessionHardening.timeText.includes("Chưa xác định giờ")) throw new Error("Giờ học không hợp lệ chưa được thay bằng giá trị an toàn dễ hiểu");
 if (await page.locator("#deleteWeekBtn").count() !== 1) throw new Error("Thiếu nút xóa tuần");
-const slotTeacherColor=await openGroupedSlot.evaluate(element=>getComputedStyle(element).getPropertyValue("--teacher").trim().toLowerCase());
-if (slotTeacherColor !== "#7c5ce7") throw new Error("Khung giờ chưa dùng màu của giáo viên");
-const teacher2ChildColor=await monday.locator('[data-session="same-time-teacher-2"]').evaluate(element=>getComputedStyle(element).getPropertyValue("--student").trim().toLowerCase());
-if (teacher2ChildColor !== "#20a779") throw new Error("Màu học sinh trong lịch chưa lấy theo giáo viên của chính buổi học");
+const slotTeacherColor=await page.locator('[data-session="session-1"]').evaluate(element=>getComputedStyle(element.closest(".student-schedule-pattern")).getPropertyValue("--teacher").trim().toLowerCase());
+if (slotTeacherColor !== "#7c5ce7") throw new Error("Lịch của học sinh chưa dùng màu của giáo viên");
+const dayTeacherStripe=await page.locator('[data-session="session-1"]').evaluate(element=>getComputedStyle(element,"::before").backgroundColor.replace(/\s+/g,""));
+if (dayTeacherStripe !== "rgb(124,92,231)") throw new Error("Nút thứ học chưa in trực tiếp màu của giáo viên");
+const teacher2ChildColor=await page.locator('[data-session="same-time-teacher-2"]').evaluate(element=>getComputedStyle(element.closest(".student-schedule-pattern")).getPropertyValue("--teacher").trim().toLowerCase());
+if (teacher2ChildColor !== "#20a779") throw new Error("Lịch cùng giờ khác cô chưa giữ đúng màu giáo viên");
+await anRow.locator(".open-week-student").click();
+await page.waitForSelector("#studentProfileDialog[open]");
+if (!(await page.locator("#studentProfileTitle").textContent()).includes("Bé An")) throw new Error("Bấm tên bé trong lịch chưa mở đúng hồ sơ học tập");
+await page.click("#studentProfileClose");
+await page.evaluate(()=>scrollTo(0,0));
 if (process.env.HAPPYCHILD_SCREENSHOT) await page.screenshot({path:process.env.HAPPYCHILD_SCREENSHOT,fullPage:true});
-await page.click(".slot-summary");
+await page.click('[data-session="session-1"]');
+await page.waitForSelector("#sessionDrawer:not(.hidden)");
+if (await page.locator("#sessionDrawer").getAttribute("role") !== "dialog" || !(await page.locator("#closeDrawer").evaluate(button=>button===document.activeElement))) throw new Error("Drawer chi tiết chưa có ngữ nghĩa dialog hoặc chưa nhận focus");
+await page.keyboard.press("Escape");
+await page.waitForFunction(()=>document.querySelector("#sessionDrawer")?.classList.contains("hidden"));
+if (!(await page.locator('[data-session="session-1"]').evaluate(card=>card===document.activeElement))) throw new Error("Đóng drawer chưa trả focus về buổi học");
 await page.click('[data-session="session-1"]');
 await page.waitForSelector("#sessionDrawer:not(.hidden)");
 await page.click(".makeup-candidate");
@@ -124,18 +179,19 @@ if (await page.locator('select[name="teacherId"] option:not(:disabled)').count()
 if (await page.locator('select[name="teacherId"] option:disabled').count() !== 1) throw new Error("Không hiển thị giáo viên đang bận");
 if (!(await page.locator("#dialogBody").textContent()).includes("5/6 chỗ đang dùng")) throw new Error("Form học bù chưa hiển thị đúng sức chứa gộp");
 await page.click("#dialogCancel");
-await openGroupedSlot.locator(".slot-add").click();
+await anRow.locator(".weekly-student-add").click();
 await page.waitForSelector("#formDialog[open]");
 if ((await page.inputValue('input[name="capacity"]')) !== "1") throw new Error("Thêm lịch thường vào khung gộp đã lấy sai tổng capacity thay vì mặc định 1");
+if ((await page.inputValue('select[name="studentId"]')) !== "student-1") throw new Error("Nút thêm cạnh học sinh chưa chọn sẵn đúng bé");
 await page.click("#dialogCancel");
-await page.click(".empty-slot.add-session");
+await page.click("#addSessionTop");
 await page.waitForSelector("#formDialog[open]");
 if (await page.locator('select[name="studentId"]').count() !== 1) throw new Error("Thiếu chọn học sinh trong form buổi học");
 if (await page.locator('select[name="teacherId"]').count() !== 1) throw new Error("Thiếu chọn giáo viên trong form buổi học");
 await page.click("#dialogCancel");
 if ((await page.evaluate(()=>window.__saveSessionCalls||0)) !== 0) throw new Error("Nút Hủy đã gọi lưu dữ liệu");
 
-await page.click(".empty-slot.add-session");
+await page.click("#addSessionTop");
 await page.fill('input[name="startTime"]', "13:00");
 await page.fill('input[name="endTime"]', "14:00");
 await page.click("#dialogSubmit");
@@ -155,6 +211,8 @@ await page.fill("#teacherRosterSearch", "");
 await page.setViewportSize({width:375,height:800});
 const teacherMobileLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,columns:getComputedStyle(document.querySelector(".teacher-student-grid")).gridTemplateColumns}));
 if (teacherMobileLayout.overflow>1 || teacherMobileLayout.columns.split(" ").length!==1) throw new Error("Danh sách giáo viên bị tràn hoặc chưa về một cột trên mobile");
+const mobileThemeButton=await page.locator("#themeToggleBtn").evaluate(button=>({visible:button.getBoundingClientRect().width>=36,label:getComputedStyle(button.querySelector(".theme-toggle-label")).display,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
+if(!mobileThemeButton.visible||mobileThemeButton.label!=="none"||mobileThemeButton.overflow>1)throw new Error("Nút chế độ tối trên header mobile bị ẩn hoặc gây tràn ngang");
 await page.setViewportSize({width:1440,height:900});
 await page.click("#addTeacher");
 await page.waitForSelector('input[name="fullName"]');
@@ -164,6 +222,7 @@ await page.click("#dialogClose");
 await page.click('a[href="#students"]');
 await page.waitForSelector("#addStudent");
 if (await page.locator(".delete-student").count() !== 2) throw new Error("Thiếu thùng rác học sinh");
+if(await page.locator('[data-student-id="student-archived"]').count()|| (await page.locator("#content").textContent()).includes("BEN SÁNG"))throw new Error("Học sinh đã loại khỏi T9 vẫn xuất hiện trong danh sách hiện hành");
 const initialStudentNumbers=await page.locator(".student-table tbody tr[data-student-id] .student-index").allTextContents();
 if (initialStudentNumbers.join(",") !== "1,2") throw new Error("Học sinh chưa được đánh STT global liên tục");
 if ((await page.locator('[data-student-id="student-1"] [data-label="Giáo viên dạy"]').textContent()).trim() !== "Cô Ngân") throw new Error("Trang Học sinh chưa hiển thị đúng giáo viên từ Link Form");
@@ -172,6 +231,14 @@ if (await page.locator(".student-table tbody tr[data-student-id]:visible").count
 if ((await page.locator(".student-table tbody tr[data-student-id]:visible").getAttribute("data-student-index")) !== "2") throw new Error("Lọc giáo viên đã đánh lại STT thay vì giữ số global");
 await page.selectOption("#studentTeacherFilter", "all");
 if ((await page.locator("#studentResultCount").textContent()).trim() !== "2 học sinh") throw new Error("Bộ đếm học sinh không khôi phục sau khi bỏ lọc");
+await page.locator('.student-table tbody tr[data-student-id="student-1"]').click();
+await page.waitForSelector("#studentProfileDialog[open]");
+await page.waitForFunction(()=>document.querySelector("#studentProfileBody")?.textContent.includes("Hoàn thành tốt"));
+const profileText=await page.locator("#studentProfileBody").textContent();
+if (!profileText.includes("Tuần hiện tại") || !profileText.includes("Tháng hiện tại") || !profileText.includes("Tất cả thời gian")) throw new Error("Hồ sơ học sinh thiếu ba phạm vi tổng hợp");
+if (await page.locator("#studentProfileBody details.profile-week[open]").count() !== 1) throw new Error("Hồ sơ học sinh chưa xổ tuần hiện tại mặc định");
+if (process.env.HAPPYCHILD_PROFILE_SCREENSHOT) await page.screenshot({path:process.env.HAPPYCHILD_PROFILE_SCREENSHOT,fullPage:true});
+await page.click("#studentProfileClose");
 await page.setViewportSize({width:375,height:800});
 const studentMobileLayout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,display:getComputedStyle(document.querySelector(".student-table tbody tr[data-student-id]")).display,label:getComputedStyle(document.querySelector('.student-table td[data-label="Giáo viên dạy"]'),"::before").content}));
 if (studentMobileLayout.overflow>1 || studentMobileLayout.display!=="grid" || !studentMobileLayout.label.includes("Giáo viên dạy")) throw new Error("Danh sách học sinh bị tràn hoặc thiếu nhãn card trên mobile");
@@ -188,6 +255,7 @@ if (await page.locator(".delete-student-form").count() !== 8) throw new Error("T
 if (await page.locator(".form-page-warning").count() !== 1) throw new Error("Thiếu cảnh báo Link Form chưa có tiêu đề/thời gian");
 if (!(await page.locator(".form-page-warning").textContent()).includes("3")) throw new Error("Không cảnh báo đủ mục thiếu link/năm hợp lệ");
 if (await page.locator('.form-link[target="_blank"][rel~="noopener"]').count() !== 7) throw new Error("Link Form không mở an toàn ở tab mới");
+if (!(await page.locator('.form-row[data-id="form-1"] td[data-label="Link"]').textContent()).includes("Link 1") || !(await page.locator('.form-row[data-id="form-1"] td[data-label="Link"]').textContent()).includes("Mục tiêu cũ")) throw new Error("Link Form chưa hiển thị lịch sử mục tiêu cũ");
 if ((await page.locator('.form-row[data-id="form-2"] td[data-label="TG GV"]').textContent()).trim() !== "—") throw new Error("TG GV bằng 0 chưa hiển thị dạng trống");
 const resultSummary=await page.locator(".form-result-kpi strong").allTextContents();
 if (resultSummary.join(",") !== "8,2,1,3,2") throw new Error(`Tổng kết kết quả sai: ${resultSummary.join(",")}`);
@@ -317,14 +385,22 @@ await page.waitForFunction(()=>document.querySelector("#content")?.textContent.i
 const teacherReport=await page.locator(".report-table").nth(1).textContent();
 if (!teacherReport.includes("1 giờ") || teacherReport.includes("2 giờ")) throw new Error("Giờ giáo viên bị nhân theo số học sinh");
 
+await page.click('a[href="#month"]');
+await page.waitForSelector(".month-birthday-card");
+const monthText=await page.locator("#content").textContent();
+if (!monthText.includes("Lịch sinh nhật") || !monthText.includes("2 người") || !monthText.includes("Bé An") || !monthText.includes("Bé Bình")) throw new Error("Trang Tháng này tổng hợp sinh nhật chưa đúng");
+if (process.env.HAPPYCHILD_MONTH_SCREENSHOT) await page.screenshot({path:process.env.HAPPYCHILD_MONTH_SCREENSHOT,fullPage:true});
+
 await page.setViewportSize({ width: 390, height: 844 });
 await page.evaluate(()=>document.querySelector("#briefingDialog").showModal());
 await page.click("#briefingDone");
 await page.evaluate(()=>{location.hash="calendar"});
-await page.waitForSelector(".calendar-grid");
-if (await page.locator("details.day-column[open]").count() !== 1) throw new Error("Lịch mobile chưa thu gọn từng ngày");
-const mobileCalendarLayout=await page.locator(".calendar-grid").evaluate(grid=>{const day=grid.querySelector(".day-column"),slot=grid.querySelector(".time-slot");return {overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,day:day?.getBoundingClientRect().width||0,slot:slot?.getBoundingClientRect().width||0}});
-if (mobileCalendarLayout.overflow>1 || mobileCalendarLayout.slot>mobileCalendarLayout.day+1 || await page.locator("details.time-slot[open]").count()) throw new Error("Lịch tuần mobile bị tràn hoặc khung giờ chưa thu gọn");
+await page.waitForSelector(".student-week-schedule");
+const mobileCalendarLayout=await page.locator(".student-week-schedule").evaluate(root=>{const row=root.querySelector(".weekly-student-row"),pattern=root.querySelector(".student-schedule-pattern"),cluster=root.querySelector(".student-schedule-cluster");return {overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,row:row?.getBoundingClientRect().width||0,pattern:pattern?.getBoundingClientRect().width||0,cluster:cluster?.getBoundingClientRect().width||0}});
+if (mobileCalendarLayout.overflow>1 || mobileCalendarLayout.row>mobileCalendarLayout.cluster+1 || mobileCalendarLayout.pattern>mobileCalendarLayout.row+1) throw new Error("Danh sách lịch học sinh trên mobile bị tràn ngang");
+if (await page.locator(".weekly-day-session").count() < 2) throw new Error("Các ngày học không hiển thị dạng nút gọn trên mobile");
+await page.evaluate(()=>scrollTo(0,0));
+if (process.env.HAPPYCHILD_CALENDAR_MOBILE_SCREENSHOT) await page.screenshot({path:process.env.HAPPYCHILD_CALENDAR_MOBILE_SCREENSHOT,fullPage:true});
 await page.evaluate(()=>{location.hash="forms"});
 await page.waitForSelector(".form-teacher-group");
 if (await page.locator(".form-teacher-group[open]").count() !== 1) throw new Error("Nhóm Link Form mobile chưa thu gọn");
@@ -338,6 +414,21 @@ if (await page.locator(".template-day-group[open]").count() !== 1 || await page.
 const mobileTemplateLayout=await page.locator('.template-student-row[data-template-id="template-2"]').evaluate(row=>({row:row.getBoundingClientRect().width,parent:row.parentElement.getBoundingClientRect().width,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
 if (mobileTemplateLayout.overflow>1 || mobileTemplateLayout.row>mobileTemplateLayout.parent+1) throw new Error("Lịch mẫu mobile bị tràn ngang");
 if (process.env.HAPPYCHILD_TEMPLATES_MOBILE_SCREENSHOT) await page.screenshot({path:process.env.HAPPYCHILD_TEMPLATES_MOBILE_SCREENSHOT,fullPage:true});
+
+{
+  await page.setViewportSize({width:1440,height:900});
+  if(await page.locator("html").getAttribute("data-theme")!=="dark")await page.click("#themeToggleBtn");
+  const audit={};
+  for(const view of ["dashboard","month","calendar","students","teachers","forms","templates","makeup","reports","notes","history","settings"]){
+    await page.evaluate(value=>{location.hash=value},view);await page.waitForTimeout(60);
+    await page.evaluate(()=>document.querySelectorAll("#content details").forEach(item=>item.open=true));
+    if(view==="forms"&&process.env.HAPPYCHILD_DARK_FORMS_SCREENSHOT)await page.screenshot({path:process.env.HAPPYCHILD_DARK_FORMS_SCREENSHOT,fullPage:true});
+    audit[view]=await page.evaluate(()=>[...document.querySelectorAll("#content *")].filter(element=>{const rect=element.getBoundingClientRect(),style=getComputedStyle(element),match=style.backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);return rect.width*rect.height>220&&style.display!=="none"&&style.visibility!=="hidden"&&match&&Number(match[1])>220&&Number(match[2])>220&&Number(match[3])>220}).slice(0,80).map(element=>({tag:element.tagName.toLowerCase(),id:element.id,cls:element.className,text:(element.textContent||"").trim().slice(0,45),bg:getComputedStyle(element).backgroundColor})));
+  }
+  await page.evaluate(()=>document.querySelector("#briefingDialog").showModal());
+  audit.briefing=await page.evaluate(()=>[...document.querySelectorAll("#briefingDialog *")].filter(element=>{const rect=element.getBoundingClientRect(),match=getComputedStyle(element).backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);return rect.width*rect.height>220&&match&&Number(match[1])>220&&Number(match[2])>220&&Number(match[3])>220}).map(element=>({tag:element.tagName.toLowerCase(),id:element.id,cls:element.className,text:(element.textContent||"").trim().slice(0,45),bg:getComputedStyle(element).backgroundColor})));
+  await page.click("#briefingDone");const lightSurfaces=Object.entries(audit).filter(([,items])=>items.length);if(lightSurfaces.length)throw new Error("Chế độ tối còn bề mặt sáng: "+JSON.stringify(Object.fromEntries(lightSurfaces)));if(process.env.HAPPYCHILD_DARK_AUDIT)console.log("DARK_AUDIT "+JSON.stringify(audit));await page.click("#themeToggleBtn");
+}
 
 const racePage=await browser.newPage({viewport:{width:1200,height:800}});
 const raceErrors=[];
@@ -363,6 +454,13 @@ await racePage.waitForTimeout(350);
 if (!(await racePage.locator("#deleteWeekBtn").isDisabled()) || !(await racePage.locator(".week-sessions-loading").count())) throw new Error("Callback tuần cũ đã mở khóa nhầm tuần mới");
 await racePage.waitForSelector("#deleteWeekBtn:not([disabled])",{timeout:3000});
 if (!(await racePage.locator('[data-session="session-b"]').count()) || await racePage.locator('[data-session="stale-week-a"]').count()) throw new Error("Snapshot tuần mới bị trộn với callback tuần cũ");
+if (await racePage.locator("#finalizeWeekBtn").count() !== 1 || !(await racePage.locator(".week-summary-card").textContent()).includes("cần chốt số liệu")) throw new Error("Tuần đã qua chưa hiển thị nút chốt và bản xem trước thống kê");
+if (process.env.HAPPYCHILD_WEEK_SUMMARY_SCREENSHOT) await racePage.screenshot({path:process.env.HAPPYCHILD_WEEK_SUMMARY_SCREENSHOT,fullPage:true});
+racePage.once("dialog",dialog=>dialog.accept());
+await racePage.click("#finalizeWeekBtn");
+await racePage.waitForFunction(()=>Boolean(window.__finalizedWeek));
+const finalizedWeek=await racePage.evaluate(()=>window.__finalizedWeek);
+if (finalizedWeek.id!=="week-2026-08-17" || finalizedWeek.summary.counts.total!==1 || finalizedWeek.summary.counts.learned!==1 || finalizedWeek.summary.counts.scheduled!==0 || !finalizedWeek.summary.sourceFingerprint) throw new Error("Payload chốt tuần chưa tự tính buổi đã qua giờ là đã học");
 racePage.once("dialog",dialog=>dialog.accept());
 await racePage.click("#deleteWeekBtn");
 await racePage.waitForFunction(()=>window.__deleteWeekCalls===1);
@@ -387,6 +485,15 @@ await seedPage.waitForSelector("#seedBtn",{timeout:5000});
 if (seedErrors.length) throw new Error(`Seed page errors: ${seedErrors.join(" | ")}`);
 await seedPage.close();
 
+const bootTimeoutPage=await browser.newPage({viewport:{width:1000,height:700}});
+await bootTimeoutPage.addInitScript(()=>{const nativeSetTimeout=window.setTimeout.bind(window);window.setTimeout=(callback,delay,...args)=>nativeSetTimeout(callback,delay===15000?50:delay,...args)});
+await bootTimeoutPage.route("**/happychild/js/auth.js*",route=>route.fulfill({contentType:"text/javascript",body:'export const login=async()=>{};export const logout=async()=>{};export const authErrorMessage=()=>"";export const watchAuth=()=>()=>{};'}));
+await bootTimeoutPage.route("**/happychild/js/store.js*",route=>route.fulfill({contentType:"text/javascript",body:storeMock}));
+await bootTimeoutPage.goto("http://127.0.0.1:8080/happychild/",{waitUntil:"domcontentloaded"});
+await bootTimeoutPage.waitForFunction(()=>document.querySelector("#loading")?.textContent.includes("Chưa tải được HappyChild"));
+if (!(await bootTimeoutPage.locator("#loading button").count())) throw new Error("Khởi động lỗi chưa hiện nút tải lại");
+await bootTimeoutPage.close();
+
 if (errors.length) throw new Error(`Page errors: ${errors.join(" | ")}`);
-console.log(JSON.stringify({status:"ok",checks:100,saveSessionCalls:await page.evaluate(()=>window.__saveSessionCalls||0)}));
+console.log(JSON.stringify({status:"ok",checks:132,saveSessionCalls:await page.evaluate(()=>window.__saveSessionCalls||0)}));
 await browser.close();

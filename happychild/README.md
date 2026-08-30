@@ -19,10 +19,14 @@ Source và bản phát hành được lưu trực tiếp trong `happychild/`. Tr
 - Trang Giáo viên nhóm gọn danh sách các bé theo từng cô, có tìm kiếm và nút mở/thu gọn toàn bộ.
 - Click trực tiếp ngày trống để thêm khung giờ, hoặc thêm học sinh vào khung giờ đang có.
 - Kiểm tra trùng lịch học sinh/giáo viên và giới hạn sức chứa của khung giờ.
-- Khung giờ trên lịch có thể thu gọn/mở rộng để quản lý khoảng 60 học sinh.
+- Lịch tuần lấy **khung giờ làm thứ tự chính** giống T9.xlsx: `08:00–09:00 → 09:00–10:00 → 15:00–16:00…`. Trong mỗi khung giờ, mỗi bé chỉ chiếm một dòng, các bé cùng cô được xếp liền nhau và màu giáo viên được giữ trên từng lịch. Mỗi nút ngày vẫn mở được chi tiết để sửa, xin nghỉ hoặc xếp học bù.
+- Tuần đã qua hiển thị bảng tổng kết học, nghỉ phép, học bù, hủy, giờ học sinh và giờ giáo viên. Nút **Chốt tuần** lưu một bản thống kê cố định vào Firestore; nếu lịch được sửa sau đó, hệ thống cảnh báo và nút **Cập nhật lại** sẽ chốt lại số liệu mới. Báo cáo tháng hiển thị số tuần đã chốt trên tổng số tuần có dữ liệu.
+- Mọi thao tác thêm, sửa, xóa hoặc đổi trạng thái buổi học đều tự mở lại tuần đã chốt; số liệu cũ chỉ được dùng để đối chiếu cho đến khi người dùng bấm **Cập nhật lại**.
 - Trang Lịch mẫu nhóm theo **Thứ → Khung giờ → Giáo viên và học sinh**. Các nhóm mặc định thu gọn; tìm kiếm hoặc lọc sẽ tự mở đúng nhóm phù hợp.
 - Ghi chú theo ngày, nhắc sinh nhật hôm nay/ngày mai và báo cáo giờ học theo tháng.
-- Quản lý Link Form theo từng giáo viên, giữ màu nhóm như bảng Excel, tự tách khoảng thời gian từ tiêu đề Form và tổng hợp tiến độ trả kết quả.
+- Menu **Tháng này** tổng hợp sinh nhật học sinh/giáo viên và ghi chú; báo cáo tháng tách giờ đã học, nghỉ, học bù và giờ dạy thực tế của giáo viên.
+- Quản lý Link Form theo từng giáo viên, giữ màu nhóm như bảng Excel, tự tách khoảng thời gian từ tiêu đề Form, lưu các mục tiêu cũ theo thứ tự Link 1, Link 2… và tổng hợp tiến độ trả kết quả.
+- Lịch tuần tìm được theo tên học sinh. Click một học sinh để xem lịch sử theo tuần, note từng buổi và thống kê tuần/tháng/toàn thời gian.
 
 ## Chạy trên máy
 
@@ -90,6 +94,8 @@ Sau mỗi lần thêm collection mới (ví dụ `notes`) hoặc thay đổi quy
 
 Collection `studentForms` được dùng cho màn hình **Link Form**, vì vậy bản rules có `match /studentForms/{id}` phải được publish trước khi thêm hoặc sửa dữ liệu trên production.
 
+Khi bật tính năng lưu mục tiêu cũ, phải publish bản rules cho phép trường `studentForms.linkHistory`; nếu chưa publish, thao tác đổi Link Form sẽ bị từ chối dù các thao tác khác vẫn hoạt động.
+
 ## Link Form và dữ liệu Trang tính5
 
 - Màn hình **Link Form** có các cột: STT, học sinh, ngày sinh, link, thời gian, kết quả, thời lượng giáo viên và ghi chú.
@@ -112,20 +118,35 @@ Sau đó mở **Lịch tuần → Tạo tuần** để sao chép lịch mẫu sa
 
 ## Lịch mẫu nhập từ T8 (1).xlsx
 
-- Trang tính `Trang tính2` đã được đối chiếu với danh sách 60 học sinh hiện hành. Hệ thống lưu 228 lịch cố định của 57 học sinh, từ Thứ Hai đến Thứ Bảy; Chủ nhật không có lịch.
+- Trang tính `Trang tính2` đã được đối chiếu với danh sách 60 học sinh hiện hành. Sau hiệu chỉnh danh tính và bổ sung lịch Nếp, hệ thống lưu 239 lịch cố định của 60 học sinh, từ Thứ Hai đến Thứ Bảy; Chủ nhật không có lịch.
 - Mỗi lịch thường giữ sức chứa mặc định là 1. Khi nhiều học sinh học cùng cô và cùng giờ, sức chứa của khung giờ là tổng số lịch thường trong nhóm; lịch học bù không tự làm tăng sức chứa.
 - Giáo viên của **từng lịch** được xác định từ màu của chính ô giờ trong workbook, không lấy từ cô phụ trách chung của học sinh. Một bé có thể học với nhiều cô trong cùng tuần; `primaryTeacherId` chỉ dùng để nhóm hồ sơ/roster, còn `scheduleTemplates.teacherId` và `sessions.teacherId` là cô thực dạy buổi đó.
 - Bảng màu giờ học: Cô Tiên `#B6D7A8`/`#D9EAD3`, Cô Thùy `#C482D2`, Cô Hân `#548235`/`#38761D`, Cô Dương `#FBBC04`/`#FFC000`/`#E0A31E`, Cô Mai `#FF0000`, Cô Ngọc `#134F5C`, Cô Quỳnh `#F48E93`. Ví dụ XOÀI 16:00–17:00 học Cô Mai vào Thứ Hai/Tư/Sáu và Cô Dương vào Thứ Ba/Năm.
 - Ô ghi `bù 9h` không được đưa vào lịch lặp. Hai ô không tô màu nhưng trùng đúng lịch đã có cũng không tạo bản sao.
-- Năm tên cũ không còn trong danh sách hiện hành (`DUY THÔNG`, `ĐÌNH BẢO`, `UY LẠC`, `DẦN`, `THIÊN MỸ`) không được tự gán sang bé khác. Ba học sinh hiện hành chưa có lịch trong bảng (`VĨNH AN - BƠ`, `Gấu`, `NẾP`) được giữ trống để bổ sung thủ công.
+- Hiệu chỉnh nghiệp vụ ngày 22/08/2026: `DUY THÔNG` được gộp vào **Gấu**; lịch 09:00 mang tên `TRIẾT` cũ được chuyển sang **VĨNH AN - BƠ**; `DẦN` được gộp vào **TRIẾT** với lịch 17:00–18:00 Thứ Hai/Tư/Sáu; **NẾP** học 18:00–19:00 Thứ Ba/Năm.
+
+## Lịch mẫu hiện hành từ T9.xlsx
+
+- Nguồn hiện hành là `Trang tính2!A1:BU8` của `T9.xlsx`: 245 lịch cố định, 63 học sinh, từ Thứ Hai đến Thứ Bảy.
+- Website đồng bộ một lần sau khi đăng nhập: ghi lịch T9 bằng ID ổn định, xóa lịch mẫu nguồn cũ nhưng không sửa các tuần đã tạo trước đó. Nếu mất mạng giữa chừng, lần đăng nhập sau có thể chạy lại an toàn.
+- Năm học sinh chưa có trong roster cũ (`ĐÌNH BẢO`, `thu lee`, `HAGO`, `UY LẠC`, `THIÊN MỸ`) được tạo hồ sơ tối thiểu để không làm mất lịch trong sheet.
+- T9 có hai cột tên `VY`. Theo xác nhận của chủ cơ sở, cột `V` chỉ có một ô 15:00–16:00 Thứ Bảy được loại bỏ; lịch `VY` hợp lệ ở cột `BR` vẫn giữ 19:00–20:00 Thứ Hai/Tư/Sáu.
+- Các ô `bù 9h`, `lớp 1` và ô không có màu giáo viên không được coi là lịch cố định. Màu của từng ô giờ tiếp tục quyết định cô thực dạy; toàn bộ giờ được làm tròn xuống số giờ tròn và sức chứa mỗi lịch là 1.
+- Danh sách hiện hành có 63 bé và chỉ giữ một hồ sơ cho mỗi danh tính. `DUY THÔNG` được gộp vào **Gấu**; `DẦN`/`Trí` được gộp vào **TRIẾT**; các cột lặp của **MAI ANH**, **MIE** và **VY** vẫn dùng chung một hồ sơ học sinh.
+- `BEN SÁNG` và `ĐỨC THÀNH` không còn trong T9 nên bị loại khỏi roster, Link Form và lịch mẫu hiện hành. Nếu hồ sơ còn được tham chiếu bởi tuần/giao dịch cũ, hệ thống giữ một bản lưu trữ ẩn thay vì xóa vật lý để báo cáo lịch sử không hiện “Học sinh đã xóa”.
+- Mọi học sinh được giữ lại trong T9 đều có ít nhất một lịch cố định hợp lệ; không có bé nào bị bỏ hoàn toàn vì thiếu màu hoặc giờ. Các ô ngoại lệ nói trên chỉ bị loại riêng lẻ.
 
 ## Quy tắc nghỉ và học bù
 
+- Quy ước nhập giờ theo ngữ cảnh: `8h–10h` là buổi sáng; một mốc duy nhất là ca kéo dài một giờ, ví dụ `9h` → `09:00–10:00`, `8h15` → `08:00–09:00`, còn `3h` → `15:00–16:00`. Tất cả số phút được làm tròn xuống: `17:05–18:05` → `17:00–18:00`, `18:10–19:10` → `18:00–19:00`, `7h15–8h15` → `19:00–20:00`.
+- Khi một buổi `Đã xếp lịch` đã qua giờ kết thúc, hệ thống tự chuyển sang `Đã học`; buổi `Xếp học bù` tự chuyển sang `Đã học bù` và trừ số dư bằng Firestore transaction. Việc kiểm tra chạy ngay khi tải tuần và lặp mỗi phút khi trang đang mở.
+- Các trạng thái `Xin nghỉ` và `Đã hủy` không bị cơ chế tự động ghi đè. Thời điểm kết thúc được tính theo ngày, giờ và múi giờ của thiết bị đang mở website.
 - Đánh dấu `Xin nghỉ`: cộng đúng 1 buổi cần bù.
 - Lưu lại cùng trạng thái: không cộng thêm.
 - Hoàn tác nghỉ: tạo giao dịch đảo và trừ lại 1.
 - Xếp lịch bù: chưa trừ số dư.
 - Khi xếp lịch bù phải chọn giáo viên; giao diện đánh dấu cô còn trống hoặc đang bận.
+- Bé đã có một buổi đang hoạt động trùng khung giờ sẽ bị loại khỏi danh sách xếp bù. Nếu có chỗ nghỉ ngay trước hoặc sau ca chính của bé, màn hình Học bù hiển thị gợi ý học hai ca liên tục.
 - `Xin nghỉ` và `Đã hủy` không chiếm sức chứa, nên lớp 1/1 có thể nhận một bé khác vào bù. Với lớp nhiều bé, sức chứa khung giờ là tổng sức chứa của các lịch thường trong nhóm.
 - Đánh dấu `Đã học bù`: trừ đúng 1.
 - Hoàn tác hoàn thành bù: cộng phục hồi 1.
@@ -134,6 +155,8 @@ Sau đó mở **Lịch tuần → Tạo tuần** để sao chép lịch mẫu sa
 ## Phát hành GitHub Pages
 
 Commit thư mục `happychild/` cùng website hiện tại. Không đổi `index.html` ở thư mục gốc.
+
+Custom domain trong `CNAME` là `www.zinhpixry.website`. DNS của tên miền gốc `zinhpixry.website` chỉ nên dùng các bản ghi A/AAAA chính thức của GitHub Pages và phải được GitHub cấp chứng chỉ chứa cả tên miền gốc lẫn `www`. Không để thêm bản ghi chuyển tiếp của nhà đăng ký (ví dụ IP parking/redirect), vì nó có thể làm HTTPS của tên miền gốc báo sai chứng chỉ trước khi kịp chuyển sang `www`.
 
 ## Dọn dữ liệu thử nghiệm
 
@@ -155,4 +178,5 @@ Firestore managed export cần Google Cloud Storage và quyền phù hợp. Vớ
 - **Missing or insufficient permissions:** chưa deploy `firestore.rules` hoặc UID chưa được cấp quyền.
 - **Unauthorized domain:** thêm hostname vào Authorized domains.
 - **Trang trắng/404:** phải truy cập `/happychild/` qua HTTP(S), không mở file trực tiếp.
+- **Đang kết nối quá lâu:** kiểm tra mạng hoặc trình chặn quảng cáo có chặn `gstatic.com` / `firebaseapp.com`; giao diện sẽ hiện nút tải lại thay vì quay vô hạn.
 - **Cần index:** bản hiện tại tự sắp xếp lịch tuần ở trình duyệt nên không cần composite index `date + startTime`; với truy vấn mới khác, deploy `firestore.indexes.json` hoặc dùng link Firebase trả về trong console.

@@ -1,5 +1,13 @@
 export const DAYS = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"];
 export const STATUS = {scheduled:"Đã xếp lịch",attended:"Đã học",absent:"Xin nghỉ",makeup_scheduled:"Xếp học bù",makeup_completed:"Đã học bù",cancelled:"Đã hủy"};
+export function elapsedSessionTarget(session,now=new Date()){
+  const type=String(session?.type||"regular"),status=String(session?.status||""),eligible=type==="makeup"?status==="makeup_scheduled":status==="scheduled";if(!eligible||!/^\d{4}-\d{2}-\d{2}$/.test(String(session?.dateKey||""))||!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(session?.endTime||"")))return null;const nowMs=now instanceof Date?now.getTime():new Date(now).getTime(),endedAt=new Date(`${session.dateKey}T${session.endTime}:00`);if(!Number.isFinite(nowMs)||Number.isNaN(endedAt.getTime())||endedAt.getTime()>nowMs)return null;return type==="makeup"?"makeup_completed":"attended";
+}
+export function parseScheduleTimeRange(value){
+  const compact=String(value||"").normalize("NFC").toLocaleUpperCase("vi").replace(/\s+/g,"").replace(/ĐẾN/g,"-").replace(/[–—]/g,"-").replace(/GIỜ/g,"H").replace(/\./g,":"),parseToken=token=>{const match=String(token||"").match(/^(\d{1,2})(?:(?:H|:)(\d{1,2})?)?$/);if(!match)return null;const hour=Number(match[1]),minute=Number(match[2]||0);if(hour>23||minute>59)return null;return hour*60+minute},format=minutes=>`${String(Math.floor(minutes/60)).padStart(2,"0")}:${String(minutes%60).padStart(2,"0")}`;
+  if(!compact)return null;const parts=compact.split("-");if(parts.length>2||parts.some(part=>!part))return null;const rawStart=parseToken(parts[0]);if(rawStart==null)return null;const startHour=Math.floor(rawStart/60),start=startHour>=3&&startHour<=7?rawStart+720:rawStart;let end=parts.length===1?start+60:parseToken(parts[1]);if(end==null)return null;if(parts.length===2&&end<=start&&end+720>start)end+=720;if(end<=start||end>1439)return null;const roundedStart=Math.floor(start/60)*60,roundedEnd=Math.floor(end/60)*60;if(roundedEnd<=roundedStart)return null;return [format(roundedStart),format(roundedEnd)];
+}
+export const floorScheduleTime=value=>{const match=String(value||"").trim().match(/^([01]\d|2[0-3]):[0-5]\d$/);return match?`${match[1]}:00`:null};
 export const pad=n=>String(n).padStart(2,"0");
 export const localDate=d=>{const x=d?.toDate?d.toDate():new Date(d);return Number.isNaN(x.getTime())?"—":`${pad(x.getDate())}/${pad(x.getMonth()+1)}/${x.getFullYear()}`};
 export const isoDate=d=>{const x=new Date(d);return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`};

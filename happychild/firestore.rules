@@ -12,22 +12,73 @@ service cloud.firestore {
       return data.studentId is string && data.studentId.size() > 0 && data.studentId.size() <= 160
         && data.teacherId is string && data.teacherId.size() > 0 && data.teacherId.size() <= 160
         && data.dayOfWeek is int && data.dayOfWeek >= 0 && data.dayOfWeek <= 6
-        && validTime(data.startTime) && validTime(data.endTime)
+        && validTime(data.startTime) && validTime(data.endTime) && data.startTime < data.endTime
         && data.capacity is int && data.capacity >= 1 && data.capacity <= 20
-        && data.active is bool;
+        && data.active is bool
+        && data.note is string && data.note.size() <= 5000;
     }
     function validSession(data) {
       return data.studentId is string && data.studentId.size() > 0 && data.studentId.size() <= 160
         && data.teacherId is string && data.teacherId.size() > 0 && data.teacherId.size() <= 160
         && data.dateKey is string && data.dateKey.matches('^\\d{4}-\\d{2}-\\d{2}$')
         && data.dayOfWeek is int && data.dayOfWeek >= 0 && data.dayOfWeek <= 6
-        && validTime(data.startTime) && validTime(data.endTime)
+        && data.date is timestamp
+        && validTime(data.startTime) && validTime(data.endTime) && data.startTime < data.endTime
         && data.capacity is int && data.capacity >= 1 && data.capacity <= 20
+        && data.note is string && data.note.size() <= 5000
         && data.type in ['regular', 'makeup']
         && (
           (data.type == 'regular' && data.status in ['scheduled', 'attended', 'absent', 'cancelled'])
           || (data.type == 'makeup' && data.status in ['makeup_scheduled', 'makeup_completed', 'cancelled'])
         );
+    }
+    function validStudent(data) {
+      return data.fullName is string && data.fullName.size() > 0 && data.fullName.size() <= 200
+        && data.shortName is string && data.shortName.size() <= 200
+        && data.color is string && data.color.matches('^#[0-9a-fA-F]{6}$')
+        && data.active is bool
+        && data.makeupBalance is int && data.makeupBalance >= 0 && data.makeupBalance <= 10000
+        && data.birthday is string && (data.birthday.size() == 0 || data.birthday.matches('^\\d{4}-\\d{2}-\\d{2}$'))
+        && data.parentPhone is string && data.parentPhone.size() <= 100
+        && data.note is string && data.note.size() <= 5000;
+    }
+    function validTeacher(data) {
+      return data.fullName is string && data.fullName.size() > 0 && data.fullName.size() <= 200
+        && data.shortName is string && data.shortName.size() <= 200
+        && data.color is string && data.color.matches('^#[0-9a-fA-F]{6}$')
+        && data.active is bool
+        && data.birthday is string && (data.birthday.size() == 0 || data.birthday.matches('^\\d{4}-\\d{2}-\\d{2}$'))
+        && data.phone is string && data.phone.size() <= 100
+        && data.note is string && data.note.size() <= 5000;
+    }
+    function validNote(data) {
+      return data.dateKey is string && data.dateKey.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.title is string && data.title.size() <= 300
+        && data.details is string && data.details.size() > 0 && data.details.size() <= 5000;
+    }
+    function validWeek(data) {
+      return data.weekNumber is int && data.weekNumber > 0 && data.weekNumber <= 100000
+        && data.startDate is timestamp && data.endDate is timestamp && data.startDate < data.endDate
+        && data.label is string && data.label.size() > 0 && data.label.size() <= 300
+        && data.status in ['active', 'closed'];
+    }
+    function validAudit(data) {
+      return data.entityType is string && data.entityType.size() > 0 && data.entityType.size() <= 100
+        && data.entityId is string && data.entityId.size() > 0 && data.entityId.size() <= 400
+        && data.action is string && data.action.size() > 0 && data.action.size() <= 100
+        && data.before is map && data.after is map
+        && data.reason is string && data.reason.size() <= 5000
+        && data.userId == request.auth.uid
+        && data.createdAt == request.time;
+    }
+    function validMakeupTransaction(data) {
+      return data.studentId is string && data.studentId.size() > 0 && data.studentId.size() <= 160
+        && data.type in ['credit', 'debit', 'reversal']
+        && data.quantity is int && data.quantity != 0 && data.quantity >= -500 && data.quantity <= 500
+        && data.reason is string && data.reason.size() <= 5000
+        && data.idempotencyKey is string && data.idempotencyKey.size() > 0 && data.idempotencyKey.size() <= 500
+        && data.createdBy == request.auth.uid
+        && data.createdAt == request.time;
     }
     function validStudentForm(data) {
       return data.keys().hasAll([
@@ -40,7 +91,7 @@ service cloud.firestore {
           'displayOrder', 'studentId', 'teacherId', 'formLink', 'formTitle',
           'courseStart', 'courseEnd', 'coursePeriod', 'resultRecordedDate',
           'teacherHours', 'note', 'sourceRow', 'createdAt', 'updatedAt',
-          'createdBy', 'updatedBy'
+          'createdBy', 'updatedBy', 'linkHistory'
         ])
         && data.displayOrder is int && data.displayOrder >= 0
         && data.sourceRow is int && data.sourceRow >= 0
@@ -58,6 +109,7 @@ service cloud.firestore {
         && (data.resultRecordedDate.size() == 0 || data.resultRecordedDate.matches('^\\d{4}-\\d{2}-\\d{2}$'))
         && data.teacherHours is number && data.teacherHours >= 0 && data.teacherHours <= 10000
         && data.note is string && data.note.size() <= 5000
+        && (!('linkHistory' in data) || (data.linkHistory is list && data.linkHistory.size() <= 50))
         && data.createdAt is timestamp && data.updatedAt is timestamp
         && data.createdBy is string && data.updatedBy is string;
     }
@@ -65,13 +117,13 @@ service cloud.firestore {
     // Nhật ký và sổ giao dịch không được sửa; chủ sở hữu có thể xóa dữ liệu test.
     match /auditLogs/{id} {
       allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow create: if signedIn() && validAudit(request.resource.data);
       allow update: if false;
       allow delete: if owner();
     }
     match /makeupTransactions/{id} {
       allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow create: if signedIn() && validMakeupTransaction(request.resource.data);
       allow update: if false;
       allow delete: if owner();
     }
@@ -79,15 +131,29 @@ service cloud.firestore {
     // Mọi tài khoản Authentication đều được quản lý dữ liệu nghiệp vụ.
     match /students/{id} {
       allow read, delete: if signedIn();
-      allow create, update: if signedIn()
-        && request.resource.data.color is string
-        && request.resource.data.color.matches('^#[0-9a-fA-F]{6}$');
+      allow create: if signedIn() && validStudent(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validStudent(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
     }
     match /teachers/{id} {
       allow read, delete: if signedIn();
-      allow create, update: if signedIn()
-        && request.resource.data.color is string
-        && request.resource.data.color.matches('^#[0-9a-fA-F]{6}$');
+      allow create: if signedIn() && validTeacher(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validTeacher(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
     }
     match /studentForms/{id} {
       allow read: if signedIn();
@@ -106,21 +172,66 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'displayOrder', 'studentId', 'teacherId', 'formLink', 'formTitle',
           'courseStart', 'courseEnd', 'coursePeriod', 'resultRecordedDate',
-          'teacherHours', 'note', 'sourceRow', 'updatedAt', 'updatedBy'
+          'teacherHours', 'note', 'sourceRow', 'updatedAt', 'updatedBy',
+          'linkHistory'
         ]);
       allow delete: if signedIn();
     }
-    match /notes/{id} { allow read, write: if signedIn(); }
+    match /notes/{id} {
+      allow read, delete: if signedIn();
+      allow create: if signedIn() && validNote(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validNote(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
     match /scheduleTemplates/{id} {
       allow read, delete: if signedIn();
-      allow create, update: if signedIn() && validTemplate(request.resource.data);
+      allow create: if signedIn() && validTemplate(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validTemplate(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
     }
-    match /users/{id} { allow read, write: if signedIn(); }
+    match /users/{id} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && id == request.auth.uid;
+      allow delete: if owner() || (signedIn() && id == request.auth.uid);
+    }
     match /weeks/{weekId} {
-      allow read, write: if signedIn();
+      allow read, delete: if signedIn();
+      allow create: if signedIn() && validWeek(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validWeek(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
       match /sessions/{sessionId} {
         allow read, delete: if signedIn();
-        allow create, update: if signedIn() && validSession(request.resource.data);
+        allow create: if signedIn() && validSession(request.resource.data)
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.updatedBy == request.auth.uid;
+        allow update: if signedIn() && validSession(request.resource.data)
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.createdBy == resource.data.createdBy
+          && request.resource.data.updatedAt == request.time
+          && request.resource.data.updatedBy == request.auth.uid;
       }
     }
   }

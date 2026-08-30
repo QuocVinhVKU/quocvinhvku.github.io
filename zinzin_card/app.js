@@ -2,9 +2,10 @@ const GOOGLE_PLAY_DEVELOPER_URL = "https://play.google.com/store/apps/dev?id=515
 const APP_STORE_DEVELOPER_URL = "https://apps.apple.com/us/developer/dang-quoc-vinh/id1784945397";
 
 const links = [
-  { id:"facebook", category:"social", title:"Follow ZinZin on Facebook", url:"https://www.facebook.com/furryzinzin/", icon:"facebook" },
+  { id:"facebook", category:"social", title:"Follow ZinZin on Facebook", url:"https://www.facebook.com/zinzinfurry/", icon:"facebook" },
   { id:"twitter", category:"social", title:"Follow @ZinZin_Furry on X", url:"https://x.com/ZinZin_Furry", icon:"x" },
   { id:"tiktok", category:"social", title:"Follow ZinZin on TikTok", url:"https://www.tiktok.com/@zinzin_furry", icon:"tiktok" },
+  { id:"telegram-furry", category:"social", title:"Follow ZinZin on Telegram", url:"https://t.me/zinzin_furry", icon:"telegram" },
   { id:"telegram", category:"russian", title:"Присоединяйтесь к Telegram ЗинЗина", subtitle:"Русское сообщество 🇷🇺", url:"https://t.me/zinzin_group", icon:"telegram", language:"ru" },
   { id:"boosty", category:"russian", title:"Поддержать ЗинЗина на Boosty", subtitle:"Эксклюзивный контент и поддержка 💙", url:"https://boosty.to/zinzin_furry", icon:"boosty", language:"ru" },
   { id:"patreon", category:"support", title:"Support The Valley Of Fur on Patreon", subtitle:"A furry NSFW game — support development & exclusive content", url:"https://www.patreon.com/zinzin_furry", icon:"patreon" },

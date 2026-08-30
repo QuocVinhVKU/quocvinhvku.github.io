@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import crypto from "node:crypto";
+import { parseScheduleTimeRange } from "../../happychild/js/utils.js";
 
 const sourcePath = "D:/Downloads/T8 (1).xlsx";
 const outputDir = "D:/2DUnityGame/.codex/visualizations/2026/08/10/019feb26-42a0-7b03-a2b4-d63974183667/happychild-t8-import-work";
@@ -29,6 +30,9 @@ const aliases = {
   "GIA KHANG 3T": "KHANG 3T",
   "THÀNH": "ĐỨC THÀNH",
   "ĐỨC AN": "BEN AN",
+  "DUY THÔNG": "GẤU",
+  "TRIẾT": "VĨNH AN BƠ",
+  "DẦN": "TRIẾT",
 };
 
 const teacherColors = {
@@ -62,21 +66,7 @@ const teacherById = new Map(roster.teachers.map(teacher => [teacher.id, teacher]
 const formByStudent = new Map(roster.studentForms.map(form => [form.studentId, form]));
 
 function parseTime(value) {
-  const compact = String(value || "").toLocaleUpperCase("vi").replace(/\s+/g, "");
-  const known = {
-    "8H-9H": ["08:00", "09:00"],
-    "8H": ["08:00", "09:00"],
-    "9H": ["09:00", "10:00"],
-    "3H-4H": ["15:00", "16:00"],
-    "3H": ["15:00", "16:00"],
-    "4-5H": ["16:00", "17:00"],
-    "4H-5H": ["16:00", "17:00"],
-    "5H5-6H5": ["17:05", "18:05"],
-    "5H": ["17:00", "18:00"],
-    "6H10-7H10": ["18:10", "19:10"],
-    "7H15-8H15": ["19:15", "20:15"],
-  };
-  return known[compact] || null;
+  return parseScheduleTimeRange(value);
 }
 
 const skipped = [];
@@ -140,6 +130,22 @@ for (const column of schedule.columns) {
       sourceColors: [`#${cell.fill}`],
     });
   }
+}
+
+// Nếp không có cột lịch trong workbook. Chủ cơ sở xác nhận lịch cố định mới
+// là Thứ Ba và Thứ Năm, 18:00–19:00, do Cô Ngọc dạy.
+const nep = studentByName.get("NẾP");
+if (!nep) throw new Error("Không tìm thấy NẾP trong danh sách hiện hành.");
+matchedStudents.add(nep.id);
+for (const dayOfWeek of [1, 3]) {
+  const startTime = "18:00", endTime = "19:00", teacherId = "teacher-sheet5-ngoc";
+  dedupe.set(`${nep.id}|${dayOfWeek}|${startTime}|${endTime}`, {
+    id: `identity-nep-d${dayOfWeek}-1810-1910`, studentId: nep.id,
+    studentName: nep.fullName, teacherId, teacherName: teacherById.get(teacherId).fullName,
+    dayOfWeek, startTime, endTime, capacity: 1, active: true,
+    note: "Lịch Nếp được chủ cơ sở xác nhận ngày 22/08/2026.",
+    sourceColumns: [], sourceCells: [], sourceColors: ["#134F5C"],
+  });
 }
 
 const templates = [...dedupe.values()].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime) || a.teacherId.localeCompare(b.teacherId) || a.studentName.localeCompare(b.studentName, "vi"));
