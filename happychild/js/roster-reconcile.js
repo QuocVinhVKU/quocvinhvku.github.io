@@ -7,6 +7,7 @@ export const normalizeRosterName=value=>String(value||"")
 
 const identityAliases={
   "DUY THÔNG":"GẤU",
+  "DÂU":"THIÊN MỸ",
   "DẦN":"TRIẾT",
   "TRÍ":"TRIẾT",
   "TRIET":"TRIẾT",

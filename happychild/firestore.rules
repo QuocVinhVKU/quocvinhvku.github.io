@@ -13,7 +13,7 @@ service cloud.firestore {
         && data.teacherId is string && data.teacherId.size() > 0 && data.teacherId.size() <= 160
         && data.dayOfWeek is int && data.dayOfWeek >= 0 && data.dayOfWeek <= 6
         && validTime(data.startTime) && validTime(data.endTime) && data.startTime < data.endTime
-        && data.capacity is int && data.capacity >= 1 && data.capacity <= 20
+        && data.capacity is int && data.capacity >= 1 && data.capacity <= 7
         && data.active is bool
         && data.note is string && data.note.size() <= 5000;
     }
@@ -24,12 +24,13 @@ service cloud.firestore {
         && data.dayOfWeek is int && data.dayOfWeek >= 0 && data.dayOfWeek <= 6
         && data.date is timestamp
         && validTime(data.startTime) && validTime(data.endTime) && data.startTime < data.endTime
-        && data.capacity is int && data.capacity >= 1 && data.capacity <= 20
+        && data.capacity is int && data.capacity >= 1 && data.capacity <= 7
+        && (!('usesMakeupCredit' in data) || data.usesMakeupCredit is bool)
         && data.note is string && data.note.size() <= 5000
         && data.type in ['regular', 'makeup']
         && (
-          (data.type == 'regular' && data.status in ['scheduled', 'attended', 'absent', 'cancelled'])
-          || (data.type == 'makeup' && data.status in ['makeup_scheduled', 'makeup_completed', 'cancelled'])
+          (data.type == 'regular' && data.status in ['scheduled', 'attended', 'absent', 'holiday', 'cancelled'])
+          || (data.type == 'makeup' && data.status in ['makeup_scheduled', 'makeup_completed', 'holiday', 'cancelled'])
         );
     }
     function validStudent(data) {
@@ -55,6 +56,22 @@ service cloud.firestore {
       return data.dateKey is string && data.dateKey.matches('^\\d{4}-\\d{2}-\\d{2}$')
         && data.title is string && data.title.size() <= 300
         && data.details is string && data.details.size() > 0 && data.details.size() <= 5000;
+    }
+    function validHoliday(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.startDate is string && data.startDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.endDate is string && data.endDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.startDate <= data.endDate;
+    }
+    function validTeacherLeave(data) {
+      return data.teacherId is string && data.teacherId.size() > 0 && data.teacherId.size() <= 160
+        && data.startDate is string && data.startDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.endDate is string && data.endDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.startDate <= data.endDate
+        && data.leaveType in ['full_day', 'session']
+        && data.startTime is string && data.endTime is string
+        && (data.leaveType == 'full_day' || (validTime(data.startTime) && validTime(data.endTime) && data.startTime < data.endTime))
+        && data.note is string && data.note.size() <= 1000;
     }
     function validWeek(data) {
       return data.weekNumber is int && data.weekNumber > 0 && data.weekNumber <= 100000
@@ -185,6 +202,32 @@ service cloud.firestore {
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.updatedBy == request.auth.uid;
       allow update: if signedIn() && validNote(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    match /holidays/{id} {
+      allow read, delete: if signedIn();
+      allow create: if signedIn() && validHoliday(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validHoliday(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    match /teacherLeaves/{id} {
+      allow read, delete: if signedIn();
+      allow create: if signedIn() && validTeacherLeave(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validTeacherLeave(request.resource.data)
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.updatedAt == request.time

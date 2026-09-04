@@ -1,5 +1,5 @@
 export const DAYS = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"];
-export const STATUS = {scheduled:"Đã xếp lịch",attended:"Đã học",absent:"Xin nghỉ",makeup_scheduled:"Xếp học bù",makeup_completed:"Đã học bù",cancelled:"Đã hủy"};
+export const STATUS = {scheduled:"Đã xếp lịch",attended:"Đã học",absent:"Xin nghỉ",makeup_scheduled:"Xếp học bù",makeup_completed:"Đã học bù",holiday:"Nghỉ lễ",cancelled:"Đã hủy"};
 export function elapsedSessionTarget(session,now=new Date()){
   const type=String(session?.type||"regular"),status=String(session?.status||""),eligible=type==="makeup"?status==="makeup_scheduled":status==="scheduled";if(!eligible||!/^\d{4}-\d{2}-\d{2}$/.test(String(session?.dateKey||""))||!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(session?.endTime||"")))return null;const nowMs=now instanceof Date?now.getTime():new Date(now).getTime(),endedAt=new Date(`${session.dateKey}T${session.endTime}:00`);if(!Number.isFinite(nowMs)||Number.isNaN(endedAt.getTime())||endedAt.getTime()>nowMs)return null;return type==="makeup"?"makeup_completed":"attended";
 }
