@@ -1,5 +1,5 @@
 import { chromium } from "file:///C:/Users/kurob/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs";
-import {T9_TEACHER_SOURCE,T9_TEMPLATE_SOURCE} from "../js/t9-templates.js";
+import {T9_TEACHER_SOURCE,T9_MAKEUP_BALANCE_SOURCE,T9_TEMPLATE_SOURCE} from "../js/t9-templates.js";
 import {planRosterReconciliation} from "../js/roster-reconcile.js";
 
 const sourceStudents=new Map();for(const item of T9_TEMPLATE_SOURCE)if(!sourceStudents.has(item.studentKey))sourceStudents.set(item.studentKey,{id:item.studentIdHint,fullName:item.studentName,active:true,makeupBalance:0});
@@ -9,7 +9,8 @@ if(reconciliationPlan.desired.length!==62||reconciliationPlan.keepers.length!==6
 if(JSON.stringify(reconciliationPlan.stale.map(item=>item.studentName).sort())!==JSON.stringify(["BEN SÁNG","ĐỨC THÀNH"]))throw new Error("Không xác định đúng học sinh đã rời danh sách tháng 9");
 if(!reconciliationPlan.duplicates.some(item=>item.studentName==="Duy Thông"&&item.keeperName==="Gấu")||!reconciliationPlan.duplicates.some(item=>item.studentName==="Dâu"&&item.keeperName==="THIÊN MỸ")||!reconciliationPlan.duplicates.some(item=>item.studentName==="Dần"&&item.keeperName==="TRIẾT"))throw new Error("Quy tắc gộp Duy Thông/Gấu, Dâu/Thiên Mỹ hoặc Dần/Triết chưa đúng");
 if(reconciliationPlan.desired.some(item=>item.scheduleCount<1))throw new Error("Có học sinh tháng 9 không được phân lịch");
-if(T9_TEMPLATE_SOURCE.length!==250||T9_TEACHER_SOURCE.length!==9||!T9_TEACHER_SOURCE.some(item=>item.id==="teacher-sheet5-diem"&&item.fullName==="Cô Điểm"))throw new Error("Nguồn T9 (2) chưa có đủ 250 lịch và 9 giáo viên");
+if(T9_TEMPLATE_SOURCE.length!==251||T9_TEACHER_SOURCE.length!==9||!T9_TEACHER_SOURCE.some(item=>item.id==="teacher-sheet5-diem"&&item.fullName==="Cô Điểm"))throw new Error("Nguồn T9 (3) chưa có đủ 251 lịch và 9 giáo viên");
+if(T9_MAKEUP_BALANCE_SOURCE.length!==30||!T9_MAKEUP_BALANCE_SOURCE.some(item=>item.studentKey==="MINH ANH ALN"&&item.balance===2))throw new Error("Số dư nghỉ/bù từ hai hàng cuối T9 (3) chưa đúng");
 const contractTeachers=new Map(T9_TEACHER_SOURCE.map(item=>[item.id,item]));
 if(contractTeachers.get("teacher-sheet5-tien")?.birthday!=="2003-11-11"||contractTeachers.get("teacher-sheet5-tien")?.phone!=="0856772057"||contractTeachers.get("teacher-sheet5-thuy")?.birthday!=="2004-05-29"||contractTeachers.get("teacher-sheet5-thuy")?.phone!=="0934033418"||contractTeachers.get("teacher-sheet5-ngoc")?.phone!=="0395884168"||contractTeachers.get("teacher-sheet5-duong")?.phone!=="0947955452"||contractTeachers.get("teacher-sheet5-han")?.phone!=="0797023751"||contractTeachers.get("teacher-sheet5-mai")?.phone!=="0983250755"||contractTeachers.get("teacher-sheet5-quynh")?.phone!=="0937759101")throw new Error("Thông tin ngày sinh/SĐT giáo viên theo hợp đồng chưa đúng");
 if(contractTeachers.get("teacher-sheet5-ngan")?.birthday!=="2003-06-09"||Object.hasOwn(contractTeachers.get("teacher-sheet5-ngan"),"phone")||contractTeachers.get("teacher-sheet5-diem")?.birthday!=="1995-05-09"||Object.hasOwn(contractTeachers.get("teacher-sheet5-diem"),"phone"))throw new Error("Hồ sơ Cô Ngân/Cô Điểm phải giữ trống SĐT khi ảnh nguồn không có dữ liệu");
@@ -17,7 +18,7 @@ if(contractTeachers.get("teacher-sheet5-duong")?.color!=="#ff9900"||contractTeac
 const scheduleFor=(studentKey,dayOfWeek,startTime)=>T9_TEMPLATE_SOURCE.find(item=>item.studentKey===studentKey&&item.dayOfWeek===dayOfWeek&&item.startTime===startTime);
 for(const day of [0,2,4])if(scheduleFor("MIE",day,"16:00")?.teacherId!=="teacher-sheet5-ngan"||scheduleFor("TIGER",day,"16:00")?.teacherId!=="teacher-sheet5-han"||scheduleFor("THIÊN PHÚC",day,"17:00")?.teacherId!=="teacher-sheet5-ngan"||scheduleFor("GIA",day,"19:00")?.teacherId!=="teacher-sheet5-ngan")throw new Error("Lịch T2/T4/T6 chưa đúng màu giáo viên mới");
 for(const day of [1,3,5])if(scheduleFor("THẢO MY",day,"15:00")?.teacherId!=="teacher-sheet5-diem"||scheduleFor("TIGER",day,"16:00")?.teacherId!=="teacher-sheet5-ngan")throw new Error("Lịch T3/T5/T7 chưa đúng màu giáo viên mới");
-if(scheduleFor("TUỆ MINH",5,"18:00")?.teacherId!=="teacher-sheet5-mai"||scheduleFor("MON NGUYÊN",5,"09:00")?.teacherId!=="teacher-sheet5-han"||scheduleFor("ĐÌNH BẢO",5,"16:00")?.teacherId!=="teacher-sheet5-quynh"||scheduleFor("DŨNG",5,"19:00")?.teacherId!=="teacher-sheet5-quynh")throw new Error("Lịch gốc thứ Bảy bị ghi đè bởi các ca đổi tạm trong T9 (2)");
+if(scheduleFor("TUỆ MINH",5,"18:00")?.teacherId!=="teacher-sheet5-mai"||scheduleFor("MON NGUYÊN",5,"09:00")||scheduleFor("ĐÌNH BẢO",5,"16:00")?.teacherId!=="teacher-sheet5-quynh"||scheduleFor("DŨNG",5,"19:00")?.teacherId!=="teacher-sheet5-quynh")throw new Error("Lịch gốc thứ Bảy không khớp thay đổi mới nhất trong T9 (3)");
 if(!["DÂU TÂY","SU HÀO","PHÚC AN"].every(key=>sourceStudents.has(key))||["THU LEE","BÁ PHÚC","PHÚC"].some(key=>sourceStudents.has(key)))throw new Error("Danh sách học sinh thêm/xóa theo T9 (2) chưa đúng");
 if(sourceStudents.has("DÂU")||T9_TEMPLATE_SOURCE.filter(item=>item.studentKey==="THIÊN MỸ").length!==3||![1,3,5].every(day=>scheduleFor("THIÊN MỸ",day,"17:00")?.teacherId==="teacher-sheet5-tien"))throw new Error("Dâu chưa được gộp đúng vào lịch Thiên Mỹ T3/T5/T7 17:00–18:00");
 if(sourceStudents.has("HOÀNG PHÚC")||T9_TEMPLATE_SOURCE.filter(item=>item.studentKey==="HÀ CHÂU").length!==3||![1,3,5].every(day=>scheduleFor("HÀ CHÂU",day,"17:00")?.teacherId==="teacher-sheet5-han"))throw new Error("Lịch Hoàng Phúc chưa được chuyển hoàn toàn sang HÀ CHÂU");
@@ -122,6 +123,8 @@ export const loadWeekSchedule=async()=>[earlySlotSession,session,...recurringStu
 export const loadTeacherWeekSchedule=async id=>id===teacher.id?[{...session,weekId:week.id,weekNumber:week.weekNumber,weekLabel:week.label,weekStartDate:week.startDate,weekEndDate:week.endDate}]:[];
 export const normalizeAllScheduleHours=async()=>({templates:0,sessions:0,weeks:0});
 export const syncScheduleTemplatesFromSource=async templates=>({templates:templates.length,updated:0,deleted:0,createdStudents:[]});
+export const syncMakeupBalancesFromSource=async()=>({updated:0,missing:[]});
+export const syncFutureWeekSessionsFromTemplates=async()=>({weeks:0,updated:0,created:0,deleted:0});
 export const reconcileStudentRosterFromSource=async()=>({students:2,removed:[],archived:[],merged:[],stale:[],duplicates:[]});
 `;
 

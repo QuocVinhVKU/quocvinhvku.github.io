@@ -1,4 +1,21 @@
-export const T9_SOURCE_VERSION="eb6d91100a9bbd8d-r9-ha-chau";
+export const T9_SOURCE_VERSION="t9-3-20260907-r1";
+export const T9_MAKEUP_BALANCE_SOURCE=[
+  {studentKey:"MINH QUANG",balance:1},{studentKey:"MON NGUYÊN",balance:2},
+  {studentKey:"GIA HUY BẮP",balance:3},{studentKey:"ĐÌNH BẢO",balance:1},
+  {studentKey:"GẤU",balance:5},{studentKey:"LUCAS",balance:3},
+  {studentKey:"VÂN MY",balance:1},{studentKey:"MINH",balance:4},
+  {studentKey:"MINH DUY",balance:1},{studentKey:"GIA KHÁNH",balance:8},
+  {studentKey:"TIGER",balance:1},{studentKey:"ĐẬU",balance:2},
+  {studentKey:"BƠ",balance:1},{studentKey:"BEN KHOA",balance:3},
+  {studentKey:"KHÁNH NGỌC - NA",balance:1},{studentKey:"GIA KHANG",balance:5},
+  {studentKey:"MINH ANH ALN",balance:2},{studentKey:"KEN",balance:1},
+  {studentKey:"ANH MINH",balance:1},{studentKey:"GẠO",balance:1},
+  {studentKey:"UY LẠC",balance:1},{studentKey:"TÚ ANH",balance:1},
+  {studentKey:"BON",balance:3},{studentKey:"SÓC",balance:7},
+  {studentKey:"NẾP",balance:2},{studentKey:"MAI ANH",balance:1},
+  {studentKey:"DŨNG",balance:1},{studentKey:"NEMO",balance:1},
+  {studentKey:"CÁO",balance:4},{studentKey:"GURU",balance:1}
+];
 export const T9_STUDENT_PROFILE_SOURCE=[
   {"studentKey":"PHÚC AN","birthday":"2020-06-29"},
   {"studentKey":"HAGO","birthday":"2023-03-05"},
@@ -395,9 +412,9 @@ export const T9_TEMPLATE_SOURCE=[
     "studentName": "Dâu Tây",
     "studentIdHint": "student-t9-c058eed2c68c",
     "teacherId": "teacher-sheet5-han",
-    "dayOfWeek": 0,
-    "startTime": "09:00",
-    "endTime": "10:00",
+    "dayOfWeek": 1,
+    "startTime": "15:00",
+    "endTime": "16:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · F2"
@@ -481,6 +498,32 @@ export const T9_TEMPLATE_SOURCE=[
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · G3"
   },
   {
+    "id": "t9-mon-nguyen-t2-09",
+    "studentKey": "MON NGUYÊN",
+    "studentName": "MON NGUYÊN",
+    "studentIdHint": "student-sheet5-r23",
+    "teacherId": "teacher-sheet5-han",
+    "dayOfWeek": 0,
+    "startTime": "09:00",
+    "endTime": "10:00",
+    "capacity": 1,
+    "active": true,
+    "note": "Cập nhật từ T9 (3).xlsx · Thứ 2 9h"
+  },
+  {
+    "id": "t9-mon-nguyen-t4-09",
+    "studentKey": "MON NGUYÊN",
+    "studentName": "MON NGUYÊN",
+    "studentIdHint": "student-sheet5-r23",
+    "teacherId": "teacher-sheet5-han",
+    "dayOfWeek": 2,
+    "startTime": "09:00",
+    "endTime": "10:00",
+    "capacity": 1,
+    "active": true,
+    "note": "Cập nhật từ T9 (3).xlsx · Thứ 4 9h"
+  },
+  {
     "id": "t9-ea2b7576506a71dc",
     "studentKey": "NAM HY",
     "studentName": "NAM HY",
@@ -499,9 +542,9 @@ export const T9_TEMPLATE_SOURCE=[
     "studentName": "Dâu Tây",
     "studentIdHint": "student-t9-c058eed2c68c",
     "teacherId": "teacher-sheet5-han",
-    "dayOfWeek": 2,
-    "startTime": "09:00",
-    "endTime": "10:00",
+    "dayOfWeek": 3,
+    "startTime": "15:00",
+    "endTime": "16:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · F4"
@@ -603,9 +646,9 @@ export const T9_TEMPLATE_SOURCE=[
     "studentName": "Dâu Tây",
     "studentIdHint": "student-t9-c058eed2c68c",
     "teacherId": "teacher-sheet5-han",
-    "dayOfWeek": 4,
-    "startTime": "09:00",
-    "endTime": "10:00",
+    "dayOfWeek": 5,
+    "startTime": "15:00",
+    "endTime": "16:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · F6"
@@ -663,19 +706,6 @@ export const T9_TEMPLATE_SOURCE=[
     "note": "Gộp Dâu vào Thiên Mỹ · Lịch mặc định Thứ 7"
   },
   {
-    "id": "t9-b824d0afb56633d6",
-    "studentKey": "DÂU TÂY",
-    "studentName": "Dâu Tây",
-    "studentIdHint": "student-t9-c058eed2c68c",
-    "teacherId": "teacher-sheet5-han",
-    "dayOfWeek": 5,
-    "startTime": "09:00",
-    "endTime": "10:00",
-    "capacity": 1,
-    "active": true,
-    "note": "Nhập từ T9 (2).xlsx · Trang tính2 · F7"
-  },
-  {
     "id": "t9-512c295fbd7461de",
     "studentKey": "GIA HUY BẮP",
     "studentName": "GIA HUY - BẮP",
@@ -707,12 +737,12 @@ export const T9_TEMPLATE_SOURCE=[
     "studentName": "MON NGUYÊN",
     "studentIdHint": "student-sheet5-r23",
     "teacherId": "teacher-sheet5-han",
-    "dayOfWeek": 5,
+    "dayOfWeek": 4,
     "startTime": "09:00",
     "endTime": "10:00",
     "capacity": 1,
     "active": true,
-    "note": "Nhập từ T9 (2).xlsx · Trang tính2 · G7"
+    "note": "Cập nhật từ T9 (3).xlsx · Thứ 6 9h"
   },
   {
     "id": "t9-693fa1ef0cf65c83",
@@ -1748,8 +1778,8 @@ export const T9_TEMPLATE_SOURCE=[
     "studentIdHint": "student-sheet5-r52",
     "teacherId": "teacher-sheet5-ngoc",
     "dayOfWeek": 0,
-    "startTime": "17:00",
-    "endTime": "18:00",
+    "startTime": "19:00",
+    "endTime": "20:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · AK2"
@@ -1930,8 +1960,8 @@ export const T9_TEMPLATE_SOURCE=[
     "studentIdHint": "student-sheet5-r52",
     "teacherId": "teacher-sheet5-ngoc",
     "dayOfWeek": 2,
-    "startTime": "17:00",
-    "endTime": "18:00",
+    "startTime": "19:00",
+    "endTime": "20:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · AK4"
@@ -2112,8 +2142,8 @@ export const T9_TEMPLATE_SOURCE=[
     "studentIdHint": "student-sheet5-r52",
     "teacherId": "teacher-sheet5-ngoc",
     "dayOfWeek": 4,
-    "startTime": "17:00",
-    "endTime": "18:00",
+    "startTime": "19:00",
+    "endTime": "20:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · AK6"
@@ -2853,8 +2883,8 @@ export const T9_TEMPLATE_SOURCE=[
     "studentIdHint": "student-sheet5-r49",
     "teacherId": "teacher-sheet5-ngoc",
     "dayOfWeek": 0,
-    "startTime": "19:00",
-    "endTime": "20:00",
+    "startTime": "17:00",
+    "endTime": "18:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · BK2"
@@ -3035,8 +3065,8 @@ export const T9_TEMPLATE_SOURCE=[
     "studentIdHint": "student-sheet5-r49",
     "teacherId": "teacher-sheet5-ngoc",
     "dayOfWeek": 2,
-    "startTime": "19:00",
-    "endTime": "20:00",
+    "startTime": "17:00",
+    "endTime": "18:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · BK4"
@@ -3217,8 +3247,8 @@ export const T9_TEMPLATE_SOURCE=[
     "studentIdHint": "student-sheet5-r49",
     "teacherId": "teacher-sheet5-ngoc",
     "dayOfWeek": 4,
-    "startTime": "19:00",
-    "endTime": "20:00",
+    "startTime": "17:00",
+    "endTime": "18:00",
     "capacity": 1,
     "active": true,
     "note": "Nhập từ T9 (2).xlsx · Trang tính2 · BK6"
