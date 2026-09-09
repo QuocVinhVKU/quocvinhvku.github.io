@@ -1,0 +1,5 @@
+# Local dependencies and generated inspection artifacts
+node_modules/
+**/node_modules/
+*.inspect.ndjson
+

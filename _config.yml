@@ -1,0 +1,3 @@
+exclude:
+  - outputs/happychild-62-students/node_modules
+  - outputs/happychild-62-students/Danh-sach-62-hoc-sinh-HappyChild.xlsx.inspect.ndjson
