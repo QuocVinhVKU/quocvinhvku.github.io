@@ -57,8 +57,8 @@ const ts=value=>({seconds:Math.floor(new Date(value).getTime()/1000),toDate:()=>
 const student={id:"student-1",fullName:"Bé An",shortName:"An",color:"#e879a9",active:true,makeupBalance:1,parentPhone:"",birthday:"2020-08-13"};
 const student2={id:"student-2",fullName:"Bé Bình",shortName:"Bình",color:"#4f86e8",active:true,makeupBalance:1,parentPhone:"",birthday:"2020-08-14"};
 const archivedStudent={id:"student-archived",fullName:"BEN SÁNG",shortName:"Ben",color:"#94a3b8",active:false,archived:true,archivedReason:"Không còn trong T9",makeupBalance:0,parentPhone:"",birthday:"2020-08-15"};
-const teacher={id:"teacher-1",fullName:"Cô Ngân",shortName:"Cô Ngân",color:"#7c5ce7",active:true,phone:""};
-const teacher2={id:"teacher-2",fullName:"Cô Mai",shortName:"Cô Mai",color:"#20a779",active:true,phone:""};
+const teacher={id:"teacher-1",fullName:"Cô Ngân",shortName:"Cô Ngân",color:"#7c5ce7",active:true,phone:"",workPeriod:"all_day"};
+const teacher2={id:"teacher-2",fullName:"Cô Mai",shortName:"Cô Mai",color:"#20a779",active:true,phone:"",workPeriod:"afternoon_evening"};
 const week={id:"week-2026-08-10",weekNumber:1,label:"Tuần 1 (10/08/2026–16/08/2026)",startDate:ts("2026-08-10T12:00:00"),endDate:ts("2026-08-16T12:00:00"),status:"active"};
 const template={id:"template-1",studentId:student.id,teacherId:teacher.id,dayOfWeek:0,startTime:"13:00",endTime:"14:00",capacity:1,active:true,note:""};
 const templatePeer={...template,id:"template-2",studentId:student2.id,note:"Mang sách"};
@@ -122,6 +122,8 @@ export const autoCompleteElapsedSessions=async(id,sessions,user,now)=>{window.__
 export const getTeacherAvailability=id=>id==="teacher-2"?({available:false,reason:"Giáo viên đã có lịch khác trùng giờ.",occupied:0,capacity:7}):({available:true,reason:"",occupied:5,capacity:7,teachingSameSlot:false});
 export const MAX_SIMULTANEOUS_STUDENTS=7;
 export const getMaxSimultaneousStudents=(startTime,endTime)=>startTime>="08:00"&&endTime<="10:00"?4:7;
+export const teacherCanTeachAt=(teacher,startTime,endTime)=>!(startTime>="08:00"&&endTime<="10:00")||teacher?.workPeriod==="all_day";
+export const syncTeacherWorkPeriods=async()=>({updated:0,allDay:4});
 export const addMakeupSession=async()=>{};
 export const replaceStudentSessionsWithMakeupByName=async()=>({absences:0,makeups:0,unchanged:0});
 export const seedData=async()=>{};
@@ -251,6 +253,7 @@ await page.waitForSelector("#addTeacher");
 if (await page.locator(".delete-teacher").count() !== 2) throw new Error("Thiếu thùng rác giáo viên");
 if (await page.locator(".teacher-roster-group").count() !== 2) throw new Error("Trang giáo viên chưa nhóm danh sách học sinh theo từng cô");
 if (await page.locator(".teacher-roster-group[open]").count() !== 1) throw new Error("Danh sách giáo viên chưa mặc định chỉ mở một nhóm");
+if (!(await page.locator('[data-teacher-id="teacher-1"] summary').textContent()).includes("Cả ngày") || !(await page.locator('[data-teacher-id="teacher-2"] summary').textContent()).includes("Chiều/tối")) throw new Error("Trang giáo viên chưa hiển thị phân loại ca làm việc");
 if ((await page.locator('[data-teacher-id="teacher-1"] .teacher-student-count').textContent()).trim() !== "2 học sinh") throw new Error("Số học sinh của cô chưa được tổng hợp đúng từ lịch mẫu");
 if ((await page.locator('[data-teacher-id="teacher-1"] [data-roster-student-id="student-1"] strong').textContent()).trim() !== "Bé An") throw new Error("Thiếu học sinh trong nhóm giáo viên phụ trách");
 if ((await page.locator('[data-teacher-id="teacher-1"] .roster-number').first().textContent()).trim() !== "1") throw new Error("STT cục bộ trong nhóm giáo viên không bắt đầu từ 1");
