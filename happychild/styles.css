@@ -583,3 +583,9 @@ html[data-theme="dark"] ::-webkit-scrollbar{width:10px;height:10px}html[data-the
 .check-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface-soft)}
 .check-row input{width:auto;margin-top:3px}
 .check-row span{display:grid;gap:3px}.check-row small{color:var(--muted);font-weight:400}
+.test-session-list{display:grid;gap:8px;margin:14px 0;padding:14px;border:1px dashed #8b5cf6;border-radius:14px;background:color-mix(in srgb,#8b5cf6 7%,var(--surface))}
+.test-session-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.test-session-card>span{display:grid;gap:3px}.test-session-card small{color:var(--muted)}
+.calendar-warning-panel{margin:14px 0;border:1px solid #dc2626;border-left:5px solid #dc2626;border-radius:14px;background:color-mix(in srgb,#dc2626 10%,var(--surface));color:var(--text)}
+.calendar-warning-panel summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;cursor:pointer;color:#dc2626;font-weight:800}
+.calendar-warning-panel summary strong{padding:3px 8px;border-radius:999px;background:#dc2626;color:#fff;font-size:12px}.calendar-warning-panel ul{margin:0;padding:0 34px 15px 38px}.calendar-warning-panel li{padding:4px 0;line-height:1.45}

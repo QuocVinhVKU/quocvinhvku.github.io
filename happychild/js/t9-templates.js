@@ -1,4 +1,4 @@
-export const T9_SOURCE_VERSION="t9-3-20260909-r3";
+export const T9_SOURCE_VERSION="t9-3-20260909-r5";
 export const T9_MAKEUP_BALANCE_SOURCE=[
   {studentKey:"MINH QUANG",balance:1},{studentKey:"MON NGUYÊN",balance:2},
   {studentKey:"GIA HUY BẮP",balance:3},{studentKey:"ĐÌNH BẢO",balance:1},
@@ -699,11 +699,11 @@ export const T9_TEMPLATE_SOURCE=[
     "studentIdHint": "student-t9-0b1aefacb446",
     "teacherId": "teacher-sheet5-tien",
     "dayOfWeek": 5,
-    "startTime": "17:00",
-    "endTime": "18:00",
+    "startTime": "09:00",
+    "endTime": "10:00",
     "capacity": 1,
     "active": true,
-    "note": "Gộp Dâu vào Thiên Mỹ · Lịch mặc định Thứ 7"
+    "note": "Gộp Dâu vào Thiên Mỹ · Thứ 7 09:00–10:00 Cô Tiên từ 09/09/2026"
   },
   {
     "id": "t9-512c295fbd7461de",
@@ -3310,13 +3310,13 @@ export const T9_TEMPLATE_SOURCE=[
     "studentKey": "DŨNG",
     "studentName": "Dũng",
     "studentIdHint": "student-sheet5-r56",
-    "teacherId": "teacher-sheet5-quynh",
+    "teacherId": "teacher-sheet5-ngoc",
     "dayOfWeek": 5,
     "startTime": "19:00",
     "endTime": "20:00",
     "capacity": 1,
     "active": true,
-    "note": "Nhập từ T9 (2).xlsx · Trang tính2 · BM7"
+    "note": "Thứ 7 19:00–20:00 chuyển sang Cô Ngọc từ 09/09/2026"
   },
   {
     "id": "t9-c08fbd7b684776ea",
