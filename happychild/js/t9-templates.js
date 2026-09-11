@@ -1,9 +1,9 @@
-export const T9_SOURCE_VERSION="t9-3-20260909-r5";
+export const T9_SOURCE_VERSION="t9-3-20260911-r6";
 export const T9_MAKEUP_BALANCE_SOURCE=[
   {studentKey:"MINH QUANG",balance:1},{studentKey:"MON NGUYÊN",balance:2},
   {studentKey:"GIA HUY BẮP",balance:3},{studentKey:"ĐÌNH BẢO",balance:1},
   {studentKey:"GẤU",balance:5},{studentKey:"LUCAS",balance:0},
-  {studentKey:"VÂN MY",balance:1},{studentKey:"MINH",balance:4},
+  {studentKey:"VÂN MY",balance:2},{studentKey:"MINH",balance:4},
   {studentKey:"MINH DUY",balance:1},{studentKey:"GIA KHÁNH",balance:8},
   {studentKey:"TIGER",balance:1},{studentKey:"ĐẬU",balance:2},
   {studentKey:"BƠ",balance:1},{studentKey:"BEN KHOA",balance:3},
