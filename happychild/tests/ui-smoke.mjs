@@ -30,7 +30,7 @@ if(T9_MAKEUP_BALANCE_SOURCE.find(item=>item.studentKey==="VÂN MY")?.balance!==2
 if(sourceStudents.has("HOÀNG PHÚC")||T9_TEMPLATE_SOURCE.filter(item=>item.studentKey==="HÀ CHÂU").length!==3||![1,3,5].every(day=>scheduleFor("HÀ CHÂU",day,"17:00")?.teacherId==="teacher-sheet5-han"))throw new Error("Lịch Hoàng Phúc chưa được chuyển hoàn toàn sang HÀ CHÂU");
 if(T9_TEMPLATE_SOURCE.filter(item=>item.studentKey==="SU HÀO").length!==6||![0,1,2,3,4,5].every(day=>scheduleFor("SU HÀO",day,"08:00")?.teacherId==="teacher-sheet5-tien"))throw new Error("Lịch Su Hào chưa khớp sáu ô màu Cô Tiên trong T9 (2)");
 if(scheduleFor("MAI ANH",5,"08:00")?.teacherId!=="teacher-sheet5-quynh"||![0,2,4,5].every(day=>scheduleFor("GIA HUY BẮP",day,"09:00")?.teacherId==="teacher-sheet5-quynh"))throw new Error("Các ô hồng của Mai Anh/Gia Huy - Bắp chưa được gán đúng Cô Quỳnh");
-if(!T9_TEMPLATE_SOURCE.some(item=>item.studentKey==="XOÀI"&&item.dayOfWeek===0&&item.teacherId==="teacher-sheet5-mai")||T9_TEMPLATE_SOURCE.filter(item=>item.studentKey==="VY").length!==4||scheduleFor("VY",5,"15:00")?.teacherId!=="teacher-sheet5-mai")throw new Error("Lịch màu giáo viên của Xoài hoặc lịch Vy chưa đúng T9 mới nhất");
+if(!T9_TEMPLATE_SOURCE.some(item=>item.studentKey==="XOÀI"&&item.dayOfWeek===0&&item.teacherId==="teacher-sheet5-mai")||T9_TEMPLATE_SOURCE.filter(item=>item.studentKey==="VY").length!==4||scheduleFor("VY",1,"15:00")?.teacherId!=="teacher-sheet5-mai")throw new Error("Lịch màu giáo viên của Xoài hoặc lịch cố định Vy Thứ 3 15:00 chưa đúng");
 
 const browser = await chromium.launch({
   headless: true,
@@ -106,6 +106,11 @@ export const saveTeacherLeave=async()=>({id:"leave-test"});
 export const saveTeacherLeaveSessionPlan=async()=>{};
 export const applyTeacherLeaveDefaults=async()=>({updated:0,total:0});
 export const reconcileTeacherLeaveDefaults=async()=>({updated:0});
+export const restoreTeacherLeaveReplacementsFromAudit=async()=>({restored:0,candidates:0});
+export const removeIncorrectMakeupForFixedSlot=async()=>({removed:0,creditsRestored:0});
+export const applyStudentDateCorrections=async()=>({absent:0,removed:0});
+export const removeOverflowTestReservations=async()=>({removed:0});
+export const removeExactDuplicateStudentSessions=async()=>({removed:0});
 export const deleteTeacherLeave=async()=>{};
 export const saveTemplate=async data=>{window.__savedTemplate=data};
 export const saveNote=async()=>{};

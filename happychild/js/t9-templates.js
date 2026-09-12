@@ -1,4 +1,4 @@
-export const T9_SOURCE_VERSION="t9-20260912-exact-r7";
+export const T9_SOURCE_VERSION="t9-20260912-exact-r8";
 export const T9_MAKEUP_BALANCE_SOURCE=[
   {studentKey:"MINH QUANG",balance:1},{studentKey:"MON NGUYÊN",balance:2},
   {studentKey:"GIA HUY BẮP",balance:3},{studentKey:"ĐÌNH BẢO",balance:1},
@@ -165,7 +165,7 @@ export const T9_TEMPLATE_SOURCE=[
     "studentName": "Gấu",
     "studentIdHint": "student-sheet5-r41",
     "teacherId": "teacher-sheet5-duong",
-    "dayOfWeek": 1,
+    "dayOfWeek": 5,
     "startTime": "08:00",
     "endTime": "09:00",
     "capacity": 1,
@@ -373,7 +373,7 @@ export const T9_TEMPLATE_SOURCE=[
     "studentName": "Gấu",
     "studentIdHint": "student-sheet5-r41",
     "teacherId": "teacher-sheet5-duong",
-    "dayOfWeek": 5,
+    "dayOfWeek": 1,
     "startTime": "08:00",
     "endTime": "09:00",
     "capacity": 1,
@@ -3454,11 +3454,11 @@ export const T9_TEMPLATE_SOURCE=[
     "studentName": "Vy",
     "studentIdHint": "student-sheet5-r47",
     "teacherId": "teacher-sheet5-mai",
-    "dayOfWeek": 5,
+    "dayOfWeek": 1,
     "startTime": "15:00",
     "endTime": "16:00",
     "capacity": 1,
     "active": true,
-    "note": "Nhập chính xác từ T9.xlsx · Trang tính2 · V7"
+    "note": "Lịch cố định Vy · Thứ 3 15:00–16:00 · Cô Mai"
   }
 ].filter(item=>item.studentKey!=="MIE");
