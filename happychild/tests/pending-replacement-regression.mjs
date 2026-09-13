@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { elapsedSessionTarget } from '../js/utils.js';
+const session={type:'regular',status:'scheduled',dateKey:'2026-09-10',endTime:'17:00',teacherLeaveAction:'pending'};
+assert.equal(elapsedSessionTarget(session,new Date('2026-09-13T12:00:00')),null);
+assert.equal(elapsedSessionTarget({...session,teacherLeaveAction:'replacement'},new Date('2026-09-13T12:00:00')),'attended');
+assert.equal(elapsedSessionTarget({...session,type:'makeup',status:'makeup_scheduled'},new Date('2026-09-13T12:00:00')),null);
+const store=fs.readFileSync(new URL('../js/store.js',import.meta.url),'utf8');
+assert.ok(store.includes('leave,"pending","",user,true'));
+assert.ok(store.includes('leavePlan=Boolean(currentData.teacherLeaveAction)'));
+const validation=store.slice(store.indexOf('if(plan==="replacement"){'),store.indexOf('const peerSessionsSnapshot',store.indexOf('if(plan==="replacement"){')));
+assert.ok(!/MAX_SIMULTANEOUS|slotCapacity|capacityError/.test(validation));
+console.log('PASS: pending does not auto-complete; new defaults and overwrite protection valid; replacement has no room-capacity gate');
