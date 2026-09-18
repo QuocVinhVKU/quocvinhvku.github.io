@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
+const render=source.slice(source.indexOf('function renderDashboard()'),source.indexOf('function sessionRow'));
+assert.ok(render.includes('class="dashboard-vacancy-row"'));
+assert.ok(!render.includes('dashboard-vacancy-row:not([disabled])'));
+assert.ok(render.includes('button.onclick=()=>openDashboardVacancyPlanner'));
+assert.ok(render.indexOf('button.onclick=()=>openDashboardVacancyPlanner')<render.indexOf('bindSessionClicks()'));
+const planner=source.slice(source.indexOf('function openDashboardVacancyPlanner'),source.indexOf('const studentHasScheduleOverlap'));
+assert.ok(planner.includes('if(occupied>=capacity)return toast'));
+console.log('PASS: dashboard vacancy rows bind click before session handlers; full slots show toast');
