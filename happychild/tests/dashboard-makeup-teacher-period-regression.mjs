@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const app=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
+const store=fs.readFileSync(new URL('../js/store.js',import.meta.url),'utf8');
+const planner=app.slice(app.indexOf('function openDashboardVacancyPlanner'),app.indexOf('function openDashboardVacancyDatePicker'));
+const makeupForm=app.slice(app.indexOf('function openMakeupForm'),app.indexOf('function openStudentForm'));
+assert.ok(planner.includes('vacancyMakeupOptions(source,state.sessions,true,true)'));
+assert.ok(planner.includes('dashboardMakeupStudentSearch'));
+assert.ok(planner.includes('Học bù bổ sung'));
+assert.ok(planner.includes('excludedCandidates'));
+assert.ok(planner.includes('allowOutsideWorkPeriod:true'));
+assert.ok(makeupForm.includes('context.allowOutsideWorkPeriod===true'));
+const backend=store.slice(store.indexOf('export async function addMakeupSession'),store.indexOf('export async function replaceStudentSessionsWithMakeupByName'));
+assert.ok(backend.includes('allowOutsideWorkPeriod=false'));
+assert.ok(backend.includes('if(!allowOutsideWorkPeriod&&teacherSnapshot.exists()'));
+console.log('PASS: dashboard makeup permits afternoon teachers in morning; other flows keep work-period restriction');

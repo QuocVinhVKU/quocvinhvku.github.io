@@ -138,6 +138,8 @@ export const getMaxSimultaneousStudents=()=>7;
 export const teacherCanTeachAt=(teacher,startTime,endTime)=>!(startTime>="08:00"&&endTime<="10:00")||teacher?.workPeriod==="all_day";
 export const syncTeacherWorkPeriods=async()=>({updated:0,allDay:4});
 export const addMakeupSession=async()=>{};
+export const reassignMakeupSessionTeacher=async()=>({beforeTeacherId:"teacher-1",teacherId:"teacher-2"});
+export const assignUnassignedSessionTeacher=async()=>({teacherId:"teacher-2"});
 export const replaceStudentSessionsWithMakeupByName=async()=>({absences:0,makeups:0,unchanged:0});
 export const seedData=async()=>{};
 export const loadMonthReport=async()=>[reportSession,reportSession2];

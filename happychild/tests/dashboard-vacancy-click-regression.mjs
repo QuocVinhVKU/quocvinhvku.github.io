@@ -5,6 +5,8 @@ const render=source.slice(source.indexOf('function renderDashboard()'),source.in
 assert.ok(render.includes('class="dashboard-vacancy-row"'));
 assert.ok(!render.includes('dashboard-vacancy-row:not([disabled])'));
 assert.ok(render.includes('button.onclick=()=>openDashboardVacancyPlanner'));
+assert.ok(render.includes('id="dashboardVacancyCalendar"'));
+assert.ok(render.includes('openDashboardVacancyDatePicker(selectedDate)'));
 assert.ok(render.indexOf('button.onclick=()=>openDashboardVacancyPlanner')<render.indexOf('bindSessionClicks()'));
 const planner=source.slice(source.indexOf('function openDashboardVacancyPlanner'),source.indexOf('const studentHasScheduleOverlap'));
 assert.ok(planner.includes('if(occupied>=capacity)return toast'));

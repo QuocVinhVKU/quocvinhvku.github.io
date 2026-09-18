@@ -10,4 +10,5 @@ assert.ok(store.includes('leave,"pending","",user,true'));
 assert.ok(store.includes('leavePlan=Boolean(currentData.teacherLeaveAction)'));
 const validation=store.slice(store.indexOf('if(plan==="replacement"){'),store.indexOf('const peerSessionsSnapshot',store.indexOf('if(plan==="replacement"){')));
 assert.ok(!/MAX_SIMULTANEOUS|slotCapacity|capacityError/.test(validation));
+assert.ok(!validation.includes('teacherCanTeachAt'));
 console.log('PASS: pending does not auto-complete; new defaults and overwrite protection valid; replacement has no room-capacity gate');
