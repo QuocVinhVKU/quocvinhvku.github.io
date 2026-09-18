@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const store=fs.readFileSync(new URL('../js/store.js',import.meta.url),'utf8');
+const update=store.slice(store.indexOf('export async function updateSessionStatus'),store.indexOf('export async function saveTeacherLeaveSessionPlan'));
+const create=store.slice(store.indexOf('export async function addMakeupSession'),store.indexOf('export async function reassignMakeupSessionTeacher'));
+const deletion=store.slice(store.indexOf('export async function deleteSession'),store.indexOf('export async function deleteWeek'));
+assert.ok(create.includes('makeupCreditReserved:usesMakeupCredit'));
+assert.ok(create.includes('makeupBalance:increment(-1)'));
+assert.ok(create.includes('idempotencyKey:`reserve:${sessionRef.id}`'));
+assert.ok(update.includes('old.makeupCreditReserved===true'));
+assert.ok(update.includes('["makeup_scheduled","makeup_completed"].includes(status)'));
+assert.ok(deletion.includes('current.makeupCreditReserved===true'));
+console.log('PASS: scheduling reserves credit; completion does not double debit; cancel/delete restores it');
