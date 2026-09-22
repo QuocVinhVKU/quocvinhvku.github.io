@@ -100,6 +100,7 @@ export const subscribeStudentForms=cb=>{setTimeout(()=>cb([studentForm,incomplet
 export const subscribeRecentAudit=cb=>{setTimeout(()=>cb([]),0);return()=>{}};
 export const subscribeTransactions=cb=>{setTimeout(()=>cb([]),0);return()=>{}};
 export const saveStudent=async()=>{};
+export const setStudentMakeupBalance=async(_id,balance)=>({changed:true,before:0,balance:Number(balance)});
 export const deactivateStudentByName=async()=>({studentId:"student-mie",deletedTemplates:6,deletedFutureSessions:6,stoppedDate:"2026-09-08"});
 export const saveTeacher=async()=>{};
 export const saveTeacherLeave=async()=>({id:"leave-test"});
