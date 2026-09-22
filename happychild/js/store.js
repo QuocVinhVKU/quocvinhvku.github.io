@@ -102,14 +102,14 @@ export async function updateSessionStatus(weekId,session,newStatus,user,reason="
   return runTransaction(db,async tx=>{
     const [sSnap,studentSnap]=await Promise.all([tx.get(sessionRef),tx.get(studentRef)]);if(!sSnap.exists()||!studentSnap.exists())throw new Error("Không tìm thấy buổi học hoặc học sinh.");
     const old=sSnap.data(),type=validSessionType(old.type),oldStatus=validSessionStatus(old.status,type),status=validSessionStatus(newStatus,type);
-    const note=limitedText(reason,"Ghi chú buổi học",5000),statusChanged=oldStatus!==status,noteChanged=(old.note||"")!==note;if(!statusChanged&&!noteChanged)return false;
+    const note=limitedText(reason,"Ghi chú buổi học",5000),statusChanged=oldStatus!==status,noteChanged=(old.note||"")!==note;if(!statusChanged&&!noteChanged)return {changed:false,delta:0,balance:Number(studentSnap.data().makeupBalance||0),oldStatus,status};
     const balanceEffect=status=>type==="regular"&&status==="absent"?1:type==="makeup"&&old.usesMakeupCredit!==false&&(old.makeupCreditReserved===true?["makeup_scheduled","makeup_completed"].includes(status):status==="makeup_completed")?-1:0;
     const current=Number(studentSnap.data().makeupBalance||0),delta=balanceEffect(status)-balanceEffect(oldStatus);if(current+delta<0)throw new Error("Học sinh không còn buổi cần bù.");
     tx.update(sessionRef,{status,note,updatedAt:serverTimestamp(),updatedBy:user.uid});
     tx.update(weekRef,dirtyWeekPatch(user));
     if(delta)tx.update(studentRef,{makeupBalance:increment(delta),updatedAt:serverTimestamp(),updatedBy:user.uid});
     if(delta){const ref=doc(collection(db,"makeupTransactions")),ledgerType=delta>0?(type==="regular"&&status==="absent"?"credit":"reversal"):(type==="makeup"&&status==="makeup_completed"?"debit":"reversal");tx.set(ref,{type:ledgerType,quantity:delta,idempotencyKey:`${weekId}:${session.id}:${oldStatus}:${status}:${Date.now()}`,studentId:session.studentId,sessionId:session.id,weekId,relatedSessionId:session.relatedAbsenceSessionId||null,reason:note||`Đổi trạng thái ${oldStatus} → ${status}`,createdAt:serverTimestamp(),createdBy:user.uid})}
-    const log=doc(collection(db,"auditLogs"));tx.set(log,{entityType:"session",entityId:`${weekId}/${session.id}`,action:statusChanged?"status_changed":"note_changed",before:{status:oldStatus,note:old.note||""},after:{status,note},reason:note,userId:user.uid,createdAt:serverTimestamp()});return true;
+    const nextBalance=current+delta,log=doc(collection(db,"auditLogs"));tx.set(log,{entityType:"session",entityId:`${weekId}/${session.id}`,action:statusChanged?"status_changed":"note_changed",before:{status:oldStatus,note:old.note||"",makeupBalance:current},after:{status,note,makeupBalance:nextBalance,balanceDelta:delta},reason:note,userId:user.uid,createdAt:serverTimestamp()});return {changed:true,delta,balance:nextBalance,oldStatus,status};
   });
 }
 export async function saveTeacherLeaveSessionPlan(weekId,session,leave,action,replacementTeacherId,user,automatic=false){
