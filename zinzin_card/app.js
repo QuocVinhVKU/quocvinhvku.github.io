@@ -8,7 +8,7 @@ const links = [
   { id:"telegram-furry", category:"social", title:"Follow ZinZin on Telegram", url:"https://t.me/zinzin_furry", icon:"telegram" },
   { id:"telegram", category:"russian", title:"Присоединяйтесь к Telegram ЗинЗина", subtitle:"Русское сообщество 🇷🇺", url:"https://t.me/zinzin_group", icon:"telegram", language:"ru" },
   { id:"boosty", category:"russian", title:"Поддержать ЗинЗина на Boosty", subtitle:"Эксклюзивный контент и поддержка 💙", url:"https://boosty.to/zinzin_furry", icon:"boosty", language:"ru" },
-  { id:"patreon", category:"support", title:"Support The Valley Of Fur on Patreon", subtitle:"A furry NSFW game — support development & exclusive content", url:"https://www.patreon.com/zinzin_furry", icon:"patreon" },
+  { id:"youtube", category:"videos", title:"Watch ZinZin on YouTube", subtitle:"Videos, furry content & adventures", url:"https://www.youtube.com/@zinzin_furry", icon:"youtube" },
   { id:"google-play", category:"games", title:"Furry Games on Google Play", subtitle:"Discover all furry games by ZinhPixry", url:GOOGLE_PLAY_DEVELOPER_URL, icon:"google-play" },
   { id:"app-store", category:"games", title:"Furry Games on the App Store", subtitle:"Discover all furry games by ZinhPixry", url:APP_STORE_DEVELOPER_URL, icon:"apple" },
   { id:"website", category:"games", title:"Visit the Official Website", subtitle:"ZinhPixry", url:"https://www.zinhpixry.website/", icon:"globe" }
@@ -16,7 +16,7 @@ const links = [
 
 const categories = [
   { id:"social", title:"Follow ZinZin" },
-  { id:"support", title:"Support" },
+  { id:"videos", title:"YouTube" },
   { id:"games", title:"Games & Projects" },
   { id:"russian", title:"Русское сообщество", lang:"ru" }
 ];
