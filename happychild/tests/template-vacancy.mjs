@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {templateVacancies} from '../js/template-vacancy.js';
+const students=Array.from({length:9},(_,i)=>({id:String(i),active:i!==8}));
+const teachers=[{id:'a',active:true},{id:'b',active:true},{id:'c',active:false}];
+const row=(studentId,startTime='08:00',endTime='09:00',extra={})=>({studentId,teacherId:'a',dayOfWeek:0,active:true,startTime,endTime,...extra});
+const run=templates=>templateVacancies({templates,students,teachers,capacity:()=>7,canTeach:(t,start)=>t.id==='a'||start>='15:00'});
+let days=run([row('0'),row('0'),row('8'),row('1','08:00','09:00',{active:false})]);
+assert.equal(days.length,7);assert.equal(days[0].slots[0].occupied,1);assert.equal(days[0].slots[0].remaining,6);assert.equal(days[0].slots[0].available,0);
+assert.equal(days[1].slots[0].available,1);assert.equal(days[1].slots.find(s=>s.startTime==='15:00').available,2);
+days=run([row('0','08:00','08:30'),row('1','08:30','09:00')]);assert.equal(days[0].slots.find(s=>s.startTime==='08:00'&&s.endTime==='09:00').occupied,1);
+days=run(students.slice(0,8).map(s=>row(s.id)));assert.equal(days[0].slots[0].occupied,8);assert.equal(days[0].slots[0].remaining,0);
+assert.equal(run([row('0','bad','09:00')])[0].slots[0].occupied,0);
+console.log('Template vacancy tests passed: deduplication, partial overlaps, capacity, teacher periods, paused/stopped students and empty days.');

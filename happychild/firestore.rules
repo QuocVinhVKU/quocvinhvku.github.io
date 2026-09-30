@@ -246,6 +246,40 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time
         && request.resource.data.updatedBy == request.auth.uid;
     }
+    // Imported billing history is immutable. Browser edits only link a student
+    // or patch monthly fee settings; they never re-import financial source data.
+    function validTuitionAccount(data) {
+      return data.displayName is string && data.displayName.size() > 0 && data.displayName.size() <= 200
+        && data.studentId is string && data.studentId.size() <= 160
+        && data.history is list && data.history.size() <= 200
+        && data.months is map && data.months.size() <= 240
+        && data.source is string && data.source.size() <= 300;
+    }
+    match /tuitionAccounts/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && validTuitionAccount(request.resource.data)
+        && (request.resource.data.history.size() == 0 || owner())
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validTuitionAccount(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['studentId','months','updatedAt','updatedBy'])
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    match /tuitionStudentLinks/{studentId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && request.resource.data.keys().hasOnly(['accountId','updatedAt','updatedBy'])
+        && request.resource.data.accountId is string
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        && exists(/databases/$(database)/documents/students/$(studentId))
+        && getAfter(/databases/$(database)/documents/tuitionAccounts/$(request.resource.data.accountId)).data.studentId == studentId;
+      allow delete: if signedIn()
+        && getAfter(/databases/$(database)/documents/tuitionAccounts/$(resource.data.accountId)).data.studentId != studentId;
+    }
     match /users/{id} {
       allow read: if signedIn();
       allow create, update: if signedIn() && id == request.auth.uid;
