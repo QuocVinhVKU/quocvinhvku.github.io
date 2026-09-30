@@ -13,7 +13,9 @@ assert.deepEqual(tuitionCards(accounts[0],'2026-10',data,now).map(c=>c.month),['
 assert.deepEqual(tuitionCards(accounts[0],'2026-10',data,now)[1].source,source);
 const template=JSON.parse(await fs.readFile(new URL('../assets/tuition-card-layout.json',import.meta.url),'utf8'));
 const blob=buildTuitionCardsXlsx(template,accounts,data,'2026-10',now),zip=await JSZip.loadAsync(await blob.arrayBuffer());
-const sheet=await zip.file('xl/worksheets/sheet1.xml').async('string'),book=await zip.file('xl/workbook.xml').async('string');
+const sheet=await zip.file('xl/worksheets/sheet1.xml').async('string'),secondSheet=await zip.file('xl/worksheets/sheet2.xml').async('string'),book=await zip.file('xl/workbook.xml').async('string');
+for(const xml of [sheet,secondSheet])assert.match(xml,/<sheetView[^>]*zoomScale="70"[^>]*zoomScaleNormal="100"/);
+assert.match(sheet,/<col min="1" max="1" width="24"/);
 assert.match(book,/name="Bé An"/);assert.match(book,/name="Bé mới"/);assert.match(sheet,/học bù 4 buổi/);assert.match(sheet,/<v>4640000<\/v>/);assert.match(sheet,/A6:A8/);assert.match(sheet,/B8/);assert.match(sheet,/ISNUMBER\(B8\)/);
 assert.equal(JSON.stringify(data),before);
 await fs.writeFile('D:/2DUnityGame/.codex/tuition-export-qa/cards-test.xlsx',new Uint8Array(await blob.arrayBuffer()));

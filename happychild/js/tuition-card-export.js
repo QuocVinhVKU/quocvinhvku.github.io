@@ -29,7 +29,7 @@ function makeSheet(template,account,month,data,now){
     body+=makeRow(r+4,pad(fees),style[4],34,source?{}:{7:`IF(AND(ISNUMBER(B${r+4}),ISNUMBER(G${r+4})),B${r+4}*G${r+4},"")`});
     merges.push(`A${r}:J${r}`,`H${r+1}:I${r+1}`,`H${r+2}:I${r+2}`,`A${r+2}:A${r+4}`,`J${r+2}:J${r+4}`,`B${r+3}:F${r+3}`,`B${r+4}:F${r+4}`);
   });
-  return template.parts['xl/worksheets/sheet1.xml'].replace(/<sheetData\s*\/>/,`<sheetData>${body}</sheetData><mergeCells count="${merges.length}">${merges.map(ref=>`<mergeCell ref="${ref}"/>`).join('')}</mergeCells>`).replace(/<dimension\b[^>]*\/>/,`<dimension ref="A1:J${cards.length*6+2}"/>`);
+  return template.parts['xl/worksheets/sheet1.xml'].replace(/<sheetData\s*\/>/,`<sheetData>${body}</sheetData><mergeCells count="${merges.length}">${merges.map(ref=>`<mergeCell ref="${ref}"/>`).join('')}</mergeCells>`).replace(/<dimension\b[^>]*\/>/,`<dimension ref="A1:J${cards.length*6+2}"/>`).replace(/<sheetView\b([^>]*)\/>/,(_,attributes)=>`<sheetView${attributes} zoomScale="70" zoomScaleNormal="100" />`);
 }
 export function buildTuitionCardsXlsx(template,accounts,data,month,now=new Date()) {
   if(!accounts.length)throw new Error('Không có học sinh trong tháng được chọn.');

@@ -14,3 +14,18 @@ export function templateVacancies({templates,students,teachers,capacity,canTeach
     return {startTime,endTime,occupied,capacity:limit,remaining,freeTeachers,available:Math.min(remaining,freeTeachers.length)};
   })}));
 }
+
+// One time range is one weekly opportunity, regardless of how many weekdays it fits.
+export function weeklyTemplateOpportunities(days, minimumDays=3) {
+  const byTime=new Map();
+  for(const {day,slots} of days) {
+    if(day<0||day>5) continue;
+    for(const slot of slots) {
+      if(slot.available<=0) continue;
+      const key=`${slot.startTime}|${slot.endTime}`;
+      if(!byTime.has(key)) byTime.set(key,{startTime:slot.startTime,endTime:slot.endTime,days:[]});
+      byTime.get(key).days.push({day,...slot});
+    }
+  }
+  return [...byTime.values()].filter(group=>group.days.length>=minimumDays).sort((a,b)=>a.startTime.localeCompare(b.startTime)||a.endTime.localeCompare(b.endTime)).map(group=>({...group,possibleCounts:Array.from({length:Math.min(6,group.days.length)-minimumDays+1},(_,i)=>minimumDays+i)}));
+}

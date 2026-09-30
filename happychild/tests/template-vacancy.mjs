@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {templateVacancies} from '../js/template-vacancy.js';
+import {templateVacancies,weeklyTemplateOpportunities} from '../js/template-vacancy.js';
 const students=Array.from({length:9},(_,i)=>({id:String(i),active:i!==8}));
 const teachers=[{id:'a',active:true},{id:'b',active:true},{id:'c',active:false}];
 const row=(studentId,startTime='08:00',endTime='09:00',extra={})=>({studentId,teacherId:'a',dayOfWeek:0,active:true,startTime,endTime,...extra});
@@ -10,4 +10,12 @@ assert.equal(days[1].slots[0].available,1);assert.equal(days[1].slots.find(s=>s.
 days=run([row('0','08:00','08:30'),row('1','08:30','09:00')]);assert.equal(days[0].slots.find(s=>s.startTime==='08:00'&&s.endTime==='09:00').occupied,1);
 days=run(students.slice(0,8).map(s=>row(s.id)));assert.equal(days[0].slots[0].occupied,8);assert.equal(days[0].slots[0].remaining,0);
 assert.equal(run([row('0','bad','09:00')])[0].slots[0].occupied,0);
+const weeklyDays=Array.from({length:7},(_,day)=>({day,slots:[{startTime:'15:00',endTime:'16:00',remaining:2,available:day===3?0:1,freeTeachers:[teachers[0]]},{startTime:'16:00',endTime:'17:00',remaining:2,available:day<2?1:0,freeTeachers:[teachers[0]]}]}));
+const opportunities=weeklyTemplateOpportunities(weeklyDays);
+assert.equal(opportunities.length,1);
+assert.equal(opportunities[0].days.length,5);
+assert.deepEqual(opportunities[0].possibleCounts,[3,4,5]);
+assert.ok(!opportunities[0].days.some(slot=>slot.day===3||slot.day===6));
+weeklyDays[3].slots[0].available=1;
+assert.deepEqual(weeklyTemplateOpportunities(weeklyDays)[0].possibleCounts,[3,4,5,6]);
 console.log('Template vacancy tests passed: deduplication, partial overlaps, capacity, teacher periods, paused/stopped students and empty days.');
