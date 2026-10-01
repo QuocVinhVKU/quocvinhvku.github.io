@@ -2,6 +2,7 @@ import {monthLabel,previousMonth,tuitionMoney} from './tuition-model.js';
 
 const currency=value=>typeof value==='number'&&Number.isFinite(value)?`${new Intl.NumberFormat('vi-VN').format(value)} ₫`:'—';
 const value=value=>value===null||value===undefined||value===''?'—':String(value);
+const attendanceValue=(count,dates=[])=>count==null?'—':`${count}${dates.length?` (${dates.map(day=>day.slice(8,10)+'/'+day.slice(5,7)).join(', ')})`:''}`;
 
 export function tuitionJpgData({name,month,status='',stats=null,config={},source=null}) {
   const imported=source?.values||[],fees=source?.fees||[];
@@ -16,7 +17,9 @@ export function tuitionJpgData({name,month,status='',stats=null,config={},source
     previousRegistered:stats?.previousRegistered??imported[1]??null,
     balance:stats?.balance??imported[2]??null,
     madeUp:stats?.madeUp??imported[3]??null,
+    madeUpDates:stats?.madeUpDates??[],
     absent:stats?.absent??imported[4]??null,
+    absentDates:stats?.absentDates??[],
     actual:stats?.actual??imported[5]??null,
     note:sourceOnly?[imported[6],imported[7],fees[8]].filter(item=>item!==null&&item!==undefined&&item!=='').join(' · '):String(config.note||imported[6]||''),
     registered,unitFee,monthly:computed?.monthly??fees[7]??null,
@@ -72,8 +75,8 @@ export function drawTuitionJpg(ctx,data) {
   // Name and total deliberately span all three rows, exactly like the web card.
   tableCell(ctx,left,y+headerH,nameWidth,dataH+subHeaderH+subDataH,data.name,{small:true});
   x=left+nameWidth;
-  const rowValues=[data.previousRegistered,data.balance,data.madeUp,data.absent,data.actual,'—'];
-  rowValues.forEach((item)=>{tableCell(ctx,x,y+headerH,statWidth,dataH,value(item));x+=statWidth;});
+  const rowValues=[value(data.previousRegistered),value(data.balance),attendanceValue(data.madeUp,data.madeUpDates),attendanceValue(data.absent,data.absentDates),value(data.actual),'—'];
+  rowValues.forEach((item,index)=>{tableCell(ctx,x,y+headerH,statWidth,dataH,item,{small:index===2||index===3});x+=statWidth;});
   tableCell(ctx,x,y+headerH,adjustWidth,dataH,currency(data.adjustment),{small:true});
   const totalX=left+tableWidth-totalWidth;
   tableCell(ctx,totalX,y+headerH,totalWidth,dataH+subHeaderH+subDataH,currency(data.total),{highlight:true});

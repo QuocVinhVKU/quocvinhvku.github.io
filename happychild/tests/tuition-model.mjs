@@ -61,7 +61,8 @@ assert.equal(tuitionStats({person,month:'2026-10',templates,weeks,sessions:[{...
 const sessions=[{...s,dateKey:'2026-09-20',status:'scheduled'},{...s,dateKey:'2026-09-21',status:'absent'},{...s,dateKey:'2026-09-22',type:'makeup',status:'makeup_scheduled'},{...s,dateKey:'2026-09-23',status:'holiday'},{...s,dateKey:'2026-09-24',status:'cancelled'},{...s,dateKey:'2026-09-25',status:'scheduled',teacherLeaveAction:'pending'}];
 stats=tuitionStats({person,month:'2026-09',sessions,now});
 assert.equal(stats.learned,1);assert.equal(stats.madeUp,1);assert.equal(stats.absent,1);assert.equal(stats.actual,2);assert.equal(stats.balance,3);
+assert.deepEqual(stats.madeUpDates,['2026-09-22']);assert.deepEqual(stats.absentDates,['2026-09-21']);
 assert.deepEqual(tuitionMoney(300000,13,100000),{monthly:3900000,total:3800000});
 assert.deepEqual(tuitionMoney(300000,13,-100000),{monthly:3900000,total:4000000});
 assert.equal(tuitionMoney(null,13,0).total,null);
-console.log('Tuition model: 23 assertions passed');
+console.log('Tuition model: absence and makeup dates passed');

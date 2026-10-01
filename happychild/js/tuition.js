@@ -1,4 +1,4 @@
-import {monthNow,monthDates,monthLabel,previousMonth,previousRegistered,nextMonth,defaultBillingMonth,orderTuitionAccounts,tuitionConfig,dateKey,orderedMonths,normalizeName,tuitionMoney,tuitionStats,tuitionBillingStats} from "./tuition-model.js?v=20261001-1";
+import {monthNow,monthDates,monthLabel,previousMonth,previousRegistered,nextMonth,defaultBillingMonth,orderTuitionAccounts,tuitionConfig,dateKey,orderedMonths,normalizeName,tuitionMoney,tuitionStats,tuitionBillingStats} from "./tuition-model.js?v=20261001-2";
 import {watchTuition,watchTuitionWeek,linkTuition,saveTuitionMonth,createTuitionAccount,loadTuitionExport} from "./tuition-store.js?v=20260930-3";
 import {exportTuitionRoster} from "./tuition-export-roster.js?v=20260930-1";
 import {escapeHtml as e,toast} from "./utils.js?v=20260913-25";
@@ -7,6 +7,7 @@ import {syncPendingTuition} from './tuition-pending-sync.js?v=20261001-1';
 
 const money=value=>value==null?"—":new Intl.NumberFormat("vi-VN").format(value)+" ₫";
 const cell=value=>e(value==null||value===""?"—":value);
+const attendanceCell=(count,dates=[])=>count==null?'—':`${count}${dates.length?` (${dates.map(day=>day.slice(8,10)+'/'+day.slice(5,7)).join(', ')})`:''}`;
 const title=month=>`Tháng ${monthLabel(month)}`;
 function sourceTable(source) {
   const v=source.values||[],f=source.fees||[],labels=source.labels||[],fee=source.feeLabels||[];
@@ -14,7 +15,7 @@ function sourceTable(source) {
 }
 function liveTable(person,month,stats,config) {
   const fee=tuitionMoney(config.unitFee,stats.registered,config.adjustment||0);
-  return `<div class="tuition-sheet-scroll" tabindex="0" aria-label="Bảng báo học phí, cuộn ngang để xem đầy đủ"><table class="tuition-sheet"><thead><tr><th>Tên trẻ</th><th>Số buổi đăng ký T${Number(previousMonth(month).slice(5))}</th><th>Số buổi vắng<br><small>Cần bù còn lại</small></th><th>Số buổi đã bù T${monthLabel(previousMonth(month))}</th><th>Buổi nghỉ T${monthLabel(previousMonth(month))}</th><th>Tổng buổi đã học T${monthLabel(previousMonth(month))}</th><th>Ghi chú</th><th colspan="2">Điều chỉnh học phí</th><th>Tổng học phí</th></tr></thead><tbody><tr><th rowspan="3" class="tuition-name">${e(person.fullName)}</th><td>${cell(stats.previousRegistered)}</td><td>${cell(stats.balance)}</td><td>${cell(stats.madeUp)}</td><td>${cell(stats.absent)}</td><td>${cell(stats.actual)}</td><td>${cell(config.note)}</td><td colspan="2">${money(config.adjustment||0)}<small>Trừ vào học phí tháng</small></td><td rowspan="3" class="tuition-total">${money(fee.total)}</td></tr><tr class="tuition-green"><th colspan="5">Số buổi đăng ký T${monthLabel(month)}</th><th>Học phí 1 buổi</th><th>Học phí tháng</th><th>Ghi chú / giảm trừ</th></tr><tr><td colspan="5"><strong>${stats.registered} buổi</strong></td><td>${money(config.unitFee)}</td><td>${money(fee.monthly)}</td><td>${money(config.adjustment||0)}</td></tr></tbody></table></div>`;
+  return `<div class="tuition-sheet-scroll" tabindex="0" aria-label="Bảng báo học phí, cuộn ngang để xem đầy đủ"><table class="tuition-sheet"><thead><tr><th>Tên trẻ</th><th>Số buổi đăng ký T${Number(previousMonth(month).slice(5))}</th><th>Số buổi vắng<br><small>Cần bù còn lại</small></th><th>Số buổi đã bù T${monthLabel(previousMonth(month))}</th><th>Buổi nghỉ T${monthLabel(previousMonth(month))}</th><th>Tổng buổi đã học T${monthLabel(previousMonth(month))}</th><th>Ghi chú</th><th colspan="2">Điều chỉnh học phí</th><th>Tổng học phí</th></tr></thead><tbody><tr><th rowspan="3" class="tuition-name">${e(person.fullName)}</th><td>${cell(stats.previousRegistered)}</td><td>${cell(stats.balance)}</td><td>${cell(attendanceCell(stats.madeUp,stats.madeUpDates))}</td><td>${cell(attendanceCell(stats.absent,stats.absentDates))}</td><td>${cell(stats.actual)}</td><td>${cell(config.note)}</td><td colspan="2">${money(config.adjustment||0)}<small>Trừ vào học phí tháng</small></td><td rowspan="3" class="tuition-total">${money(fee.total)}</td></tr><tr class="tuition-green"><th colspan="5">Số buổi đăng ký T${monthLabel(month)}</th><th>Học phí 1 buổi</th><th>Học phí tháng</th><th>Ghi chú / giảm trừ</th></tr><tr><td colspan="5"><strong>${stats.registered} buổi</strong></td><td>${money(config.unitFee)}</td><td>${money(fee.monthly)}</td><td>${money(config.adjustment||0)}</td></tr></tbody></table></div>`;
 }
 
 export function createTuitionFeature({state,dialog,openStudentForm,getStudentRoster}) {
@@ -100,7 +101,7 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
     const stats=live&&base?tuitionBillingStats(a,month,base,m=>statsFor(a,m)):null;
     const config=live&&base?configFor(a,month):{};
     const status=config.localPending?'Chưa đồng bộ Firebase · dữ liệu lưu trên thiết bị':month===monthNow()?'Tháng hiện tại · tự cập nhật':month>monthNow()?'Dự báo học phí':base?'Bản lưu học phí':'Dữ liệu gốc Excel';
-    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261001-4');
+    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261001-5');
     await downloadTuitionJpg(tuitionJpgData({name:person?.fullName||a.displayName,month,status,stats,config,source}));
   }
   function link(a) {

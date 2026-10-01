@@ -55,7 +55,7 @@ export function previousRegistered(account,month,compute,current=monthNow()) {
 export function tuitionBillingStats(account,month,base,compute) {
   if(!base)return null;
   const attendanceMonth=previousMonth(month),prior=compute(attendanceMonth);
-  return {...base,attendanceMonth,previousRegistered:previousRegistered(account,month,compute),madeUp:prior?.madeUp??null,absent:prior?.absent??null,actual:prior?.actual??null};
+  return {...base,attendanceMonth,previousRegistered:previousRegistered(account,month,compute),madeUp:prior?.madeUp??null,madeUpDates:prior?.madeUpDates??[],absent:prior?.absent??null,absentDates:prior?.absentDates??[],actual:prior?.actual??null};
 }
 export const normalizeName = name => String(name||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").toLowerCase().replace(/[^a-z0-9]/g,"");
 export function orderedMonths(account, current = monthNow()) {
@@ -99,7 +99,10 @@ export function tuitionStats({person,month,sessions=[],weeks=[],templates=[],hol
     }
   }
   const ended = s=>s.teacherLeaveAction!=="pending"&&now.getTime()>=new Date(`${s.dateKey}T${s.endTime}:00+07:00`).getTime();
-  const learned = [...own.values()].filter(s=>s.type!=="makeup"&&!isHoliday(s.dateKey)&&(s.status==="attended"||(s.status==="scheduled"&&ended(s)))).length;
-  const madeUp = [...own.values()].filter(s=>s.type==="makeup"&&!isHoliday(s.dateKey)&&(s.status==="makeup_completed"||(s.status==="makeup_scheduled"&&ended(s)))).length;
-  return {registered:regular.length+forecast.length,forecast:forecast.length,learned,madeUp,actual:learned+madeUp,absent:[...own.values()].filter(s=>s.status==="absent"&&!isHoliday(s.dateKey)).length,balance:month<current?null:Math.max(0,Number(person.makeupBalance)||0),dates:[...regular,...forecast].sort((a,b)=>a.dateKey.localeCompare(b.dateKey)||a.startTime.localeCompare(b.startTime)).map(s=>({date:s.dateKey,start:s.startTime,end:s.endTime}))};
+  const learnedSessions=[...own.values()].filter(s=>s.type!=="makeup"&&!isHoliday(s.dateKey)&&(s.status==="attended"||(s.status==="scheduled"&&ended(s))));
+  const madeUpSessions=[...own.values()].filter(s=>s.type==="makeup"&&!isHoliday(s.dateKey)&&(s.status==="makeup_completed"||(s.status==="makeup_scheduled"&&ended(s))));
+  const absentSessions=[...own.values()].filter(s=>s.status==="absent"&&!isHoliday(s.dateKey));
+  const uniqueDays=rows=>[...new Set(rows.map(s=>s.dateKey).filter(Boolean))].sort();
+  const learned=learnedSessions.length,madeUp=madeUpSessions.length;
+  return {registered:regular.length+forecast.length,forecast:forecast.length,learned,madeUp,madeUpDates:uniqueDays(madeUpSessions),actual:learned+madeUp,absent:absentSessions.length,absentDates:uniqueDays(absentSessions),balance:month<current?null:Math.max(0,Number(person.makeupBalance)||0),dates:[...regular,...forecast].sort((a,b)=>a.dateKey.localeCompare(b.dateKey)||a.startTime.localeCompare(b.startTime)).map(s=>({date:s.dateKey,start:s.startTime,end:s.endTime}))};
 }
