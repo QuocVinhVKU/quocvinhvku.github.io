@@ -22,6 +22,11 @@ export function nextMonth(month) {
   const [year,number]=month.split("-").map(Number);
   return number===12?`${year+1}-01`:`${year}-${String(number+1).padStart(2,"0")}`;
 }
+export function defaultBillingMonth(now = new Date()) {
+  const current = monthNow(now);
+  const day = Number(new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh",day:"2-digit"}).format(now));
+  return day >= 5 ? nextMonth(current) : current;
+}
 export function orderTuitionAccounts(accounts,roster) {
   const rank=new Map(roster.map((entry,index)=>[entry.person.id,{index,number:entry.number}]));
   return accounts.map(account=>({...account,rosterNumber:rank.get(account.studentId)?.number??""})).sort((a,b)=>(rank.get(a.studentId)?.index??Infinity)-(rank.get(b.studentId)?.index??Infinity)||a.displayName.localeCompare(b.displayName,"vi"));
