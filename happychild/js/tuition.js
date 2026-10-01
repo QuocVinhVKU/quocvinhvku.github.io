@@ -92,6 +92,17 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
       catch(ex){if(!isQuotaExceeded(ex)&&ex.code!=='offline')throw ex;const pending=await queueTuitionMonth({uid:state.user.uid,accountId:a.id,month,baseRevision:a.months?.[month]?.revision||0,values});pendingEntries=[...pendingEntries.filter(item=>item.id!==pending.id),pending];toast('Đã lưu phiếu học phí tạm trên thiết bị này; chưa đồng bộ Firebase.',"error");queueRender();}
     },'');
   }
+  async function exportJpg(a,month) {
+    const person=personFor(a),source=(a.history||[]).filter(item=>item.month===month).sort((x,y)=>y.sourceRow-x.sourceRow)[0],base=person?savedStats(a,month):null;
+    const live=month>=monthNow()||!!a.months?.[month]?.snapshot||!!pendingEntries.find(item=>item.kind==='tuition-month'&&item.accountId===a.id&&item.month===month)||!source;
+    if(live&&!base)throw new Error('Chờ lịch học và hồ sơ học sinh tải đầy đủ trước khi lưu ảnh.');
+    if(!base&&!source)throw new Error('Tháng này chưa có phiếu học phí để lưu ảnh.');
+    const stats=live&&base?tuitionBillingStats(a,month,base,m=>statsFor(a,m)):null;
+    const config=live&&base?configFor(a,month):{};
+    const status=config.localPending?'Chưa đồng bộ Firebase · dữ liệu lưu trên thiết bị':month===monthNow()?'Tháng hiện tại · tự cập nhật':month>monthNow()?'Dự báo học phí':base?'Bản lưu học phí':'Dữ liệu gốc Excel';
+    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261001-2');
+    await downloadTuitionJpg(tuitionJpgData({name:person?.fullName||a.displayName,month,status,stats,config,source}));
+  }
   function link(a) {
     const used=new Set(accounts.filter(x=>x.id!==a.id).map(x=>x.studentId)),people=state.students.filter(s=>!used.has(s.id)).sort((a,b)=>a.fullName.localeCompare(b.fullName,"vi"));
     dialog(`Liên kết học sinh · ${a.displayName}`,`<p class="notice warning">Chỉ chọn khi đây đúng là cùng một bé. Lịch sử và học phí gốc vẫn được giữ nguyên.</p><label>Tìm tên<input id="tuitionLinkSearch" type="search" placeholder="Nhập tên học sinh"></label><label>Học sinh có sẵn<select name="studentId" id="tuitionLinkSelect" required><option value="">Chọn học sinh…</option>${people.map(s=>`<option value="${e(s.id)}" ${s.id===a.studentId?"selected":""}>${e(s.fullName)}${s.active===false?" · Đã nghỉ / đợi lịch":""}</option>`).join("")}</select></label><p>Chưa có hồ sơ? <button id="tuitionCreateStudent" type="button" class="button ghost">Tạo học sinh mới</button></p>`,async fd=>linkTuition(a,fd.get("studentId"),state.user));
@@ -133,6 +144,17 @@ root.innerHTML=`<section class="tuition-view">${heading}${pendingNote}<div class
     root.querySelector("#tuitionRefresh")?.addEventListener("click",()=>{leave();loaded=false;error="";connectAccounts();render();});
     root.querySelectorAll("[data-month]").forEach(d=>d.ontoggle=()=>{if(d.open)opened.add(d.dataset.month);else opened.delete(d.dataset.month);});
     root.querySelectorAll("[data-edit-fee]").forEach(b=>b.onclick=()=>editMonth(a,b.dataset.editFee));
+    root.querySelectorAll('.tuition-month').forEach(card=>{
+      if(!a)return;
+      let actions=card.querySelector('.tuition-card-actions');
+      if(!actions&&card.querySelector('.tuition-month-body > .tuition-sheet-scroll')){actions=document.createElement('div');actions.className='tuition-card-actions';card.querySelector('.tuition-month-body').append(actions);}
+      if(!actions)return;
+      const month=card.dataset.month;
+      if(!month)return;
+      const button=document.createElement('button');button.type='button';button.className='button ghost';button.textContent='Lưu ảnh JPG';button.setAttribute('aria-label',`Lưu ảnh JPG học phí ${personFor(a)?.fullName||a.displayName} tháng ${monthLabel(month)}`);
+      button.onclick=async()=>{button.disabled=true;try{await exportJpg(a,month);toast('Đã lưu ảnh JPG học phí tháng '+monthLabel(month)+'.')}catch(error){toast(error.message||'Không thể lưu ảnh JPG.','error')}finally{button.disabled=false}};
+      actions.append(button);
+    });
     root.querySelector("#tuitionAddMonth")?.addEventListener("click",()=>dialog("Thêm tháng báo học phí",`<label>Tháng<input name="month" type="month" value="${monthNow()}" required min="2020-01" max="2100-12"></label><p>Chỉ kế thừa đơn giá; ghi chú và giảm trừ bắt đầu trống. Không ghi đè phiếu đã có.</p>`,async fd=>{const m=fd.get("month");if(a.months?.[m]||(a.history||[]).some(s=>s.month===m))throw new Error("Tháng này đã có trong hồ sơ.");await saveTuitionMonth(a,m,configFor(a,m),state.user);opened.add(m);}));
   }
   function render() {
