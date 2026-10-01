@@ -100,7 +100,7 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
     const stats=live&&base?tuitionBillingStats(a,month,base,m=>statsFor(a,m)):null;
     const config=live&&base?configFor(a,month):{};
     const status=config.localPending?'Chưa đồng bộ Firebase · dữ liệu lưu trên thiết bị':month===monthNow()?'Tháng hiện tại · tự cập nhật':month>monthNow()?'Dự báo học phí':base?'Bản lưu học phí':'Dữ liệu gốc Excel';
-    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261001-2');
+    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261001-4');
     await downloadTuitionJpg(tuitionJpgData({name:person?.fullName||a.displayName,month,status,stats,config,source}));
   }
   function link(a) {

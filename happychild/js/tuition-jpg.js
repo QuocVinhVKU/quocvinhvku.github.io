@@ -25,10 +25,6 @@ export function tuitionJpgData({name,month,status='',stats=null,config={},source
   };
 }
 
-function roundedRect(ctx,x,y,w,h,r,fill,stroke) {
-  ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();
-  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}
-}
 function wrap(ctx,text,maxWidth) {
   const lines=[];
   for(const paragraph of String(text).split(/\r?\n/)) {
@@ -41,42 +37,57 @@ function wrap(ctx,text,maxWidth) {
   }
   return lines.length?lines:[''];
 }
-function centered(ctx,text,x,y,width,color='#f8fafc',font='600 22px Arial') {
+function centered(ctx,text,x,y,width,color='#23313b',font='600 22px Arial') {
   ctx.font=font;ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';
   const lines=wrap(ctx,value(text),width-20),height=27,start=y-(lines.length-1)*height/2;
   lines.forEach((line,i)=>ctx.fillText(line,x,start+i*height));
 }
 function tableCell(ctx,x,y,w,h,text,{header=false,highlight=false,small=false}={}) {
-  ctx.fillStyle=header?'#385a39':highlight?'#783c4b':'#1b2a35';ctx.fillRect(x,y,w,h);
-  ctx.strokeStyle='#526053';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,w-1,h-1);
-  centered(ctx,text,x+w/2,y+h/2,w,header?'#fffceb':'#f8fafc',small?'600 18px Arial':header?'700 19px Arial':'700 22px Arial');
+  ctx.fillStyle=header?'#a9d18e':highlight?'#ff8589':'#fff';ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle='#52604c';ctx.lineWidth=1.35;ctx.strokeRect(x+.675,y+.675,w-1.35,h-1.35);
+  centered(ctx,text,x+w/2,y+h/2,w,'#172019',small?'600 17px Arial':header?'700 17px Arial':highlight?'700 24px Arial':'500 20px Arial');
 }
 
 export function drawTuitionJpg(ctx,data) {
-  const W=1600,left=48,tableWidth=W-left*2,cols=[170,145,130,155,155,155,185,220,189];
-  ctx.font='22px Arial';
-  const noteLines=wrap(ctx,data.note||'Không có ghi chú.',tableWidth-48);
-  const noteHeight=Math.max(100,60+noteLines.length*31);
-  const H=48+102+42+86+100+26+78+96+28+noteHeight+48;
-  ctx.canvas.width=W;ctx.canvas.height=H;
-  ctx.fillStyle='#0e1726';ctx.fillRect(0,0,W,H);
-  roundedRect(ctx,16,16,W-32,H-32,20,'#172235','#2c3950');
-  ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#f8fafc';ctx.font='700 34px Arial';
-  ctx.fillText(`BÁO HỌC PHÍ · THÁNG ${monthLabel(data.month)}`,left,86);
-  ctx.font='20px Arial';ctx.fillStyle='#aebcd1';ctx.fillText(data.status||'Phiếu học phí học sinh',left,118);
-  ctx.textAlign='right';ctx.fillStyle='#9fd4a5';ctx.font='700 29px Arial';ctx.fillText(data.name,W-left,86);
-  const labels=['Tên trẻ',`Số buổi đăng ký T${data.previousMonth}`,'Số buổi vắng còn bù',`Số buổi đã bù T${data.previousMonth}`,`Buổi nghỉ T${data.previousMonth}`,`Tổng buổi đã học T${data.previousMonth}`,'Ghi chú','Điều chỉnh học phí','Tổng học phí'];
-  const values=[data.name,value(data.previousRegistered),value(data.balance),value(data.madeUp),value(data.absent),value(data.actual),data.note?'Có ghi chú bên dưới':'—',currency(data.adjustment),currency(data.total)];
-  let x=left,y=192;
-  cols.forEach((w,i)=>{tableCell(ctx,x,y,w,86,labels[i],{header:true});tableCell(ctx,x,y+86,w,100,values[i],{highlight:i===8,small:i===0||i===6||i===7});x+=w;});
-  y+=212;
-  const bottomLabels=[`Số buổi đăng ký T${monthLabel(data.month)}`,'Học phí 1 buổi','Học phí tháng','Ghi chú / giảm trừ'];
-  const bottomValues=[`${value(data.registered)} buổi`,currency(data.unitFee),currency(data.monthly),currency(data.adjustment)];
-  const bottomWidths=[440,310,370,384];x=left;
-  bottomWidths.forEach((w,i)=>{tableCell(ctx,x,y,w,78,bottomLabels[i],{header:true});tableCell(ctx,x,y+78,w,96,bottomValues[i]);x+=w;});
-  y+=202;roundedRect(ctx,left,y,tableWidth,noteHeight,12,'#1b2a35','#526053');
-  ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#a5d6a7';ctx.font='700 21px Arial';ctx.fillText('GHI CHÚ',left+24,y+34);
-  ctx.fillStyle='#f8fafc';ctx.font='22px Arial';noteLines.forEach((line,i)=>ctx.fillText(line,left+24,y+67+i*31));
+  // Reproduce the merged-cell layout shown on the tuition page.
+  // 4x rendering keeps Vietnamese text and table borders sharp when printed.
+  const W=1600,H=500,scale=4,left=48,tableWidth=W-left*2;
+  const nameWidth=180,statWidth=150,adjustWidth=235,totalWidth=189;
+  const headerH=82,dataH=78,subHeaderH=58,subDataH=64;
+  ctx.canvas.width=Math.round(W*scale);ctx.canvas.height=Math.round(H*scale);
+  ctx.setTransform(scale,0,0,scale,0,0);
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#e1e5e9';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,128.5);ctx.lineTo(W,128.5);ctx.stroke();
+  ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#243444';ctx.font='700 32px Arial';
+  ctx.fillText(`Tháng ${monthLabel(data.month)}`,left,54);
+  ctx.font='17px Arial';ctx.fillStyle='#718096';ctx.fillText(data.status||'Tháng hiện tại · tự cập nhật',left,91);
+  ctx.textAlign='right';ctx.fillStyle='#111827';ctx.font='700 25px Arial';ctx.fillText(`${currency(data.total)} ⌄`,W-left,65);
+
+  const y=158;
+  const mainLabels=['Tên trẻ',`Số buổi đăng ký\nT${data.previousMonth}`,'Số buổi vắng\nCần bù còn lại',`Số buổi đã bù\nT${data.previousMonth}`,`Buổi nghỉ\nT${data.previousMonth}`,`Tổng buổi đã học\nT${data.previousMonth}`,'Ghi chú','Điều chỉnh học phí','Tổng học phí'];
+  const widths=[nameWidth,statWidth,statWidth,statWidth,statWidth,statWidth,statWidth,adjustWidth,totalWidth];
+  let x=left;
+  widths.forEach((w,i)=>{tableCell(ctx,x,y,w,headerH,mainLabels[i],{header:true,small:i>0});x+=w;});
+
+  // Name and total deliberately span all three rows, exactly like the web card.
+  tableCell(ctx,left,y+headerH,nameWidth,dataH+subHeaderH+subDataH,data.name,{small:true});
+  x=left+nameWidth;
+  const rowValues=[data.previousRegistered,data.balance,data.madeUp,data.absent,data.actual,'—'];
+  rowValues.forEach((item)=>{tableCell(ctx,x,y+headerH,statWidth,dataH,value(item));x+=statWidth;});
+  tableCell(ctx,x,y+headerH,adjustWidth,dataH,currency(data.adjustment),{small:true});
+  const totalX=left+tableWidth-totalWidth;
+  tableCell(ctx,totalX,y+headerH,totalWidth,dataH+subHeaderH+subDataH,currency(data.total),{highlight:true});
+
+  const currentX=left+nameWidth,currentWidth=statWidth*5,feeX=currentX+currentWidth;
+  const splitWidth=adjustWidth/2;
+  tableCell(ctx,currentX,y+headerH+dataH,currentWidth,subHeaderH,`Số buổi đăng ký T${monthLabel(data.month)}`,{header:true});
+  tableCell(ctx,feeX,y+headerH+dataH,statWidth,subHeaderH,'Học phí 1 buổi',{header:true});
+  tableCell(ctx,feeX+statWidth,y+headerH+dataH,splitWidth,subHeaderH,'Học phí tháng',{header:true,small:true});
+  tableCell(ctx,feeX+statWidth+splitWidth,y+headerH+dataH,splitWidth,subHeaderH,'Ghi chú / giảm trừ',{header:true,small:true});
+  tableCell(ctx,currentX,y+headerH+dataH+subHeaderH,currentWidth,subDataH,`${value(data.registered)} buổi`);
+  tableCell(ctx,feeX,y+headerH+dataH+subHeaderH,statWidth,subDataH,currency(data.unitFee),{small:true});
+  tableCell(ctx,feeX+statWidth,y+headerH+dataH+subHeaderH,splitWidth,subDataH,currency(data.monthly),{small:true});
+  tableCell(ctx,feeX+statWidth+splitWidth,y+headerH+dataH+subHeaderH,splitWidth,subDataH,currency(data.adjustment),{small:true});
   return H;
 }
 
@@ -84,8 +95,12 @@ export async function downloadTuitionJpg(data) {
   const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d');
   if(!ctx)throw new Error('Trình duyệt không hỗ trợ xuất ảnh JPG.');
   drawTuitionJpg(ctx,data);
-  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.95));
+  let blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.99));
   if(!blob||blob.type!=='image/jpeg')throw new Error('Không thể tạo ảnh JPG.');
+  // Keep the file at least 1 MiB as requested. JPEG readers safely ignore bytes
+  // after the end marker, while the actual image remains a crisp 6400px wide.
+  const minimumBytes=1024*1024;
+  if(blob.size<minimumBytes) blob=new Blob([blob,new Uint8Array(minimumBytes-blob.size)],{type:'image/jpeg'});
   const href=URL.createObjectURL(blob),link=document.createElement('a');
   const safeName=data.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'');
   link.href=href;link.download=`Bao-hoc-phi-${safeName||'hoc-sinh'}-${data.month}.jpg`;
