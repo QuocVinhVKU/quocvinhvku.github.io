@@ -25,6 +25,9 @@ await saveTuitionMonth(account,'2026-09',{unitFee:310000,adjustment:100000,note:
 assert.equal(database.get('tuitionAccounts/a').months['2026-09'].revision,3);
 assert.equal(database.get('tuitionAccounts/a').months['2026-10'].unitFee,290000);
 assert.deepEqual(database.get('tuitionAccounts/a').history,original.history);
+await saveTuitionMonth({id:'a',...structuredClone(database.get('tuitionAccounts/a'))},'2026-10',{unitFee:290000,statsOverrides:{balance:2,madeUp:4,absent:3,madeUpDates:['2026-09-07'],absentDates:['2026-09-11']},syncMakeupBalance:true},user);
+assert.equal(database.get('students/s').makeupBalance,2);
+assert.equal(database.get('tuitionAccounts/a').months['2026-10'].statsOverrides.madeUp,4);
 await assert.rejects(()=>saveTuitionMonth(account,'2026-09',{unitFee:10},user),/thiết bị khác/);
 await assert.rejects(()=>saveTuitionMonth(account,'2026-10',{unitFee:-1},user),/Học phí/);
 await linkTuition(account,'b',user);
