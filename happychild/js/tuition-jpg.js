@@ -67,7 +67,7 @@ export function drawTuitionJpg(ctx,data) {
   ctx.textAlign='right';ctx.fillStyle='#111827';ctx.font='700 25px Arial';ctx.fillText(`${currency(data.total)} ⌄`,W-left,65);
 
   const y=158;
-  const mainLabels=['Tên trẻ',`Số buổi đăng ký\nT${data.previousMonth}`,'Số buổi vắng\nCần bù còn lại',`Số buổi đã bù\nT${data.previousMonth}`,`Buổi nghỉ\nT${data.previousMonth}`,`Tổng buổi đã học\nT${data.previousMonth}`,'Ghi chú','Điều chỉnh học phí','Tổng học phí'];
+  const mainLabels=['Tên trẻ',`Số buổi đăng ký\nT${data.previousMonth}`,`Số buổi đã bù\nT${data.previousMonth}`,`Buổi nghỉ\nT${data.previousMonth}`,`Tổng buổi đã học\nT${data.previousMonth}`,'Số buổi vắng\nCần bù còn lại','Ghi chú','Điều chỉnh học phí','Tổng học phí'];
   const widths=[nameWidth,statWidth,statWidth,statWidth,statWidth,statWidth,statWidth,adjustWidth,totalWidth];
   let x=left;
   widths.forEach((w,i)=>{tableCell(ctx,x,y,w,headerH,mainLabels[i],{header:true,small:i>0});x+=w;});
@@ -75,8 +75,8 @@ export function drawTuitionJpg(ctx,data) {
   // Name and total deliberately span all three rows, exactly like the web card.
   tableCell(ctx,left,y+headerH,nameWidth,dataH+subHeaderH+subDataH,data.name,{small:true});
   x=left+nameWidth;
-  const rowValues=[value(data.previousRegistered),value(data.balance),attendanceValue(data.madeUp,data.madeUpDates),attendanceValue(data.absent,data.absentDates),value(data.actual),'—'];
-  rowValues.forEach((item,index)=>{tableCell(ctx,x,y+headerH,statWidth,dataH,item,{small:index===2||index===3});x+=statWidth;});
+  const rowValues=[value(data.previousRegistered),attendanceValue(data.madeUp,data.madeUpDates),attendanceValue(data.absent,data.absentDates),value(data.actual),value(data.balance),'—'];
+  rowValues.forEach((item,index)=>{tableCell(ctx,x,y+headerH,statWidth,dataH,item,{small:index===1||index===2});x+=statWidth;});
   tableCell(ctx,x,y+headerH,adjustWidth,dataH,currency(data.adjustment),{small:true});
   const totalX=left+tableWidth-totalWidth;
   tableCell(ctx,totalX,y+headerH,totalWidth,dataH+subHeaderH+subDataH,currency(data.total),{highlight:true});

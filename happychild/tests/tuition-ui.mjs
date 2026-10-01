@@ -74,7 +74,8 @@ assert.equal(await page.locator('[data-month="2026-09"] .tuition-sheet tbody tr'
 assert.equal(await page.locator('[data-month="2026-10"]').evaluate(el=>el.classList.contains('tuition-forecast')),true);
 assert.equal(await page.locator('[data-month="2026-10"] .tuition-sheet thead th').nth(1).innerText(),'Số buổi đăng ký T9');
 assert.match(await page.locator('[data-month="2026-10"] .tuition-sheet thead th').nth(3).innerText(),/09\/2026/);
-assert.equal(await page.locator('[data-month="2026-10"] .tuition-sheet tbody tr').first().locator('td').nth(4).innerText(),'1','October bill shows September attendance');
+assert.equal(await page.locator('[data-month="2026-10"] .tuition-sheet tbody tr').first().locator('td').nth(3).innerText(),'1','October bill shows September attendance');
+assert.match(await page.locator('[data-month="2026-10"] .tuition-sheet thead th').nth(5).innerText(),/Cần bù còn lại/);
 assert.equal(await page.locator('[data-month="2026-10"] .tuition-sheet tbody tr').first().locator('td').first().innerText(),'12');
 assert.match(await page.locator('[data-month="2026-10"] .tuition-sheet').innerText(),/12 buổi/);
 await page.locator('[data-edit-fee="2026-10"]').click();
