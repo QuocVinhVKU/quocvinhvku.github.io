@@ -47,5 +47,5 @@ export function loadAttendanceReport(month){
 }
 
 export function attendanceRows(report){
-  return (report?.employees||[]).filter(item=>number(item.actualDays)>0).slice().sort((a,b)=>(b.lateMinutes+b.earlyMinutes)-(a.lateMinutes+a.earlyMinutes)||b.lateCount+b.earlyCount-a.lateCount-a.earlyCount||a.name.localeCompare(b.name,"vi"));
+  return (report?.employees||[]).filter(item=>number(item.actualDays)>0);
 }
