@@ -32,19 +32,20 @@ export function parseAttendanceWorkbook(buffer,fileName=""){
 }
 
 export function attendanceSummary(report){
-  const employees=report?.employees||[],sum=field=>employees.reduce((total,item)=>total+number(item[field]),0);
+  const employees=(report?.employees||[]).filter(item=>number(item.actualDays)>0),sum=field=>employees.reduce((total,item)=>total+number(item[field]),0);
   return {employeeCount:employees.length,lateCount:sum("lateCount"),lateMinutes:sum("lateMinutes"),earlyCount:sum("earlyCount"),earlyMinutes:sum("earlyMinutes"),absenceDays:sum("absenceDays"),punctualCount:employees.filter(item=>item.actualDays>0&&!item.lateCount&&!item.earlyCount).length};
 }
 
 export function saveAttendanceReport(report){
   if(!report?.month)throw new Error("Không xác định được tháng trong file chấm công.");
-  localStorage.setItem(STORAGE_PREFIX+report.month,JSON.stringify(report));
+  const visible={...report,employees:(report.employees||[]).filter(item=>number(item.actualDays)>0)};
+  localStorage.setItem(STORAGE_PREFIX+report.month,JSON.stringify(visible));
 }
 
 export function loadAttendanceReport(month){
-  try{return JSON.parse(localStorage.getItem(STORAGE_PREFIX+month)||"null")}catch{return null}
+  try{const report=JSON.parse(localStorage.getItem(STORAGE_PREFIX+month)||"null");return report?{...report,employees:(report.employees||[]).filter(item=>number(item.actualDays)>0)}:null}catch{return null}
 }
 
 export function attendanceRows(report){
-  return (report?.employees||[]).slice().sort((a,b)=>(b.lateMinutes+b.earlyMinutes)-(a.lateMinutes+a.earlyMinutes)||b.lateCount+b.earlyCount-a.lateCount-a.earlyCount||a.name.localeCompare(b.name,"vi"));
+  return (report?.employees||[]).filter(item=>number(item.actualDays)>0).slice().sort((a,b)=>(b.lateMinutes+b.earlyMinutes)-(a.lateMinutes+a.earlyMinutes)||b.lateCount+b.earlyCount-a.lateCount-a.earlyCount||a.name.localeCompare(b.name,"vi"));
 }

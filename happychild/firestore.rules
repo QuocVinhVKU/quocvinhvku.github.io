@@ -73,6 +73,14 @@ service cloud.firestore {
         && (data.leaveType == 'full_day' || (validTime(data.startTime) && validTime(data.endTime) && data.startTime < data.endTime))
         && data.note is string && data.note.size() <= 1000;
     }
+    function validAttendanceReport(data) {
+      return data.version == 1
+        && data.month is string && data.month.matches('^\\d{4}-\\d{2}$')
+        && data.fileName is string && data.fileName.size() <= 300
+        && data.sheetName is string && data.sheetName.size() <= 200
+        && data.clientImportedAt is string && data.clientImportedAt.size() <= 40
+        && data.employees is list && data.employees.size() > 0 && data.employees.size() <= 200;
+    }
     function validWeek(data) {
       return data.weekNumber is int && data.weekNumber > 0 && data.weekNumber <= 100000
         && data.startDate is timestamp && data.endDate is timestamp && data.startDate < data.endDate
@@ -279,6 +287,22 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/tuitionAccounts/$(request.resource.data.accountId)).data.studentId == studentId;
       allow delete: if signedIn()
         && getAfter(/databases/$(database)/documents/tuitionAccounts/$(resource.data.accountId)).data.studentId != studentId;
+    }
+    match /attendanceReports/{month} {
+      allow read: if signedIn();
+      allow create: if signedIn() && validAttendanceReport(request.resource.data)
+        && request.resource.data.month == month
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if signedIn() && validAttendanceReport(request.resource.data)
+        && request.resource.data.month == month
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow delete: if signedIn();
     }
     match /users/{id} {
       allow read: if signedIn();
