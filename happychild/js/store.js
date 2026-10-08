@@ -1,6 +1,6 @@
 import { db } from "./firebase.js?v=20260826-5";
 import { collection,doc,addDoc,setDoc,updateDoc,deleteDoc,getDoc,getDocs,onSnapshot,query,orderBy,where,serverTimestamp,Timestamp,writeBatch,runTransaction,increment,limit } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-import { addDays,isoDate,weekLabel,overlap,parseFormPeriod,elapsedSessionTarget,floorScheduleTime } from "./utils.js?v=20260913-25";
+import { addDays,isoDate,weekLabel,overlap,parseFormPeriod,elapsedSessionTarget,floorScheduleTime } from "./utils.js?v=20261009-1";
 import {canonicalRosterKey,planRosterReconciliation} from "./roster-reconcile.js?v=20260903-2";
 
 const withTimeout=(promise,ms,message)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);
