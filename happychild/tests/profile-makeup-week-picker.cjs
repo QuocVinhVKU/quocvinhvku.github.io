@@ -1,0 +1,20 @@
+const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
+const code=fs.readFileSync("happychild/js/app.js","utf8");
+const start=code.indexOf("function profileMakeupWeekPicker("),end=code.indexOf("function openExtraLessonForm(",start);
+const select={value:""},target={innerHTML:"",textContent:"",isConnected:true,querySelector:()=>({open:false})};
+let pending={},bound=[],rendered=[];
+const week=id=>({id,label:"Tuần "+id,startDate:{toDate:()=>new Date("2026-10-"+(id==="a"?"05":"12"))}});
+const ctx={state:{weeks:[week("a"),week("b")],studentProfileRequestId:1},$:s=>s==="#profileMakeupWeekSelect"?select:target,escapeHtml:s=>s,loadWeekSchedule:id=>new Promise((resolve,reject)=>pending[id]={resolve,reject}),profileMakeupPlanner:(p,w,r)=>{rendered.push(w.id);return w.id},bindProfileMakeupPlanner:(p,w)=>bound.push(w.id)};
+vm.createContext(ctx);vm.runInContext(code.slice(start,end),ctx);
+assert(ctx.profileMakeupWeekPicker().indexOf('value="b"')<ctx.profileMakeupWeekPicker().indexOf('value="a"'));
+ctx.bindProfileMakeupWeekPicker({},()=>{},1);
+(async()=>{
+  select.value="a";const first=select.onchange();
+  select.value="b";const second=select.onchange();
+  pending.b.resolve([]);await second;pending.a.resolve([]);await first;
+  assert.deepEqual(rendered,["b"]);assert.deepEqual(bound,["b"]);
+  select.value="";await select.onchange();assert.equal(target.innerHTML,"");
+  select.value="a";const failed=select.onchange();pending.a.reject(new Error("offline"));await failed;assert(target.innerHTML.includes("offline"));
+  select.value="b";const stale=select.onchange();ctx.state.studentProfileRequestId=2;pending.b.resolve([]);await stale;assert.deepEqual(rendered,["b"]);
+  console.log("PASS: week ordering, selected-week binding, race protection, clearing, error feedback, stale profile guard");
+})().catch(error=>{console.error(error);process.exitCode=1});
