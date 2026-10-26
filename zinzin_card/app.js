@@ -4,6 +4,7 @@ const APP_STORE_DEVELOPER_URL = "https://apps.apple.com/us/developer/dang-quoc-v
 const links = [
   { id:"facebook", category:"social", title:"Follow ZinZin on Facebook", url:"https://www.facebook.com/zinzinfurry/", icon:"facebook" },
   { id:"twitter", category:"social", title:"Follow @ZinZin_Furry on X", url:"https://x.com/ZinZin_Furry", icon:"x" },
+  { id:"twitter-ad", category:"social", title:"X_AD", url:"https://x.com/ZinZin_Furry_AD", icon:"x" },
   { id:"tiktok", category:"social", title:"Follow ZinZin on TikTok", url:"https://www.tiktok.com/@zinzin_furry", icon:"tiktok" },
   { id:"youtube", category:"social", title:"Watch ZinZin on YouTube", subtitle:"Videos, furry content & adventures", url:"https://www.youtube.com/@zinzin_furry", icon:"youtube" },
   { id:"telegram", category:"russian", title:"Присоединяйтесь к Telegram ЗинЗина", subtitle:"Русское сообщество 🇷🇺", url:"https://t.me/zinzin_group", icon:"telegram", language:"ru" },
