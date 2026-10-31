@@ -94,7 +94,7 @@ export function drawTuitionJpg(ctx,data) {
   return H;
 }
 
-export async function downloadTuitionJpg(data) {
+export async function createTuitionJpgBlob(data) {
   const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d');
   if(!ctx)throw new Error('Trình duyệt không hỗ trợ xuất ảnh JPG.');
   drawTuitionJpg(ctx,data);
@@ -104,8 +104,15 @@ export async function downloadTuitionJpg(data) {
   // after the end marker, while the actual image remains a crisp 6400px wide.
   const minimumBytes=1024*1024;
   if(blob.size<minimumBytes) blob=new Blob([blob,new Uint8Array(minimumBytes-blob.size)],{type:'image/jpeg'});
-  const href=URL.createObjectURL(blob),link=document.createElement('a');
+  canvas.width=0;canvas.height=0;
+  return blob;
+}
+export function tuitionJpgFilename(data) {
   const safeName=data.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'');
-  link.href=href;link.download=`Bao-hoc-phi-${safeName||'hoc-sinh'}-${data.month}.jpg`;
+  return `Bao-hoc-phi-${safeName||'hoc-sinh'}-${data.month}.jpg`;
+}
+export async function downloadTuitionJpg(data) {
+  const blob=await createTuitionJpgBlob(data),href=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=href;link.download=tuitionJpgFilename(data);
   document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(href),60000);
 }

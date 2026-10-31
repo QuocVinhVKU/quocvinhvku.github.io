@@ -4,6 +4,33 @@ import { addDays,isoDate,weekLabel,overlap,parseFormPeriod,elapsedSessionTarget,
 import {canonicalRosterKey,planRosterReconciliation} from "./roster-reconcile.js?v=20260903-2";
 
 const withTimeout=(promise,ms,message)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);
+export const uppercaseStudentName=value=>String(value??"").trim().normalize("NFC").toLocaleUpperCase("vi-VN");
+export async function syncStudentNamesUppercase(user){
+  if(!user?.uid)throw new Error("Vui lòng đăng nhập lại.");
+  const snapshots=await Promise.all(["students","tuitionAccounts"].map(name=>getDocs(collection(db,name))));
+  const candidates=snapshots.flatMap((snapshot,index)=>snapshot.docs.filter(item=>{
+    const data=item.data(),fields=index===0?["fullName","shortName"]:["displayName"];
+    return fields.some(key=>typeof data[key]==="string"&&data[key]!==uppercaseStudentName(data[key]));
+  }).map(item=>({ref:item.ref,fields:index===0?["fullName","shortName"]:["displayName"]})));
+  let updated=0;
+  // Read current names inside a transaction so concurrent edits cannot be overwritten by an old snapshot.
+  for(let offset=0;offset<candidates.length;offset+=150){
+    const chunk=candidates.slice(offset,offset+150);
+    updated+=await runTransaction(db,async tx=>{
+      const current=await Promise.all(chunk.map(item=>tx.get(item.ref))),changes=[];
+      current.forEach((snap,index)=>{
+        if(!snap.exists())return;
+        const data=snap.data(),before={},after={};
+        chunk[index].fields.forEach(key=>{if(typeof data[key]==="string"&&data[key]!==uppercaseStudentName(data[key])){before[key]=data[key];after[key]=uppercaseStudentName(data[key])}});
+        if(Object.keys(after).length)changes.push({ref:chunk[index].ref,before,after});
+      });
+      changes.forEach(change=>tx.update(change.ref,{...change.after,updatedAt:serverTimestamp(),updatedBy:user.uid}));
+      if(changes.length)tx.set(doc(collection(db,"auditLogs")),{entityType:"student",action:"student_names_uppercase",reason:"Đồng bộ tên học sinh sang chữ in hoa",changes:changes.map(change=>({path:change.ref.path,before:change.before,after:change.after})),userId:user.uid,createdAt:serverTimestamp()});
+      return changes.length;
+    });
+  }
+  return {updated};
+}
 const validDateKey=(value,label="Ngày")=>{const dateKey=String(value||"").trim();if(!dateKey)return "";if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))throw new Error(`${label} phải có dạng YYYY-MM-DD.`);const date=new Date(`${dateKey}T12:00:00`);if(Number.isNaN(date.getTime())||isoDate(date)!==dateKey)throw new Error(`${label} không hợp lệ.`);return dateKey};
 const activeSession=session=>!["absent","holiday","cancelled"].includes(session.status);
 const sessionCoveredByLeave=(session,leaves=[])=>leaves.some(leave=>leave.teacherId===session.teacherId&&session.dateKey>=leave.startDate&&session.dateKey<=leave.endDate&&(leave.leaveType==="full_day"||overlap(leave.startTime,leave.endTime,session.startTime,session.endTime)));
@@ -51,7 +78,7 @@ export const subscribeSessions=(weekId,cb)=>onSnapshot(
   })),
   error=>cb(null,error)
 );
-export async function saveStudent(data,user,id){const enrollmentStatus=["active","waiting","stopped"].includes(data.enrollmentStatus)?data.enrollmentStatus:(data.active===false?"stopped":"active"),active=enrollmentStatus==="active",payload={fullName:String(data.fullName||"").trim(),shortName:String(data.shortName||"").trim(),birthday:validDateKey(data.birthday,"Ngày sinh học sinh"),enrollmentStartDate:validDateKey(data.enrollmentStartDate,"Ngày bắt đầu học"),color:validColor(data.color,"#5754d9"),parentPhone:String(data.parentPhone||"").trim(),note:String(data.note||"").trim(),enrollmentStatus,active,stoppedDate:enrollmentStatus==="stopped"?validDateKey(data.stoppedDate,"Ngày ngừng học"):"",stoppedOrder:enrollmentStatus==="stopped"?Math.max(1,wholeNumber(data.stoppedOrder,"Thứ tự khi nghỉ",1)):null,updatedAt:serverTimestamp(),updatedBy:user.uid};if(!payload.fullName)throw new Error("Vui lòng nhập tên học sinh.");if(id&&!active)return deactivateStudent(id,user,payload);if(id)return updateDoc(doc(db,"students",id),payload);return addDoc(collection(db,"students"),{...payload,makeupBalance:0,createdAt:serverTimestamp(),createdBy:user.uid})}
+export async function saveStudent(data,user,id){const enrollmentStatus=["active","waiting","stopped"].includes(data.enrollmentStatus)?data.enrollmentStatus:(data.active===false?"stopped":"active"),active=enrollmentStatus==="active",payload={fullName:uppercaseStudentName(data.fullName),shortName:uppercaseStudentName(data.shortName),birthday:validDateKey(data.birthday,"Ngày sinh học sinh"),enrollmentStartDate:validDateKey(data.enrollmentStartDate,"Ngày bắt đầu học"),color:validColor(data.color,"#5754d9"),parentPhone:String(data.parentPhone||"").trim(),note:String(data.note||"").trim(),enrollmentStatus,active,stoppedDate:enrollmentStatus==="stopped"?validDateKey(data.stoppedDate,"Ngày ngừng học"):"",stoppedOrder:enrollmentStatus==="stopped"?Math.max(1,wholeNumber(data.stoppedOrder,"Thứ tự khi nghỉ",1)):null,updatedAt:serverTimestamp(),updatedBy:user.uid};if(!payload.fullName)throw new Error("Vui lòng nhập tên học sinh.");if(id&&!active)return deactivateStudent(id,user,payload);if(id)return updateDoc(doc(db,"students",id),payload);return addDoc(collection(db,"students"),{...payload,makeupBalance:0,createdAt:serverTimestamp(),createdBy:user.uid})}
 export async function setStudentMakeupBalance(studentId,requestedBalance,reason,user){
   if(!user?.uid)throw new Error("Vui lòng đăng nhập lại.");
   const id=limitedText(studentId,"Học sinh",160),balance=Number(requestedBalance),note=limitedText(reason,"Lý do điều chỉnh",1000);
