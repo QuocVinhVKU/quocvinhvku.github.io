@@ -21,7 +21,7 @@ export function tuitionJpgData({name,month,status='',stats=null,config={},source
     absent:stats?.absent??imported[4]??null,
     absentDates:stats?.absentDates??[],
     actual:stats?.actual??imported[5]??null,
-    note:sourceOnly?[imported[6],imported[7],fees[8]].filter(item=>item!==null&&item!==undefined&&item!=='').join(' · '):String(config.note||imported[6]||''),
+    note:sourceOnly?[imported[6],imported[7],fees[8]].filter(item=>item!==null&&item!==undefined&&item!=='').join(' · '):String(config.note??imported[6]??''),
     registered,unitFee,monthly:computed?.monthly??fees[7]??null,
     adjustment:computed?Number(adjustment):null,
     total:computed?.total??imported[9]??null,
@@ -32,7 +32,11 @@ function wrap(ctx,text,maxWidth) {
   const lines=[];
   for(const paragraph of String(text).split(/\r?\n/)) {
     let line='';
-    for(const word of paragraph.split(/\s+/).filter(Boolean)) {
+    for(const word of paragraph.split(/\s+/).filter(Boolean).flatMap(word=>{
+      const parts=[];let part='';
+      for(const char of word){if(part&&ctx.measureText(part+char).width>maxWidth){parts.push(part);part='';}part+=char;}
+      if(part)parts.push(part);return parts;
+    })) {
       const next=line?`${line} ${word}`:word;
       if(line&&ctx.measureText(next).width>maxWidth){lines.push(line);line=word;}else line=next;
     }
@@ -54,9 +58,14 @@ function tableCell(ctx,x,y,w,h,text,{header=false,highlight=false,small=false}={
 export function drawTuitionJpg(ctx,data) {
   // Reproduce the merged-cell layout shown on the tuition page.
   // 4x rendering keeps Vietnamese text and table borders sharp when printed.
-  const W=1600,H=500,scale=4,left=48,tableWidth=W-left*2;
+  const W=1600,scale=4,left=48,tableWidth=W-left*2;
   const nameWidth=180,statWidth=150,adjustWidth=235,totalWidth=189;
-  const headerH=82,dataH=78,subHeaderH=58,subDataH=64;
+  const headerH=82,subHeaderH=58,subDataH=64;
+  const rowValues=[value(data.previousRegistered),attendanceValue(data.absent,data.absentDates),attendanceValue(data.madeUp,data.madeUpDates),value(data.actual),value(data.balance),value(data.note)];
+  // Notes and date lists must grow the row, not disappear or overlap nearby cells.
+  ctx.font='600 17px Arial';
+  const dataH=Math.max(78,...rowValues.map(text=>wrap(ctx,text,statWidth-20).length*27+24));
+  const H=Math.max(500,158+headerH+dataH+subHeaderH+subDataH+40);
   ctx.canvas.width=Math.round(W*scale);ctx.canvas.height=Math.round(H*scale);
   ctx.setTransform(scale,0,0,scale,0,0);
   ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
@@ -75,9 +84,8 @@ export function drawTuitionJpg(ctx,data) {
   // Name and total deliberately span all three rows, exactly like the web card.
   tableCell(ctx,left,y+headerH,nameWidth,dataH+subHeaderH+subDataH,data.name,{small:true});
   x=left+nameWidth;
-  const rowValues=[value(data.previousRegistered),attendanceValue(data.absent,data.absentDates),attendanceValue(data.madeUp,data.madeUpDates),value(data.actual),value(data.balance),'—'];
-  rowValues.forEach((item,index)=>{tableCell(ctx,x,y+headerH,statWidth,dataH,item,{small:index===1||index===2});x+=statWidth;});
-  tableCell(ctx,x,y+headerH,adjustWidth,dataH,currency(data.adjustment),{small:true});
+  rowValues.forEach((item,index)=>{tableCell(ctx,x,y+headerH,statWidth,dataH,item,{small:true});x+=statWidth;});
+  tableCell(ctx,x,y+headerH,adjustWidth,dataH,`${currency(data.adjustment)}\nTrừ vào học phí tháng`,{small:true});
   const totalX=left+tableWidth-totalWidth;
   tableCell(ctx,totalX,y+headerH,totalWidth,dataH+subHeaderH+subDataH,currency(data.total),{highlight:true});
 

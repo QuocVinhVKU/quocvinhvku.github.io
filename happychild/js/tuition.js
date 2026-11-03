@@ -130,7 +130,7 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
     return {name:person?.fullName||a.displayName,month,status,stats,config,source};
   }
   async function exportJpg(a,month) {
-    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261031-zip1');
+    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261103-notes1');
     await downloadTuitionJpg(tuitionJpgData(jpgDataFor(a,month)));
   }
   let exportingZip=false,zipProgress='';
@@ -156,9 +156,9 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
       if(weekErrors.size)throw new Error('Chưa tải đủ lịch để xuất ảnh chính xác.');
       const ordered=orderTuitionAccounts(accounts,getStudentRoster()).filter(a=>summaryFor(a,month));
       // Prepare all cards first: one selected month and one consistent snapshot, independent of search/detail view.
-      const {tuitionJpgData}=await import('./tuition-jpg.js?v=20261031-zip1');
+      const {tuitionJpgData}=await import('./tuition-jpg.js?v=20261103-notes1');
       const data=ordered.map(a=>{try{return tuitionJpgData(jpgDataFor(a,month))}catch(ex){throw new Error((personFor(a)?.fullName||a.displayName)+': '+ex.message)}});
-      const {exportTuitionZip}=await import('./tuition-zip.js?v=20261031-1');
+      const {exportTuitionZip}=await import('./tuition-zip.js?v=20261103-notes1');
       const result=await exportTuitionZip(data,{onProgress:(done,total)=>{zipProgress=`Tháng ${monthLabel(month)}: đang tạo ${done}/${total} ảnh…`;updateZipProgress();}});
       zipProgress=`Đã xuất ${result.count} ảnh học phí tháng ${monthLabel(month)} vào file ZIP.`;toast(zipProgress);
     }catch(ex){zipProgress='Không thể xuất ZIP: '+ex.message;toast(zipProgress,'error');}

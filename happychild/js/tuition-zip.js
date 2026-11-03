@@ -30,7 +30,7 @@ export async function createStoredZip(entries){
 }
 export async function exportTuitionZip(data,{onProgress=()=>{},createImage,download}={}){
   if(!data.length)throw new Error('Không có học sinh có phiếu học phí trong tháng đã chọn.');
-  const {createTuitionJpgBlob,tuitionJpgFilename}=await import('./tuition-jpg.js?v=20261031-zip1');
+  const {createTuitionJpgBlob,tuitionJpgFilename}=await import('./tuition-jpg.js?v=20261103-notes1');
   const entries=[];
   for(let i=0;i<data.length;i++){
     onProgress(i,data.length);
