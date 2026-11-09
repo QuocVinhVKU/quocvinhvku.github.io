@@ -13,12 +13,15 @@ function database(){
 async function operation(mode,value){
   const db=await database();
   try{return await new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE,mode),store=tx.objectStore(STORE),request=typeof value==='string'?store.delete(value):mode==='readonly'?store.getAll():store.put(value);
+    const tx=db.transaction(STORE,mode),store=tx.objectStore(STORE),request=typeof value==='string'?store.delete(value):mode==='readonly'?store.getAll(globalThis.IDBKeyRange?.lowerBound('d')):store.put(value);
     let result;request.onsuccess=()=>{result=request.result;};request.onerror=()=>reject(request.error);
     tx.oncomplete=()=>resolve(result);tx.onerror=()=>reject(tx.error||new Error('Không ghi được bộ nhớ cục bộ.'));tx.onabort=()=>reject(tx.error||new Error('Lưu tạm bị hủy.'));
   });}finally{db.close();}
 }
-export async function listPending(uid){return (await operation('readonly')||[]).filter(item=>item.uid===uid).sort((a,b)=>a.savedAt.localeCompare(b.savedAt));}
+export async function listPending(uid){return (await operation('readonly')||[]).filter(item=>item.uid===uid&&item.kind!=='document-cache').sort((a,b)=>a.savedAt.localeCompare(b.savedAt));}
+export async function readDocumentCache(uid,key){const db=await database();try{return await new Promise((resolve,reject)=>{const request=db.transaction(STORE,'readonly').objectStore(STORE).get(`cache:${uid}:${key}`);request.onsuccess=()=>resolve(request.result?.value);request.onerror=()=>reject(request.error);});}finally{db.close();}}
+const cacheWrites=new Map();let cacheTimer;
+export async function saveDocumentCache(uid,key,value){if(!uid)return;const id=`cache:${uid}:${key}`;cacheWrites.set(id,{id,kind:'document-cache',uid,value,savedAt:new Date().toISOString()});if(!cacheTimer)cacheTimer=setTimeout(async()=>{cacheTimer=null;const rows=[...cacheWrites.values()];cacheWrites.clear();let db;try{db=await database();await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),store=tx.objectStore(STORE);rows.forEach(row=>store.put(row));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}catch(e){console.warn('Không lưu được bộ nhớ đệm đối chiếu',e);}finally{db?.close();}},100);}
 export async function removePending(id){await operation('readwrite',id);}
 export async function updatePending(item){await operation('readwrite',item);}
 export async function queueTuitionMonth({uid,accountId,month,baseRevision,values}){
@@ -30,5 +33,12 @@ export async function queueTuitionMonth({uid,accountId,month,baseRevision,values
 export async function queueFormDraft({uid,title,fields}){
   if(!uid||!title)throw new Error('Không thể lưu bản nháp không có tài khoản hoặc tên biểu mẫu.');
   const item={id:`draft:${uid}:${crypto.randomUUID()}`,kind:'form-draft',uid,title,fields,savedAt:new Date().toISOString(),status:'manual'};
+  await operation('readwrite',item);return item;
+}
+export async function queueTuitionBalance({uid,accountId,month,baseRevision,value,reason,replace=false,onlyIfUnclosed=false,displayName=''}){
+  if(!uid||!accountId||!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)||!Number.isSafeInteger(value)||value<0||value>10000||!String(reason||'').trim())throw new Error('Số dư/nguồn đối chiếu lưu tạm không hợp lệ.');
+  const id=`tuition-balance:${uid}:${accountId}:${month}`,existing=(await listPending(uid)).find(item=>item.id===id);
+  const values={value,reason:String(reason).trim(),replace,onlyIfUnclosed};
+  const item={id,kind:'tuition-balance',displayName:displayName||existing?.displayName||'',title:`Số dư cần bù ${month} · ${displayName||existing?.displayName||accountId}`,fields:values,uid,accountId,month,baseRevision:existing?.baseRevision??baseRevision,values,savedAt:new Date().toISOString(),status:'pending'};
   await operation('readwrite',item);return item;
 }

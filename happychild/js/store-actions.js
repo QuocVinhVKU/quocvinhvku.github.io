@@ -1,0 +1,50 @@
+import * as core from './store.js?v=20261107-sync2';
+import {durableDataAction} from './data-outbox.js?v=20261107-sync2';
+import {auth} from './firebase.js?v=20260826-5';
+import {listPending} from './local-pending.js?v=20261107-sync2';
+import {projectLocalSessions} from './session-local-view.js';
+export * from './store.js?v=20261107-sync2';
+const action=name=>(...args)=>durableDataAction('store',name,args,core[name]);
+export const saveAttendanceReportCloud=action('saveAttendanceReportCloud');
+export const saveStudent=action('saveStudent');
+export const setStudentMakeupBalance=action('setStudentMakeupBalance');
+export const deactivateStudent=action('deactivateStudent');
+export const saveTeacher=action('saveTeacher');
+export const saveTeacherLeave=action('saveTeacherLeave');
+export const deleteTeacherLeave=action('deleteTeacherLeave');
+export const saveTeacherLeaveSessionPlan=action('saveTeacherLeaveSessionPlan');
+export const saveStudentForm=action('saveStudentForm');
+export const deleteStudentForm=action('deleteStudentForm');
+export const saveNote=action('saveNote');
+export const saveTemplate=action('saveTemplate');
+export const removeRecord=action('removeRecord');
+export const deleteStudent=action('deleteStudent');
+export const deleteTeacher=action('deleteTeacher');
+export const createWeek=action('createWeek');
+export const finalizeWeekSummary=action('finalizeWeekSummary');
+export const updateSessionStatus=(...args)=>{if(args[1]?.localPending)return Promise.reject(new Error('Buổi này đang chờ đồng bộ/đối chiếu. Hãy xử lý yêu cầu đang chờ trước khi sửa tiếp.'));return action('updateSessionStatus')(...args);};
+export const markHolidayRange=action('markHolidayRange');
+export const saveHoliday=action('saveHoliday');
+export const deleteHoliday=action('deleteHoliday');
+export const addMakeupSession=action('addMakeupSession');
+export const reassignMakeupSessionTeacher=action('reassignMakeupSessionTeacher');
+export const assignUnassignedSessionTeacher=action('assignUnassignedSessionTeacher');
+export const saveSession=action('saveSession');
+export const saveTestSession=action('saveTestSession');
+export const deleteSession=action('deleteSession');
+export const deleteWeek=action('deleteWeek');
+export const deleteMakeupTransaction=action('deleteMakeupTransaction');
+async function localRows(rows,week){return projectLocalSessions(rows,await listPending(auth.currentUser?.uid),week);}
+const readCache=new Map();
+async function localRead(name,args,week){const uid=auth.currentUser?.uid,key=JSON.stringify([uid,name,args]);let rows;try{rows=await core[name](...args);readCache.set(key,rows);}catch(e){if(!/quota|resource-exhausted|offline|unavailable/i.test(`${e.code} ${e.message}`)||!readCache.has(key))throw e;rows=readCache.get(key);}if(auth.currentUser?.uid!==uid)throw Error('Tài khoản đã thay đổi.');return localRows(rows,week);}
+export const loadWeekSchedule=(...args)=>localRead('loadWeekSchedule',args,args[0]);
+export const loadStudentHistory=(...args)=>localRead('loadStudentHistory',args);
+export const loadTeacherWeekSchedule=(...args)=>localRead('loadTeacherWeekSchedule',args,args[1]);
+export function subscribeSessions(week,callback){
+ let raw=[],stopped=false,sequence=0;const uid=auth.currentUser?.uid;
+ const publish=async()=>{const token=++sequence;try{const rows=await localRows(raw,week);if(!stopped&&token===sequence&&auth.currentUser?.uid===uid)callback(rows);}catch(e){if(!stopped)callback(null,e);}};
+ const stop=core.subscribeSessions(week,(rows,error)=>{if(error)return callback(null,error);raw=rows;readCache.set(JSON.stringify([uid,'loadWeekSchedule',[week]]),rows);publish();});
+ window.addEventListener('happychild-pending-changed',publish);
+ return ()=>{stopped=true;stop();window.removeEventListener('happychild-pending-changed',publish);};
+}
+export const autoCompleteElapsedSessions=(week,rows,...args)=>core.autoCompleteElapsedSessions(week,rows.filter(row=>!row.localPending),...args);

@@ -1,9 +1,12 @@
-import {monthNow,monthDates,monthLabel,previousMonth,previousRegistered,nextMonth,defaultBillingMonth,orderTuitionAccounts,tuitionConfig,dateKey,orderedMonths,normalizeName,tuitionMoney,tuitionStats,tuitionBillingStats} from "./tuition-model.js?v=20261001-2";
-import {watchTuition,watchTuitionWeek,linkTuition,saveTuitionMonth,createTuitionAccount,loadTuitionExport} from "./tuition-store.js?v=20261002-1";
+import {monthNow,monthDates,monthLabel,previousMonth,previousRegistered,nextMonth,defaultBillingMonth,orderTuitionAccounts,tuitionConfig,dateKey,orderedMonths,normalizeName,tuitionMoney,tuitionStats,tuitionBillingStats,mergeTuitionSnapshot,tuitionBalanceState} from "./tuition-model.js?v=20261105-reconcile1";
+import {watchTuition,watchTuitionWeek,linkTuition,saveTuitionMonth,createTuitionAccount,loadTuitionExport,closeTuitionMonthBalances,closeTuitionAccountBalance} from "./tuition-actions.js?v=20261105-data8";
 import {exportTuitionRoster} from "./tuition-export-roster.js?v=20260930-1";
 import {escapeHtml as e,toast} from "./utils.js?v=20260913-25";
-import {isQuotaExceeded,listPending,queueTuitionMonth,removePending} from './local-pending.js?v=20261001-1';
-import {syncPendingTuition} from './tuition-pending-sync.js?v=20261001-1';
+import {isQuotaExceeded,listPending,queueTuitionMonth,queueTuitionBalance,removePending} from './local-pending.js?v=20261105-pending3';
+import {syncPendingTuition} from './tuition-pending-sync.js?v=20261105-preserve7';
+import {localBalanceTable} from './tuition-local-view.js?v=20261105-preserve7';
+import {importLocalBalances,restoreComputerLocalBalances} from './tuition-local-import.js?v=20261105-preserve7';
+import {tuitionDisplayBalance} from './tuition-model.js?v=20261105-preserve7';
 
 const money=value=>value==null?"—":new Intl.NumberFormat("vi-VN").format(value)+" ₫";
 const cell=value=>e(value==null||value===""?"—":value);
@@ -34,16 +37,18 @@ function sourceTable(source) {
 }
 function liveTable(person,month,stats,config) {
   const fee=tuitionMoney(config.unitFee,stats.registered,config.adjustment||0);
-  return `<div class="tuition-sheet-scroll" tabindex="0" aria-label="Bảng báo học phí, cuộn ngang để xem đầy đủ"><table class="tuition-sheet"><thead><tr><th>Tên trẻ</th><th>Số buổi đăng ký T${Number(previousMonth(month).slice(5))}</th><th>Buổi nghỉ T${monthLabel(previousMonth(month))}</th><th>Số buổi đã bù T${monthLabel(previousMonth(month))}</th><th>Tổng buổi đã học T${monthLabel(previousMonth(month))}</th><th>Số buổi vắng<br><small>Cần bù còn lại</small></th><th>Ghi chú</th><th colspan="2">Điều chỉnh học phí</th><th>Tổng học phí</th></tr></thead><tbody><tr><th rowspan="3" class="tuition-name">${e(person.fullName)}</th><td>${cell(stats.previousRegistered)}</td><td>${cell(attendanceCell(stats.absent,stats.absentDates))}</td><td>${cell(attendanceCell(stats.madeUp,stats.madeUpDates))}</td><td>${cell(stats.actual)}</td><td>${cell(stats.balance)}</td><td>${cell(config.note)}</td><td colspan="2">${money(config.adjustment||0)}<small>Trừ vào học phí tháng</small></td><td rowspan="3" class="tuition-total">${money(fee.total)}</td></tr><tr class="tuition-green"><th colspan="5">Số buổi đăng ký T${monthLabel(month)}</th><th>Học phí 1 buổi</th><th>Học phí tháng</th><th>Ghi chú / giảm trừ</th></tr><tr><td colspan="5"><strong>${stats.registered} buổi</strong></td><td>${money(config.unitFee)}</td><td>${money(fee.monthly)}</td><td>${money(config.adjustment||0)}</td></tr></tbody></table></div>`;
+return `<div class="tuition-sheet-scroll" tabindex="0" aria-label="Bảng báo học phí, cuộn ngang để xem đầy đủ"><table class="tuition-sheet"><thead><tr><th>Tên trẻ</th><th>Số buổi đăng ký T${Number(previousMonth(month).slice(5))}</th><th>Buổi nghỉ T${monthLabel(previousMonth(month))}</th><th>Số buổi đã bù T${monthLabel(previousMonth(month))}</th><th>Tổng buổi đã học T${monthLabel(previousMonth(month))}</th><th>Số buổi vắng<br><small>Cần bù còn lại</small></th><th>Ghi chú</th><th colspan="2">Điều chỉnh học phí</th><th>Tổng học phí</th></tr></thead><tbody><tr><th rowspan="3" class="tuition-name">${e(person.fullName)}</th><td>${cell(stats.previousRegistered)}</td><td>${cell(attendanceCell(stats.absent,stats.absentDates))}</td><td>${cell(attendanceCell(stats.madeUp,stats.madeUpDates))}</td><td>${cell(stats.actual)}</td><td>${cell(stats.balanceLabel??stats.balance)}</td><td>${cell(config.note)}</td><td colspan="2">${money(config.adjustment||0)}<small>Trừ vào học phí tháng</small></td><td rowspan="3" class="tuition-total">${money(fee.total)}</td></tr><tr class="tuition-green"><th colspan="5">Số buổi đăng ký T${monthLabel(month)}</th><th>Học phí 1 buổi</th><th>Học phí tháng</th><th>Ghi chú / giảm trừ</th></tr><tr><td colspan="5"><strong>${stats.registered} buổi</strong></td><td>${money(config.unitFee)}</td><td>${money(fee.monthly)}</td><td>${money(config.adjustment||0)}</td></tr></tbody></table></div>`;
 }
 
 export function createTuitionFeature({state,dialog,openStudentForm,getStudentRoster}) {
   let accounts=[],loaded=false,error="",cached=false,selected="",selectedMonth=defaultBillingMonth(),query="",unsub=null,opened=new Set(),watchers=new Map(),weekRows=new Map(),weekErrors=new Map(),signature="",timer=null,pendingRender=null,loadTimer=null,pendingEntries=[],syncingPending=false;
   const visible=()=>location.hash==="#tuition";
   const account=()=>accounts.find(a=>a.id===selected);
-  function leave() {for(const fn of watchers.values())fn();watchers.clear();weekRows.clear();weekErrors.clear();signature="";if(timer)clearInterval(timer);timer=null;if(pendingRender)clearTimeout(pendingRender);pendingRender=null;}
+  let monthPickerOpen=false,renderQueued=false,statsVersion=0,cacheInputs=[],statsCache=new Map(),monthCache=new Map();
+  function checkStatsCache(){const inputs=[state.students,state.templates,state.weeks,state.holidays,statsVersion,Math.floor(Date.now()/60000),state.ready.students,state.ready.templates,state.ready.weeks,state.ready.holidays];if(inputs.some((v,i)=>v!==cacheInputs[i])){cacheInputs=inputs;statsCache.clear();monthCache.clear();}}
+  function leave() {for(const fn of watchers.values())fn();watchers.clear();signature="";monthPickerOpen=false;if(timer)clearInterval(timer);timer=null;if(pendingRender)clearTimeout(pendingRender);pendingRender=null;}
   function queueRender() {if(!visible()||pendingRender)return;pendingRender=setTimeout(()=>{pendingRender=null;if(visible())render();},60);}
-  function stop() {unsub?.();unsub=null;if(loadTimer)clearTimeout(loadTimer);loadTimer=null;leave();accounts=[];loaded=false;error="";selected="";query="";opened.clear();pendingEntries=[];}
+  function stop() {unsub?.();unsub=null;if(loadTimer)clearTimeout(loadTimer);loadTimer=null;leave();weekRows.clear();weekErrors.clear();statsCache.clear();monthCache.clear();statsVersion++;accounts=[];loaded=false;error="";selected="";query="";opened.clear();pendingEntries=[];}
   function connectAccounts() {
     unsub?.();unsub=null;if(loadTimer)clearTimeout(loadTimer);
     loadTimer=setTimeout(()=>{if(!loaded){error="Firebase chưa phản hồi danh sách học phí sau 12 giây. Kiểm tra kết nối mạng rồi bấm Tải lại.";if(visible())render();}},12000);
@@ -51,8 +56,15 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
     catch(ex){if(loadTimer)clearTimeout(loadTimer);loadTimer=null;loaded=true;error=ex.message;if(visible())render();}
   }
   function start() {stop();connectAccounts();}
-  async function refreshPending(user=state.user){if(!user?.uid)return;pendingEntries=await listPending(user.uid);if(visible())render();}
-  async function resumePending(user=state.user){if(!user?.uid||syncingPending)return;syncingPending=true;try{await refreshPending(user);if(!navigator.onLine||!pendingEntries.some(item=>item.kind==='tuition-month'&&item.status!=='conflict'))return;const result=await syncPendingTuition(user);await refreshPending(user);if(result.synced)toast(`Đã đồng bộ ${result.synced} phiếu học phí lưu tạm.`);if(result.conflicts)toast(`${result.conflicts} phiếu học phí có xung đột; bản local vẫn được giữ để đối chiếu.`,"error");}catch(ex){console.error('Không thể kiểm tra bản lưu tạm',ex);toast('Chưa thể kiểm tra bản lưu tạm: '+ex.message,'error');}finally{syncingPending=false;}}
+  const computerRestores=new Map();
+  async function refreshPending(user=state.user){
+    if(!user?.uid)return;
+    if(!computerRestores.has(user.uid))computerRestores.set(user.uid,restoreComputerLocalBalances(user,accounts).catch(ex=>{computerRestores.delete(user.uid);console.warn('Chưa nạp được bản đối chiếu trên máy',ex);}));
+    await computerRestores.get(user.uid);
+    const entries=await listPending(user.uid);if(state.user?.uid!==user.uid)return;
+    pendingEntries=entries;if(visible())render();
+  }
+  async function resumePending(user=state.user){if(!user?.uid||syncingPending)return;syncingPending=true;try{await refreshPending(user);if(!navigator.onLine||!pendingEntries.some(item=>['tuition-month','tuition-balance'].includes(item.kind)&&item.status!=='conflict'))return;const result=await syncPendingTuition(user);await refreshPending(user);if(result.synced)toast(`Đã đồng bộ ${result.synced} thay đổi học phí/số dư lưu tạm.`);if(result.conflicts)toast(`${result.conflicts} thay đổi có xung đột; bản local vẫn được giữ để đối chiếu.`,"error");}catch(ex){console.error('Không thể kiểm tra bản lưu tạm',ex);toast('Chưa thể kiểm tra bản lưu tạm: '+ex.message,'error');}finally{syncingPending=false;}}
   const personFor=a=>state.students.find(s=>s.id===a.studentId);
   function exportExcel(selectedAccount) {
     if(!loaded||error||!state.ready.students||!state.ready.templates||!state.ready.studentForms)return toast('Chờ danh sách học sinh và lịch mẫu tải đầy đủ trước khi xuất.','error');
@@ -77,21 +89,22 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
     const key=months.join("|")+":"+next.map(w=>w.id).sort().join("|");
     if(key===signature&&watchers.size)return;
     signature=key;
-    for(const [id,fn] of watchers)if(!next.some(w=>w.id===id)){fn();watchers.delete(id);weekRows.delete(id);weekErrors.delete(id);}
+    for(const [id,fn] of watchers)if(!next.some(w=>w.id===id)){fn();watchers.delete(id);}
     for(const w of next)if(!watchers.has(w.id)) {
-      watchers.set(w.id,watchTuitionWeek(w.id,(rows,fromCache)=>{weekRows.set(w.id,{rows,fromCache});weekErrors.delete(w.id);queueRender();},ex=>{weekErrors.set(w.id,ex.message);queueRender();}));
+      watchers.set(w.id,watchTuitionWeek(w.id,(rows,fromCache)=>{weekRows.set(w.id,{rows,fromCache});weekErrors.delete(w.id);statsVersion++;queueRender();},ex=>{weekErrors.set(w.id,ex.message);statsVersion++;queueRender();}));
     }
     if(!timer)timer=setInterval(()=>{if(visible())render();},60000);
   }
   function statsFor(a,month) {
+    checkStatsCache();const cacheKey=a.studentId+'|'+month;if(statsCache.has(cacheKey))return statsCache.get(cacheKey);
     const person=personFor(a);if(!person)return null;
     if(!state.ready.students||!state.ready.templates||!state.ready.weeks||!state.ready.holidays)return null;
-    const required=state.weeks.filter(w=>dateKey(w.startDate)<=monthDates(month).at(-1)&&dateKey(w.endDate)>=month+"-01");
+    let prepared=monthCache.get(month);if(!prepared){const last=monthDates(month).at(-1),required=state.weeks.filter(w=>dateKey(w.startDate)<=last&&dateKey(w.endDate)>=month+'-01');prepared={required,sessions:required.flatMap(w=>weekRows.get(w.id)?.rows||[])};monthCache.set(month,prepared);}const required=prepared.required;
     if(required.some(w=>!weekRows.has(w.id)||weekErrors.has(w.id)))return null;
-    return tuitionStats({person,month,sessions:required.flatMap(w=>weekRows.get(w.id).rows),weeks:state.weeks,templates:state.templates,holidays:state.holidays});
+    const result=tuitionStats({person,month,sessions:prepared.sessions,weeks:state.weeks,templates:state.templates,holidays:state.holidays});statsCache.set(cacheKey,result);return result;
   }
-  function savedStats(a,month) {const pending=pendingEntries.find(item=>item.kind==='tuition-month'&&item.accountId===a.id&&item.month===month);return pending?.values?.snapshot||(month<monthNow()&&a.months?.[month]?.snapshot?a.months[month].snapshot:statsFor(a,month));}
-  function billingStatsFor(a,month,base=savedStats(a,month)) {return statsWithOverrides(tuitionBillingStats(a,month,base,m=>statsFor(a,m)),configFor(a,month).statsOverrides);}
+  function savedStats(a,month) {const pending=pendingEntries.find(item=>item.kind==='tuition-month'&&item.accountId===a.id&&item.month===month),snapshot=pending?.values?.snapshot||(month<monthNow()?a.months?.[month]?.snapshot:null);if(snapshot&&Number.isFinite(snapshot.registered)&&Array.isArray(snapshot.dates))return snapshot;return mergeTuitionSnapshot(statsFor(a,month),snapshot);}
+  function billingStatsFor(a,month,base=savedStats(a,month)) {const stats=statsWithOverrides(tuitionBillingStats(a,month,base,m=>statsFor(a,m)),configFor(a,month).statsOverrides);return stats?{...stats,...tuitionDisplayBalance(a,month,stats.balance,pendingEntries)}:stats;}
   function summaryFor(a,month) {
     const source=(a.history||[]).filter(s=>s.month===month).sort((x,y)=>y.sourceRow-x.sourceRow)[0];
     const live=month>=monthNow()||!!a.months?.[month]?.snapshot||!!pendingEntries.find(item=>item.kind==='tuition-month'&&item.accountId===a.id&&item.month===month)||!source;
@@ -106,14 +119,14 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
   function editMonth(a,month) {
     const config=configFor(a,month),baseStats=savedStats(a,month),stats=billingStatsFor(a,month,baseStats),overrides=config.statsOverrides||{},attendanceMonth=previousMonth(month);
     if(!baseStats||!stats)return toast("Chờ lịch học tải đầy đủ trước khi sửa học phí.","error");
-    const numberInput=(name,label,current)=>`<label>${label}<input type="number" name="${name}" min="0" max="10000" step="1" value="${overrides[name]??''}" placeholder="Tự động: ${current??'—'}"></label>`;
+const numberInput=(name,label,current)=>name==='balance'&&month<monthNow()?`<label>${label}<input type="text" value="${e(stats.balanceLabel)}" disabled><small>Tháng cũ chỉ hiển thị số đã chốt. Số trong bản sao chưa chốt chỉ dùng tham khảo.</small></label>`:name==='balance'&&a.months?.[month]?.balanceClose?`<label>${label} (đã chốt)<input type="number" value="${current}" disabled><small>Giữ nguyên số dư đã chốt. Chỉ nút chốt lại mới cập nhật giá trị này.</small></label>`:`<label>${label}<input type="number" name="${name}" min="0" max="10000" step="1" value="${overrides[name]??''}" placeholder="Tự động: ${current??'—'}"></label>`;
     const dateInput=(name,label,current=[])=>`<label>${label}<input name="${name}" value="${e((overrides[name]||[]).map(day=>day.split('-').reverse().join('/')).join(', '))}" placeholder="${e(current.map(day=>day.slice(8,10)+'/'+day.slice(5,7)).join(', ')||'Không có')}"></label>`;
-    dialog(`Sửa phiếu học phí · ${monthLabel(month)}`,`<p>${e(personFor(a)?.fullName||a.displayName)} · <strong>${baseStats.registered} buổi đăng ký</strong></p><h3>Học phí</h3><div class="form-grid"><label>Học phí 1 buổi (đồng)<input type="number" name="unitFee" min="0" max="100000000" step="1" value="${config.unitFee??""}" placeholder="Chưa nhập"></label><label>Ghi chú / số tiền giảm trừ (đồng)<input type="number" name="adjustment" min="-1000000000" max="1000000000" step="1" value="${config.adjustment||0}"></label></div><p class="muted">Tổng = học phí 1 buổi × ${baseStats.registered} − giảm trừ. Nhập số âm nếu cần thu thêm.</p><label>Nội dung ghi chú<textarea name="note" maxlength="5000">${e(config.note||"")}</textarea></label><h3>Số liệu hiển thị trên phiếu</h3><p class="muted">Để trống để tiếp tục lấy tự động từ lịch. Các số dưới đây thuộc tháng ${monthLabel(attendanceMonth)}.</p><div class="form-grid">${numberInput('previousRegistered','Số buổi đăng ký tháng trước',stats.previousRegistered)}${numberInput('absent','Số buổi nghỉ',stats.absent)}${dateInput('absentDates','Ngày nghỉ',stats.absentDates)}${numberInput('madeUp','Số buổi đã bù',stats.madeUp)}${dateInput('madeUpDates','Ngày đã bù',stats.madeUpDates)}${numberInput('actual','Tổng buổi đã học',stats.actual)}${month>=monthNow()?numberInput('balance','Số buổi vắng cần bù còn lại',stats.balance):''}</div>${month>=monthNow()?'<p class="notice warning">Nếu nhập số buổi cần bù, giá trị này cũng được đồng bộ vào hồ sơ học sinh.</p>':''}<p class="notice info">Nếu Firebase vượt hạn mức, phiếu được lưu tạm trên thiết bị này và chờ đối chiếu khi đăng nhập lại.</p>`,async fd=>{
+dialog(`Sửa phiếu học phí · ${monthLabel(month)}`,`<p>${e(personFor(a)?.fullName||a.displayName)} · <strong>${baseStats.registered} buổi đăng ký</strong></p><h3>Học phí</h3><div class="form-grid"><label>Học phí 1 buổi (đồng)<input type="number" name="unitFee" min="0" max="100000000" step="1" value="${config.unitFee??""}" placeholder="Chưa nhập"></label><label>Ghi chú / số tiền giảm trừ (đồng)<input type="number" name="adjustment" min="-1000000000" max="1000000000" step="1" value="${config.adjustment||0}"></label></div><p class="muted">Tổng = học phí 1 buổi × ${baseStats.registered} − giảm trừ. Nhập số âm nếu cần thu thêm.</p><label>Nội dung ghi chú<textarea name="note" maxlength="5000">${e(config.note||"")}</textarea></label><h3>Số liệu hiển thị trên phiếu</h3><p class="muted">Để trống để tiếp tục lấy tự động từ lịch. Các số dưới đây thuộc tháng ${monthLabel(attendanceMonth)}.</p><div class="form-grid">${numberInput('previousRegistered','Số buổi đăng ký tháng trước',stats.previousRegistered)}${numberInput('absent','Số buổi nghỉ',stats.absent)}${dateInput('absentDates','Ngày nghỉ',stats.absentDates)}${numberInput('madeUp','Số buổi đã bù',stats.madeUp)}${dateInput('madeUpDates','Ngày đã bù',stats.madeUpDates)}${numberInput('actual','Tổng buổi đã học',stats.actual)}${numberInput('balance','Số buổi vắng cần bù còn lại',stats.balance)}</div>${month>=monthNow()?'<p class="notice warning">Nếu nhập số buổi cần bù, giá trị này cũng được đồng bộ vào hồ sơ học sinh.</p>':'<p class="notice info">Số dư tháng cũ chỉ lưu trên phiếu tháng này, không thay đổi số dư hiện tại của học sinh. Nếu chưa có số liệu đã lưu, cần nhập lại từ chứng từ cũ.</p>'}<p class="notice info">Nếu Firebase vượt hạn mức, phiếu được lưu tạm trên thiết bị này và chờ đối chiếu khi đăng nhập lại.</p>`,async fd=>{
       const raw=Object.fromEntries(fd),statsOverrides={};
       for(const key of overrideNumberFields){if(raw[key]===undefined||raw[key]==='')continue;const parsed=Number(raw[key]);if(!Number.isSafeInteger(parsed)||parsed<0||parsed>10000)throw new Error('Số liệu báo cáo phải là số nguyên từ 0 đến 10.000.');statsOverrides[key]=parsed;}
       const madeUpDates=parseReportDates(raw.madeUpDates,attendanceMonth,'Ngày đã bù'),absentDates=parseReportDates(raw.absentDates,attendanceMonth,'Ngày nghỉ');
       if(madeUpDates)statsOverrides.madeUpDates=madeUpDates;if(absentDates)statsOverrides.absentDates=absentDates;
-      const values={unitFee:raw.unitFee,adjustment:raw.adjustment,note:raw.note,statsOverrides,syncMakeupBalance:month>=monthNow()&&Object.hasOwn(statsOverrides,'balance'),snapshot:{...baseStats,capturedAt:new Date().toISOString()}},unit=values.unitFee===''?null:Number(values.unitFee),adjustment=Number(values.adjustment||0);
+      const values={unitFee:raw.unitFee,adjustment:raw.adjustment,note:raw.note,statsOverrides,syncMakeupBalance:month>=monthNow()&&Object.hasOwn(statsOverrides,'balance'),snapshot:{...baseStats,balance:statsOverrides.balance??stats.balance,capturedAt:new Date().toISOString()}},unit=values.unitFee===''?null:Number(values.unitFee),adjustment=Number(values.adjustment||0);
       if(unit!==null&&(!Number.isSafeInteger(unit)||unit<0||unit>100000000)||!Number.isSafeInteger(adjustment)||Math.abs(adjustment)>1000000000||String(values.note||'').length>5000)throw new Error('Học phí hoặc ghi chú không hợp lệ.');
       try{if(!navigator.onLine||cached||[...weekRows.values()].some(x=>x.fromCache))throw Object.assign(new Error('Chưa có kết nối Firebase mới nhất.'),{code:'offline'});await saveTuitionMonth(a,month,values,state.user);const pendingId=`tuition:${state.user.uid}:${a.id}:${month}`;if(pendingEntries.some(item=>item.id===pendingId)){await removePending(pendingId);pendingEntries=pendingEntries.filter(item=>item.id!==pendingId);}toast('Đã lưu học phí lên Firebase.');}
       catch(ex){if(!isQuotaExceeded(ex)&&ex.code!=='offline')throw ex;const pending=await queueTuitionMonth({uid:state.user.uid,accountId:a.id,month,baseRevision:a.months?.[month]?.revision||0,values});pendingEntries=[...pendingEntries.filter(item=>item.id!==pending.id),pending];toast('Đã lưu phiếu học phí tạm trên thiết bị này; chưa đồng bộ Firebase.',"error");queueRender();}
@@ -130,7 +143,7 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
     return {name:person?.fullName||a.displayName,month,status,stats,config,source};
   }
   async function exportJpg(a,month) {
-    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261103-notes1');
+    const {tuitionJpgData,downloadTuitionJpg}=await import('./tuition-jpg.js?v=20261105-closed-only1');
     await downloadTuitionJpg(tuitionJpgData(jpgDataFor(a,month)));
   }
   let exportingZip=false,zipProgress='';
@@ -156,9 +169,9 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
       if(weekErrors.size)throw new Error('Chưa tải đủ lịch để xuất ảnh chính xác.');
       const ordered=orderTuitionAccounts(accounts,getStudentRoster()).filter(a=>summaryFor(a,month));
       // Prepare all cards first: one selected month and one consistent snapshot, independent of search/detail view.
-      const {tuitionJpgData}=await import('./tuition-jpg.js?v=20261103-notes1');
+      const {tuitionJpgData}=await import('./tuition-jpg.js?v=20261105-closed-only1');
       const data=ordered.map(a=>{try{return tuitionJpgData(jpgDataFor(a,month))}catch(ex){throw new Error((personFor(a)?.fullName||a.displayName)+': '+ex.message)}});
-      const {exportTuitionZip}=await import('./tuition-zip.js?v=20261103-notes1');
+      const {exportTuitionZip}=await import('./tuition-zip.js?v=20261105-closed-only1');
       const result=await exportTuitionZip(data,{onProgress:(done,total)=>{zipProgress=`Tháng ${monthLabel(month)}: đang tạo ${done}/${total} ảnh…`;updateZipProgress();}});
       zipProgress=`Đã xuất ${result.count} ảnh học phí tháng ${monthLabel(month)} vào file ZIP.`;toast(zipProgress);
     }catch(ex){zipProgress='Không thể xuất ZIP: '+ex.message;toast(zipProgress,'error');}
@@ -177,7 +190,36 @@ export function createTuitionFeature({state,dialog,openStudentForm,getStudentRos
   function monthCard(a,month) {
     const current=monthNow(),source=(a.history||[]).filter(s=>s.month===month).sort((a,b)=>b.sourceRow-a.sourceRow),live=month>=current||!!a.months?.[month]?.snapshot||pendingEntries.some(item=>item.kind==='tuition-month'&&item.accountId===a.id&&item.month===month)||!source.length;
     const baseStats=live?savedStats(a,month):null,stats=billingStatsFor(a,month,baseStats),config=configFor(a,month),isCurrent=month===current;
-return `<details class="tuition-month ${month>current?'tuition-forecast':''}" data-month="${month}" ${opened.has(month)?"open":""}><summary><span><strong>${title(month)}</strong><small>${config.localPending?"CHƯA ĐỒNG BỘ · lưu trên thiết bị":isCurrent?"Tháng hiện tại · tự cập nhật":month>current?"DỰ BÁO · dự tính theo lịch đăng ký":live?"Bản lưu học phí":"Dữ liệu gốc Excel"}</small></span><span>${live&&stats?money(tuitionMoney(config.unitFee,stats.registered,config.adjustment||0).total):source.length?money(typeof source[0].values[9]==="number"?source[0].values[9]:null):"—"} <span aria-hidden="true">⌄</span></span></summary><div class="tuition-month-body">${live?(!personFor(a)?`<p class="notice warning">Cần tạo thêm học sinh này hoặc liên kết hồ sơ có sẵn để tự cập nhật lịch và học phí.</p>`:!stats?`<p role="status">${weekErrors.size?"Không thể tải lịch. Vui lòng thử lại.":"Đang tải lịch học từ Firebase…"}</p>`:`${liveTable(personFor(a),month,stats,config)}<div class="tuition-card-actions"><p class="muted">01/${monthLabel(month)} – ${monthDates(month).length}/${monthLabel(month)} · ${stats.forecast||0} buổi từ lịch mẫu${config.snapshot&&month<current?` · Bản lưu ${new Date(config.snapshot.capturedAt).toLocaleString("vi-VN")}`:""}</p><button type="button" class="button primary" data-edit-fee="${month}">Sửa học phí / ghi chú</button></div>${config.unitFee==null?'<p class="notice warning">Chưa nhập học phí một buổi.</p>':""}<p class="tuition-explanation">Cột đăng ký tháng trước = số buổi đăng ký của tháng liền trước, không phải số buổi đã học. Học phí vẫn tính theo số buổi đăng ký của tháng đang xem. Cần bù = số dư còn lại trong hồ sơ (cộng dồn, cập nhật hiện tại). Đã bù, buổi nghỉ và tổng buổi đã học lấy từ tháng ${monthLabel(previousMonth(month))}; số buổi đăng ký và học phí lấy theo tháng ${monthLabel(month)}. Buổi đăng ký không gồm học bù, lịch test, buổi hủy và nghỉ lễ.</p><details class="tuition-dates"><summary>Xem ${stats.registered} ngày / giờ đăng ký</summary><div>${stats.dates.map(d=>`<span>${["CN","T2","T3","T4","T5","T6","T7"][new Date(d.date+"T12:00:00Z").getUTCDay()]} · ${d.date.split("-").reverse().join("/")} · ${e(d.start)}–${e(d.end)}</span>`).join("")||"Chưa có lịch đăng ký."}</div></details>`):""}${source.map((s,i)=>live?`<details class="tuition-source"><summary>Dữ liệu gốc Excel${source.length>1?` · bản ${i+1}, dòng ${s.sourceRow}`:""} (giữ nguyên)</summary>${sourceTable(s)}</details>`:sourceTable(s)).join("")}</div></details>`;
+return `<details class="tuition-month ${month>current?'tuition-forecast':''}" data-month="${month}" ${opened.has(month)?"open":""}><summary><span><strong>${title(month)}</strong><small>${config.localPending?"CHƯA ĐỒNG BỘ · lưu trên thiết bị":isCurrent?"Tháng hiện tại · tự cập nhật":month>current?"DỰ BÁO · dự tính theo lịch đăng ký":live?"Bản lưu học phí":"Dữ liệu gốc Excel"}</small></span><span>${live&&stats?money(tuitionMoney(config.unitFee,stats.registered,config.adjustment||0).total):source.length?money(typeof source[0].values[9]==="number"?source[0].values[9]:null):"—"} <span aria-hidden="true">⌄</span></span></summary><div class="tuition-month-body">${live?(!personFor(a)?`<p class="notice warning">Cần tạo thêm học sinh này hoặc liên kết hồ sơ có sẵn để tự cập nhật lịch và học phí.</p>`:!stats?`<p role="status">${weekErrors.size?"Không thể tải lịch. Vui lòng thử lại.":"Đang tải lịch học từ Firebase…"}</p>`:`${liveTable(personFor(a),month,stats,config)}<div class="tuition-card-actions"><p class="muted">01/${monthLabel(month)} – ${monthDates(month).length}/${monthLabel(month)} · ${stats.forecast||0} buổi từ lịch mẫu${config.snapshot&&month<current?` · Bản lưu ${new Date(config.snapshot.capturedAt).toLocaleString("vi-VN")}`:""}</p><button type="button" class="button primary" data-edit-fee="${month}">Sửa học phí / ghi chú</button></div>${config.unitFee==null?'<p class="notice warning">Chưa nhập học phí một buổi.</p>':""}<p class="tuition-explanation">Cột đăng ký tháng trước = số buổi đăng ký của tháng liền trước, không phải số buổi đã học. Học phí vẫn tính theo số buổi đăng ký của tháng đang xem. Cần bù của tháng cũ chỉ hiển thị số dư đã chốt, không tính lại theo số dư hiện tại. Số khôi phục từ bản sao chưa được coi là số chốt. Đã bù, buổi nghỉ và tổng buổi đã học lấy từ tháng ${monthLabel(previousMonth(month))}; số buổi đăng ký và học phí lấy theo tháng ${monthLabel(month)}. Buổi đăng ký không gồm học bù, lịch test, buổi hủy và nghỉ lễ.</p><details class="tuition-dates"><summary>Xem ${stats.registered} ngày / giờ đăng ký</summary><div>${stats.dates.map(d=>`<span>${["CN","T2","T3","T4","T5","T6","T7"][new Date(d.date+"T12:00:00Z").getUTCDay()]} · ${d.date.split("-").reverse().join("/")} · ${e(d.start)}–${e(d.end)}</span>`).join("")||"Chưa có lịch đăng ký."}</div></details>`):""}${source.map((s,i)=>live?`<details class="tuition-source"><summary>Dữ liệu gốc Excel${source.length>1?` · bản ${i+1}, dòng ${s.sourceRow}`:""} (giữ nguyên)</summary>${sourceTable(s)}</details>`:sourceTable(s)).join("")}</div></details>`;
+  }
+  function closeBalances(targets,month) {
+    if(month!==monthNow())return toast('Chỉ chốt số dư hiện tại cho tháng hiện tại; không dùng số dư hôm nay cho tháng cũ hoặc dự báo.','error');
+    if(cached||!navigator.onLine)return toast('Cần kết nối Firebase để chốt. Chưa có số dư nào được lưu.','error');
+    if(pendingEntries.some(p=>p.kind==='tuition-month'&&p.month===month&&targets.some(a=>a.id===p.accountId)))return toast('Hãy đồng bộ các phiếu đang lưu tạm trước khi chốt tháng.','error');
+    const closed=targets.filter(a=>a.months?.[month]?.balanceClose).length;
+    dialog(`Chốt số dư cần bù · ${monthLabel(month)}`,`<p>Lưu số dư cần bù hiện có trên Firebase của <strong>${targets.length} hồ sơ</strong> tại thời điểm bấm lưu. Khi sang tháng mới, phiếu vẫn giữ số đã chốt.</p><p>Không thay đổi số dư học sinh, học phí hay các tháng khác. Hồ sơ chưa liên kết sẽ được bỏ qua.</p>${closed?`<p class="notice warning">Có ${closed} phiếu đã chốt. Mặc định giữ nguyên các phiếu đó.</p><label><input type="checkbox" name="replace" value="yes"> Tôi xác nhận chốt lại các phiếu đã chốt bằng số dư hiện tại; phiên bản trước vẫn có trong lịch sử.</label>`:''}<p class="notice info">Đây là số dư tại thời điểm chốt, không tự suy ra số dư cuối tháng. Cần chốt vào cuối tháng nếu muốn lưu số cuối tháng.</p>`,async fd=>{
+      const result=await closeTuitionMonthBalances(month,targets,state.user,{replace:fd.get('replace')==='yes'});
+      toast(`Đã lưu Firebase: ${result.saved} phiếu được chốt, ${result.skipped.length} phiếu giữ nguyên/bỏ qua.`);
+    });
+  }
+  function editAndCloseBalance(account,month) {
+    if(pendingEntries.some(p=>p.kind==='tuition-month'&&p.month===month&&p.accountId===account.id))return toast('Hãy đồng bộ phiếu lưu tạm trước khi chốt.','error');
+    const balanceState=tuitionBalanceState(account,month,null),closed=account.months?.[month]?.balanceClose;
+dialog(`Nhập và chốt số dư · ${monthLabel(month)}`,`<p><strong>${e(personFor(account)?.fullName||account.displayName)}</strong></p><label>Số buổi vắng cần bù còn lại *<input type="number" name="balance" min="0" max="10000" step="1" required value="${closed?.value??''}" placeholder="Nhập số dư đã đối chiếu"></label>${balanceState.balanceReference!=null?`<p class="muted">Số tham khảo từ bản sao: ${balanceState.balanceReference} buổi. Bạn cần kiểm tra và tự nhập số chốt.</p>`:''}<label>Nguồn đối chiếu / ghi chú chốt *<textarea name="reason" required maxlength="1000" placeholder="Ví dụ: Đã đối chiếu bảng theo dõi cuối tháng 10"></textarea></label>${closed?'<label><input type="checkbox" name="replace" value="yes" required> Tôi xác nhận chốt lại, giữ phiên bản trước trong lịch sử.</label>':''}<p class="notice info">Chỉ lưu số dư trên phiếu tháng này. Không thay đổi số dư hiện tại của học sinh, học phí hay các tháng khác.</p>`,async fd=>{
+      const raw=String(fd.get('balance')??'').trim();if(!raw)throw new Error('Vui lòng nhập số dư, kể cả khi bằng 0.');
+      const value=Number(raw),reason=String(fd.get('reason')||'').trim(),replace=fd.get('replace')==='yes';
+      if(!Number.isSafeInteger(value)||value<0||value>10000||!reason)throw new Error('Số dư phải là số nguyên 0–10.000 và cần nhập nguồn đối chiếu.');
+      try{
+        if(cached||!navigator.onLine||pendingEntries.some(p=>p.kind==='tuition-balance'&&p.accountId===account.id&&p.month===month))throw Object.assign(new Error('Lưu trên thiết bị trước.'),{code:'offline'});
+        await closeTuitionAccountBalance(account,month,value,reason,state.user,{replace});
+        toast('Đã lưu và chốt số dư phiếu tháng '+monthLabel(month)+' lên Firebase.');
+      }catch(ex){
+        if(!isQuotaExceeded(ex)&&ex.code!=='offline'&&!['unavailable','firestore/unavailable'].includes(ex.code))throw ex;
+        const pending=await queueTuitionBalance({uid:state.user.uid,accountId:account.id,month,baseRevision:account.months?.[month]?.revision||0,value,reason,replace});
+        pendingEntries=[...pendingEntries.filter(p=>p.id!==pending.id),pending];
+        toast('Đã lưu số dư trên thiết bị này; CHƯA đồng bộ Firebase. Lần sau đăng nhập sẽ thử lại.','error');queueRender();
+      }
+    });
   }
   function renderContent() {
     if(!visible())return;
@@ -188,10 +230,23 @@ return `<details class="tuition-month ${month>current?'tuition-forecast':''}" da
     const monthEnd=monthDates(selectedMonth).at(-1),neededWeeks=state.weeks.filter(w=>dateKey(w.startDate)<=monthEnd&&dateKey(w.endDate)>=selectedMonth+"-01"),pendingWeeks=neededWeeks.filter(w=>!weekRows.has(w.id)&&!weekErrors.has(w.id));
     const loadingNote=weekErrors.size?`<p class="notice warning" role="alert">Không tải được ${weekErrors.size} tuần: ${e([...weekErrors.values()].join("; "))}. Bấm “Tải lại” để thử lại; tổng chưa đầy đủ.</p>`:pendingWeeks.length?`<p class="notice info" role="status">Đang tải lịch ${neededWeeks.length-pendingWeeks.length}/${neededWeeks.length} tuần của ${title(selectedMonth)}. Tổng học phí sẽ cập nhật khi đủ lịch.</p>`:"";
     const heading=`<div class="tuition-heading"><div><p class="eyebrow">HAPPY CHILD</p><h2>${a?e(personFor(a)?.fullName||a.displayName):"Báo học phí học sinh"}</h2><p class="muted">${a?`Tên trên Excel: ${e(a.displayName)}`:"Phiếu từng tháng · liên kết lịch học và hồ sơ học sinh"}</p></div><div class="tuition-actions">${a?'<button class="button ghost" id="tuitionBack">← Danh sách</button><button class="button ghost" id="tuitionLink">Liên kết học sinh</button><button class="button ghost" id="tuitionAddMonth">＋ Thêm tháng</button>':'<button class="button primary" id="tuitionAdd">＋ Thêm hồ sơ</button>'}<button class="button primary" id="tuitionZip" type="button">Tải tất cả ảnh ZIP</button><span id="tuitionZipProgress" role="status" aria-live="polite" hidden></span><button class="button primary" id="tuitionExport">Xuất Excel</button><button class="button ghost" id="tuitionRefresh">↻ Tải lại</button></div></div>`;
-    const pendingTuition=pendingEntries.filter(item=>item.kind==='tuition-month'),pendingNote=pendingTuition.length?`<div class="notice warning" role="status"><strong>${pendingTuition.length} phiếu học phí lưu trên thiết bị chưa đồng bộ.</strong> ${pendingTuition.some(item=>item.status==='conflict')?'Có phiếu xung đột: bản Firebase đã thay đổi, không tự ghi đè.':'Hệ thống sẽ thử đồng bộ khi Firebase hoạt động lại.'} <button type="button" class="button ghost small" id="tuitionSyncPending">Thử đồng bộ</button></div>`:'';
-    const billingMonth=defaultBillingMonth(),monthOptions=[...new Set([billingMonth,monthNow(),selectedMonth,...accounts.flatMap(person=>[...Object.keys(person.months||{}),...(person.history||[]).map(item=>item?.month)].filter(month=>typeof month==="string"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(month)))])].filter(month=>month<=billingMonth||month===selectedMonth).sort((x,y)=>y.localeCompare(x));
+    const pendingTuition=pendingEntries.filter(item=>['tuition-month','tuition-balance'].includes(item.kind)&&item.status!=='protected'),pendingNote=pendingTuition.length?`<div class="notice warning" role="status"><strong>${pendingTuition.length} thay đổi học phí/số dư lưu trên thiết bị chưa đồng bộ.</strong> ${pendingTuition.some(item=>item.status==='conflict')?'Có xung đột: bản Firebase đã thay đổi, không tự ghi đè.':'Lần sau đăng nhập hệ thống sẽ thử đồng bộ. Không xóa dữ liệu trình duyệt trước khi đồng bộ xong.'} <button type="button" class="button ghost small" id="tuitionSyncPending">Thử đồng bộ</button></div>`:'';
+    const billingMonth=defaultBillingMonth(),monthOptions=[...new Set([billingMonth,monthNow(),selectedMonth,...pendingEntries.filter(p=>p.kind==='tuition-balance').map(p=>p.month),...accounts.flatMap(person=>[...Object.keys(person.months||{}),...(person.history||[]).map(item=>item?.month)].filter(month=>typeof month==="string"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(month)))])].filter(month=>month<=billingMonth||month===selectedMonth).sort((x,y)=>y.localeCompare(x));
 root.innerHTML=`<section class="tuition-view">${heading}${pendingNote}<div class="tuition-month-picker"><label>Tháng báo học phí<select id="tuitionSelectedMonth">${monthOptions.map(month=>`<option value="${month}" ${month===selectedMonth?"selected":""}>${title(month)}${month===billingMonth&&month>monthNow()?" · Thu trước":""}</option>`).join("")}</select></label></div>${error?`<p class="notice warning" role="alert">Không thể tải báo học phí: ${e(error)}</p>`:!loaded?'<p role="status">Đang tải báo học phí…</p>':`${cached?'<p class="notice warning">Đang hiển thị bản lưu trên thiết bị. Chờ kết nối Firebase để có dữ liệu mới nhất.</p>':""}${loadingNote}${a?`${!personFor(a)?'<div class="notice warning"><strong>Cần tạo thêm học sinh này</strong><p>Chưa có hồ sơ liên kết. Bấm “Liên kết học sinh” để chọn bé có sẵn hoặc tạo hồ sơ mới. Phiếu Excel vẫn được giữ nguyên.</p></div>':""}${[...weekRows.values()].some(x=>x.fromCache)?'<p class="notice warning">Một phần lịch đang lấy từ bộ nhớ thiết bị; số liệu có thể chưa mới nhất.</p>':""}<div class="tuition-months">${monthCard(a,selectedMonth)}</div>`:`<div class="tuition-summary"><span>${title(selectedMonth)} · ${summaries.length} học sinh</span><strong>${money(total)}</strong><small>${unknown?`${unknown} hồ sơ chưa có tổng chính xác (thiếu đơn giá, liên kết hoặc đang tải lịch).`:"Tổng tự cập nhật khi học phí hoặc lịch đăng ký thay đổi."}</small></div><div class="tuition-toolbar"><label>Tìm học sinh<input id="tuitionSearch" type="search" placeholder="Tên trên Excel hoặc tên trong hồ sơ…" value="${e(query)}"></label><span class="badge">${summaries.length} hồ sơ trong tháng</span></div><div class="tuition-roster">${summaries.map(({person,fee})=>`<button class="tuition-person ${personFor(person)?"":"unlinked"}" data-tuition-id="${e(person.id)}" data-search="${e(normalizeName(person.displayName+" "+(personFor(person)?.fullName||"")))}"><span class="tuition-person-icon" aria-hidden="true">${e(person.rosterNumber||"—")}</span><strong>${e(personFor(person)?.fullName||person.displayName)}</strong><span class="tuition-person-fee">${money(fee.amount)}<small>${fee.reason?e(fee.reason):fee.pending?"Đang tải lịch":fee.missing?"Cần nhập học phí / liên kết":fee.registered!=null?`${fee.registered} buổi đăng ký`:"Phiếu Excel"}</small></span><span aria-hidden="true">→</span></button>`).join("")}<p class="muted" id="tuitionSearchEmpty" hidden>Không tìm thấy học sinh trong tháng này.</p>${summaries.length?"":'<p class="muted">Không có học sinh đóng học phí trong tháng này.</p>'}</div>`}`}</section>`;
-    root.querySelector("#tuitionSelectedMonth")?.addEventListener("change",event=>{selectedMonth=event.target.value;opened=new Set([selectedMonth]);leave();render();});
+    // Pending data must be visible even when account/session reads fail or a
+    // historical invoice still uses the immutable original Excel rendering.
+    root.querySelector('.tuition-month-picker')?.insertAdjacentHTML('afterend',localBalanceTable(pendingEntries,selectedMonth,accounts,selected));
+    const importButton=document.createElement('button');importButton.type='button';importButton.className='button ghost';importButton.textContent='Nhập số dư local';
+    const importInput=document.createElement('input');importInput.type='file';importInput.accept='.json';importInput.hidden=true;
+    importButton.onclick=()=>importInput.click();
+    importInput.onchange=async()=>{try{const file=importInput.files?.[0];if(!file)return;const result=await importLocalBalances(JSON.parse(await file.text()),state.user,accounts);await refreshPending();toast(`Đã lưu local ${result.saved} số dư, giữ nguyên ${result.kept} số đã sửa/chốt. Chưa ghi Firebase.`);}catch(ex){toast(ex.message,'error');}finally{importInput.value='';}};
+    root.querySelector('.tuition-actions')?.append(importButton,importInput);
+    const monthPicker=root.querySelector('#tuitionSelectedMonth');
+    monthPicker?.addEventListener('pointerdown',()=>{monthPickerOpen=true;});
+    monthPicker?.addEventListener('focus',()=>{monthPickerOpen=true;});
+    monthPicker?.addEventListener('blur',()=>{monthPickerOpen=false;queueRender();});
+    monthPicker?.addEventListener('keydown',event=>{if(event.key==='Escape'){monthPickerOpen=false;queueRender();}});
+    monthPicker?.addEventListener("change",event=>{monthPickerOpen=false;selectedMonth=event.target.value;opened=new Set([selectedMonth]);render();});
     root.querySelector("#tuitionSyncPending")?.addEventListener("click",()=>resumePending(state.user));
     const filterRoster=()=>{const needle=normalizeName(query),rows=[...root.querySelectorAll(".tuition-roster [data-tuition-id]")];let visibleCount=0;for(const row of rows){row.hidden=!!needle&&!row.dataset.search.includes(needle);if(!row.hidden)visibleCount++;}const emptyRow=root.querySelector("#tuitionSearchEmpty");if(emptyRow)emptyRow.hidden=!needle||visibleCount>0;};
     root.querySelector("#tuitionSearch")?.addEventListener("input",event=>{query=event.target.value;filterRoster();});
@@ -204,23 +259,55 @@ root.innerHTML=`<section class="tuition-view">${heading}${pendingNote}<div class
     root.querySelector("#tuitionExport")?.addEventListener("click",()=>exportExcel(a));
     root.querySelector("#tuitionZip")?.addEventListener("click",exportAllJpg);
     updateZipProgress();
-    root.querySelector("#tuitionRefresh")?.addEventListener("click",()=>{leave();loaded=false;error="";connectAccounts();render();});
+    // Manual month close is explicit: no background write when merely viewing a bill.
+    const closingTargets=a?[a]:summaries.map(s=>s.person),closedCount=closingTargets.filter(p=>p.months?.[selectedMonth]?.balanceClose).length;
+    const closeButton=document.createElement('button');closeButton.type='button';closeButton.className='button primary';closeButton.textContent=`Chốt số dư tháng (${closedCount}/${closingTargets.length})`;
+    closeButton.disabled=selectedMonth!==monthNow()||!loaded||!!error;
+    closeButton.title=selectedMonth===monthNow()?'Lưu số dư cần bù tại thời điểm chốt lên Firebase':'Không lấy số dư hiện tại để chốt ngược tháng cũ hoặc tháng dự báo';
+    closeButton.onclick=()=>closeBalances(closingTargets,selectedMonth);
+    root.querySelector('.tuition-actions')?.append(closeButton);
+    if(a?.months?.[selectedMonth]?.balanceClose){const close=a.months[selectedMonth].balanceClose,notice=document.createElement('p');notice.className='notice info';notice.textContent=`Số dư đã chốt: ${close.value} buổi · ${new Date(close.capturedAt).toLocaleString('vi-VN')} · phiên bản ${close.version}. Giữ nguyên khi chuyển tháng.`;root.querySelector('.tuition-month-picker')?.after(notice);}
+    if(a&&selectedMonth<monthNow()&&!a.months?.[selectedMonth]?.balanceClose){
+      const balance=tuitionDisplayBalance(a,selectedMonth,null,pendingEntries),notice=document.createElement('p');notice.className=balance.balancePending?'notice info':'notice warning';
+      notice.textContent=balance.balancePending||balance.balanceStatus==='manual'?`Cần bù còn lại: ${balance.balance} buổi · ${balance.balanceNote}.`:'Chưa có số dư được xác nhận cho tháng này.'+(balance.balanceReference!=null?` Số tham khảo trong bản sao/phiếu cũ: ${balance.balanceReference} buổi. Nguồn: ${balance.balanceReferenceSource}.`:' Chưa có số tham khảo trong bản lưu.');
+      root.querySelector('.tuition-month-picker')?.after(notice);
+    }
+    root.querySelector("#tuitionRefresh")?.addEventListener("click",()=>{leave();weekRows.clear();weekErrors.clear();statsVersion++;loaded=false;error="";connectAccounts();render();});
     root.querySelectorAll("[data-month]").forEach(d=>d.ontoggle=()=>{if(d.open)opened.add(d.dataset.month);else opened.delete(d.dataset.month);});
     root.querySelectorAll("[data-edit-fee]").forEach(b=>b.onclick=()=>editMonth(a,b.dataset.editFee));
     root.querySelectorAll('.tuition-month').forEach(card=>{
       if(!a)return;
+      const localBalance=tuitionDisplayBalance(a,card.dataset.month,null,pendingEntries);
+      // Legacy Excel cards must also reflect local edits in their main table;
+      // the expandable original Excel source remains unchanged.
+      if(localBalance.balancePending||localBalance.balanceStatus==='manual'){
+        const row=card.querySelector('.tuition-month-body > .tuition-sheet-scroll .tuition-sheet tbody tr');
+        const headers=card.querySelectorAll('.tuition-month-body > .tuition-sheet-scroll .tuition-sheet thead th');
+        if(row&&headers[2]?.textContent?.includes('Số buổi vắng')){row.children[2].textContent=String(localBalance.balance);row.children[2].title=localBalance.balanceNote;}
+      }
       let actions=card.querySelector('.tuition-card-actions');
       if(!actions&&card.querySelector('.tuition-month-body > .tuition-sheet-scroll')){actions=document.createElement('div');actions.className='tuition-card-actions';card.querySelector('.tuition-month-body').append(actions);}
       if(!actions)return;
       const month=card.dataset.month;
       if(!month)return;
+      if(month<=monthNow()){
+        const closeButton=document.createElement('button');closeButton.type='button';closeButton.className='button primary';closeButton.textContent=a.months?.[month]?.balanceClose?'Sửa / chốt lại số dư cần bù':'Nhập / chốt số dư cần bù';closeButton.onclick=()=>editAndCloseBalance(a,month);actions.append(closeButton);
+      }
       const button=document.createElement('button');button.type='button';button.className='button ghost';button.textContent='Lưu ảnh JPG';button.setAttribute('aria-label',`Lưu ảnh JPG học phí ${personFor(a)?.fullName||a.displayName} tháng ${monthLabel(month)}`);
       button.onclick=async()=>{button.disabled=true;try{await exportJpg(a,month);toast('Đã lưu ảnh JPG học phí tháng '+monthLabel(month)+'.')}catch(error){toast(error.message||'Không thể lưu ảnh JPG.','error')}finally{button.disabled=false}};
       actions.append(button);
     });
     root.querySelector("#tuitionAddMonth")?.addEventListener("click",()=>dialog("Thêm tháng báo học phí",`<label>Tháng<input name="month" type="month" value="${monthNow()}" required min="2020-01" max="2100-12"></label><p>Chỉ kế thừa đơn giá; ghi chú và giảm trừ bắt đầu trống. Không ghi đè phiếu đã có.</p>`,async fd=>{const m=fd.get("month");if(a.months?.[m]||(a.history||[]).some(s=>s.month===m))throw new Error("Tháng này đã có trong hồ sơ.");await saveTuitionMonth(a,m,configFor(a,m),state.user);opened.add(m);}));
   }
+  let lastRenderInputs=[];
   function render() {
+    if(!visible()||renderQueued)return;
+    renderQueued=true;
+    setTimeout(()=>{renderQueued=false;if(!visible()||monthPickerOpen)return;performRender();},16);
+  }
+  function performRender() {
+    const inputs=[document.querySelector('.tuition-view'),accounts,pendingEntries,selected,selectedMonth,loaded,error,cached,exportingZip,zipProgress,state.students,state.templates,state.weeks,state.holidays,state.studentForms,state.sessions,statsVersion,Math.floor(Date.now()/60000),...Object.values(state.ready)];
+    if(inputs.every((v,i)=>v===lastRenderInputs[i])&&inputs.length===lastRenderInputs.length)return;
     try {renderContent();}
     catch(ex) {
       console.error("Không thể hiển thị Báo học phí",ex);
@@ -228,6 +315,7 @@ root.innerHTML=`<section class="tuition-view">${heading}${pendingNote}<div class
       if(root&&visible())root.innerHTML=`<section class="tuition-view"><h2>Báo học phí</h2><p class="notice warning" role="alert">Không thể hiển thị dữ liệu: ${e(ex.message||String(ex))}</p><button type="button" class="button ghost" id="tuitionRetryRender">↻ Thử lại</button></section>`;
       root?.querySelector("#tuitionRetryRender")?.addEventListener("click",render);
     }
+    inputs[0]=document.querySelector('.tuition-view');lastRenderInputs=inputs;
   }
   return {start,stop,leave,render,resumePending,refreshPending};
 }

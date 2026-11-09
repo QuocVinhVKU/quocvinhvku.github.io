@@ -24,3 +24,7 @@ assert(long.texts.every(t=>t.y>=0&&t.y<long.height),'All text stays within canva
 assert.equal(tuitionJpgData({month:'2026-11',stats:{registered:1},config:{note:''},source:{values:[,,,,,,'old note']}}).note,'','Explicitly cleared notes stay empty');
 assert.equal(tuitionJpgData({month:'2026-11',source:{values:['TEST',1,2,3,4,5,'Excel note'],fees:[]}}).note,'Excel note');
 console.log('PASS notes, long row sizing, dates, fee values, cleared notes, imported notes (no image generated)');
+const unclosed=tuitionJpgData({name:'GẤU',month:'2020-10',stats:{registered:27,balance:4,balanceLabel:'Chưa chốt số dư'},config:{unitFee:270000},source:{values:['GẤU',24,99]}});
+assert.equal(unclosed.balance,null);assert.equal(unclosed.balanceDisplay,'Chưa chốt số dư');
+const closed=tuitionJpgData({name:'GẤU',month:'2020-10',stats:{registered:27,balance:4,balanceLabel:'4'},config:{unitFee:270000,balanceClose:{value:4,capturedAt:'2020-10-31T12:00:00Z'}}});
+assert.equal(closed.balance,4);assert.equal(closed.balanceDisplay,'4');

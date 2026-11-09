@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {samePendingRead,mayRecheckConflict} from '../js/data-conflict-policy.js';
+const e={domain:'store',name:'updateSessionStatus',args:['w'],status:'conflict',reads:[{}]};
+const a={startDate:'2026-11-02',endDate:'2026-11-08',weekNumber:10,label:'Tuần 10',status:'closed',updatedAt:1};
+assert.ok(samePendingRead(e,'weeks/w',a,{...a,status:'active',updatedAt:2,summaryDirtyAt:3}));
+assert.ok(!samePendingRead(e,'weeks/w',a,{...a,endDate:'2026-11-09'}));
+assert.ok(!samePendingRead(e,'weeks/w',a,null));
+assert.ok(!samePendingRead(e,'students/s',{makeupBalance:3},{makeupBalance:4}));
+assert.ok(!samePendingRead(e,'weeks/w/sessions/s',{status:'scheduled'},{status:'absent'}));
+assert.ok(!samePendingRead({...e,name:'deleteWeek'},'weeks/w',a,{...a,updatedAt:2}));
+assert.ok(mayRecheckConflict(e));assert.ok(!mayRecheckConflict({...e,committed:1}));assert.ok(!mayRecheckConflict({...e,unknown:true}));assert.ok(!mayRecheckConflict({...e,status:'review'}));
+console.log('PASS attendance ignores only week summary changes; real conflicts/partial writes remain protected');

@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {tuitionBillingStats,tuitionBalanceState} from '../js/tuition-model.js';
+const compute=()=>({registered:12,madeUp:1,absent:2,actual:11});
+const account={months:{'2020-09':{snapshot:{balance:4}}},history:[{month:'2020-10',sourceRow:1,values:['Bé',12,3]}]};
+assert.equal(tuitionBillingStats(account,'2020-09',{balance:null},compute).balance,null);
+assert.equal(tuitionBillingStats(account,'2020-09',{balance:99},compute).balance,null,'Never use current or unclosed snapshot for historical balance');
+assert.equal(tuitionBillingStats(account,'2020-10',{balance:null},compute).balanceReference,3,'Imported balance is reference only');
+assert.equal(tuitionBillingStats(account,'2020-11',{balance:null},compute).balance,null,'Do not invent missing history or use another month');
+assert.equal(tuitionBillingStats({months:{'2020-09':{snapshot:{balance:0}}}},'2020-09',{balance:null},compute).balanceReference,0);
+assert.equal(tuitionBillingStats({months:{'2020-09':{balanceClose:{value:6,capturedAt:'2020-09-30T12:00:00Z'},snapshot:{balance:4}}}},'2020-09',{balance:99},compute).balance,6);
+assert.equal(tuitionBillingStats({months:{'2020-09':{balanceClose:{value:0,capturedAt:'2020-09-30T12:00:00Z'},snapshot:{balance:4}}}},'2020-09',{balance:99},compute).balance,0);
+const recovery={months:{'2020-10':{snapshot:{balance:4},balanceRecovery:{value:4,source:'backup.xlsx'},statsOverrides:{balance:8}}}};
+assert.equal(tuitionBalanceState(recovery,'2020-10',999).balanceLabel,'8','Manual balances are authoritative by user request');
+assert.equal(tuitionBalanceState(recovery,'2020-10',999).balanceStatus,'manual');
+assert.equal(tuitionBalanceState({},'2026-11',3,'2026-11').balance,3);
+assert.equal(tuitionBalanceState({},'2026-12',3,'2026-11').balance,null);
+assert.equal(recovery.months['2020-10'].snapshot.balance,4,'Do not delete restored evidence');
+console.log('PASS closed-only historical balances, zero, reference-only backups, live/forecast states, preserved evidence');

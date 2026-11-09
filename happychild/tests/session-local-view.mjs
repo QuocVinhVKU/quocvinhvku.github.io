@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {projectLocalSessions} from '../js/session-local-view.js';
+const rows=[{id:'s',weekId:'w',status:'scheduled',note:'old',studentId:'a'}];
+const entry={id:'pending',kind:'data-action',name:'updateSessionStatus',status:'pending',savedAt:'2026-11-05',args:['w',{id:'s'},'absent',{__hc:'user',uid:'u'},'Xin nghỉ']};
+const projected=projectLocalSessions(rows,[entry]);
+assert.equal(projected[0].status,'absent');assert.match(projected[0].note,/Chờ đồng bộ/);
+assert.equal(rows[0].status,'scheduled');assert.equal(projected[0].localPending,'pending');
+assert.deepEqual(projectLocalSessions(projected,[]),rows);
+assert.equal(projectLocalSessions(rows,[{...entry,args:['other',{id:'s'},'absent']}])[0].status,'scheduled');
+assert.match(projectLocalSessions(rows,[{...entry,status:'review'}])[0].note,/Chờ đối chiếu/);
+assert.equal(projectLocalSessions(projected,[entry])[0].note,projected[0].note);
+assert.equal(projectLocalSessions(rows,[{...entry,status:'running'}])[0].status,'scheduled');
+assert.equal(projected[0].makeupBalance,undefined);
+console.log('PASS local absence display, durable intent restoration, week isolation, no ledger mutation, overlay removal, no duplicate annotation');

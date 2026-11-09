@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {reconcileBalances} from '../js/tuition-reconcile.js';
+const person={id:'s'};
+const account=(opening,overrides)=>({months:{'2026-10':{balanceClose:{value:opening}},'2026-11':{statsOverrides:overrides}}});
+const lesson=(id,date,type,status)=>({id,weekId:'w',studentId:'s',dateKey:date,startTime:'09:00',endTime:'10:00',type,status});
+const run=(a,sessions=[])=>reconcileBalances(a,person,sessions,[],new Date('2026-11-05T12:00:00+07:00')).rows.find(r=>r.month==='2026-11');
+assert.equal(run(account(0,{madeUp:1}),[lesson('off','2026-10-26','regular','absent')]).value,0,'NAM HY 0+1-1');
+assert.equal(run(account(4,{absent:3,madeUp:2,balance:5})),undefined,'NẾP manual 5 is preserved, not recalculated');
+assert.equal(run(account(4,{absent:9,balance:0}),[lesson('b','2026-10-20','makeup','makeup_completed')]),undefined,'XOÀI manual zero is preserved');
+assert.equal(run(account(0,{absent:1,balance:1,actual:12})),undefined,'MINH ANH/THY manual one is preserved');
+assert.equal(run(account(2,{absent:0,madeUp:0}),[lesson('off','2026-10-26','regular','absent')]).value,2,'Explicit zeros must not fall through to calendar');
+console.log('PASS NAM HY, NẾP, XOÀI conflicting manual balance, MINH ANH/THY, explicit zeros');

@@ -1,5 +1,8 @@
 // Tuition uses calendar months, never the number of weeks displayed in the UI.
-export const monthNow = (now = new Date()) => new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh",year:"numeric",month:"2-digit"}).format(now).replace(/^(\d{2})\/(\d{4})$/, "$2-$1");
+const monthFormatter=new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh",year:"numeric",month:"2-digit"});
+const dateFormatter=new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh",year:"numeric",month:"2-digit",day:"2-digit"});
+const dayFormatter=new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh",day:"2-digit"});
+export const monthNow = (now = new Date()) => monthFormatter.format(now).replace(/^(\d{2})\/(\d{4})$/, "$2-$1");
 export function monthDates(month) {
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new Error("Tháng không hợp lệ.");
   const [y,m] = month.split("-").map(Number);
@@ -9,7 +12,7 @@ export function dateKey(value) {
   if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const d = value?.toDate ? value.toDate() : new Date(value);
   if (!value || Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh",year:"numeric",month:"2-digit",day:"2-digit"}).format(d);
+  return dateFormatter.format(d);
 }
 export const monthLabel = month => `${month.slice(5)}/${month.slice(0,4)}`;
 export function previousMonth(month) {
@@ -24,7 +27,7 @@ export function nextMonth(month) {
 }
 export function defaultBillingMonth(now = new Date()) {
   const current = monthNow(now);
-  const day = Number(new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Ho_Chi_Minh",day:"2-digit"}).format(now));
+  const day = Number(dayFormatter.format(now));
   return day >= 5 ? nextMonth(current) : current;
 }
 export function orderTuitionAccounts(accounts,roster) {
@@ -32,10 +35,11 @@ export function orderTuitionAccounts(accounts,roster) {
   return accounts.map(account=>({...account,rosterNumber:rank.get(account.studentId)?.number??""})).sort((a,b)=>(rank.get(a.studentId)?.index??Infinity)-(rank.get(b.studentId)?.index??Infinity)||a.displayName.localeCompare(b.displayName,"vi"));
 }
 export function tuitionConfig(account,month) {
-  if(account.months?.[month])return account.months[month];
+  const existing=account.months?.[month];
+  if(existing?.unitFee!=null)return existing;
   const prior=Object.entries(account.months||{}).filter(([key])=>key<month).sort(([a],[b])=>b.localeCompare(a)).find(([,v])=>v.unitFee!=null)?.[1];
   const source=[...(account.history||[])].filter(s=>s.month<=month).sort((a,b)=>b.month.localeCompare(a.month)||b.sourceRow-a.sourceRow).find(s=>typeof s.fees?.[6]==="number");
-  return {unitFee:prior?.unitFee??source?.fees?.[6]??null,adjustment:0,note:""};
+  return {adjustment:0,note:"",...existing,unitFee:prior?.unitFee??source?.fees?.[6]??null};
 }
 export function previousRegistered(account,month,compute,current=monthNow()) {
   const previous=previousMonth(month),valid=value=>typeof value==="number"&&Number.isFinite(value)&&value>=0;
@@ -52,10 +56,38 @@ export function previousRegistered(account,month,compute,current=monthNow()) {
 }
 // Billing-month registration stays in place; attendance is from the preceding month.
 // Never mutate imported history or reinterpret an older snapshot as prior-month data.
+export function tuitionDisplayBalance(account,month,baseBalance,pendingEntries=[],current=monthNow()) {
+  const saved=tuitionBalanceState(account,month,baseBalance,current);
+  const pending=pendingEntries.find(p=>p.kind==='tuition-balance'&&p.accountId===account.id&&p.month===month);
+  if(!pending||['closed','manual'].includes(saved.balanceStatus)&&pending.values.onlyIfUnclosed)return saved;
+  if(pending.status==='protected'&&Number.isSafeInteger(pending.protectedValue))return {balance:pending.protectedValue,balanceStatus:'manual',balanceLabel:String(pending.protectedValue),balanceNote:'Giữ nguyên số đã nhập tay'};
+  const value=pending.values?.value;
+  if(!Number.isSafeInteger(value)||value<0)return saved;
+  return {balance:value,balanceStatus:pending.status==='conflict'?'conflict':'pending',balanceLabel:String(value),balancePending:true,balanceNote:pending.status==='conflict'?'Bản local cần đối chiếu':'Đã lưu local · chưa đồng bộ Firebase'};
+}
+export function tuitionBalanceState(account,month,baseBalance,current=monthNow()) {
+  const config=account.months?.[month]||{},close=config.balanceClose;
+  const valid=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
+  if(valid(close?.value)&&close.capturedAt)return {balance:close.value,balanceStatus:'closed',balanceLabel:String(close.value),balanceClosedAt:close.capturedAt};
+  if(Number.isSafeInteger(config.statsOverrides?.balance)&&config.statsOverrides.balance>=0)return {balance:config.statsOverrides.balance,balanceStatus:'manual',balanceLabel:String(config.statsOverrides.balance),balanceNote:'Giữ nguyên số đã nhập tay'};
+  const imported=[...(account.history||[])].filter(s=>s.month===month).sort((a,b)=>b.sourceRow-a.sourceRow)[0]?.values?.[2];
+  const reference=config.balanceRecovery?.value??config.statsOverrides?.balance??config.snapshot?.balance??imported;
+  if(month<current)return {balance:null,balanceStatus:'unclosed',balanceLabel:'Chưa chốt số dư',balanceReference:valid(reference)?reference:null,balanceReferenceSource:config.balanceRecovery?.source||'Phiếu/bản lưu cũ chưa có xác nhận chốt'};
+  if(month>current)return {balance:null,balanceStatus:'forecast',balanceLabel:'Chưa chốt số dư'};
+  return {balance:valid(baseBalance)?baseBalance:null,balanceStatus:'live',balanceLabel:valid(baseBalance)?String(baseBalance):'—'};
+}
 export function tuitionBillingStats(account,month,base,compute) {
   if(!base)return null;
   const attendanceMonth=previousMonth(month),prior=compute(attendanceMonth);
-  return {...base,attendanceMonth,previousRegistered:previousRegistered(account,month,compute),madeUp:prior?.madeUp??null,madeUpDates:prior?.madeUpDates??[],absent:prior?.absent??null,absentDates:prior?.absentDates??[],actual:prior?.actual??null};
+  return {...base,...tuitionBalanceState(account,month,base.balance),attendanceMonth,previousRegistered:previousRegistered(account,month,compute),madeUp:prior?.madeUp??null,madeUpDates:prior?.madeUpDates??[],absent:prior?.absent??null,absentDates:prior?.absentDates??[],actual:prior?.actual??null};
+}
+// A balance-only recovery is not a full billing snapshot. Wait for live month
+// data when registration is absent, then overlay only saved fields.
+export function mergeTuitionSnapshot(base,snapshot) {
+  if(!snapshot)return base;
+  const validRegistration=typeof snapshot.registered==='number'&&Number.isFinite(snapshot.registered)&&snapshot.registered>=0;
+  if(!base&&!validRegistration)return null;
+  return {...(base||{}),...snapshot,dates:Array.isArray(snapshot.dates)?snapshot.dates:base?.dates||[]};
 }
 export const normalizeName = name => String(name||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/gi,"d").toLowerCase().replace(/[^a-z0-9]/g,"");
 export function orderedMonths(account, current = monthNow()) {

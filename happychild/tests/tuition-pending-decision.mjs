@@ -6,3 +6,11 @@ assert.equal(classifyTuitionPending({revision:3,unitFee:200000,adjustment:0,note
 assert.equal(classifyTuitionPending({revision:3,unitFee:250000,adjustment:0,note:'Mới'},entry),'already-synced');
 assert.equal(classifyTuitionPending(undefined,{baseRevision:0,values:{unitFee:'',adjustment:0,note:''}}),'replay');
 console.log('Pending tuition decisions: replay, conflict and already-synced passed.');
+const balance={kind:'tuition-balance',baseRevision:2,values:{value:4,reason:'Đối chiếu'}};
+assert.equal(classifyTuitionPending({statsOverrides:{balance:0}},{...balance,values:{...balance.values,onlyIfUnclosed:true}}),'protected','Do not overwrite manual zero');
+assert.equal(classifyTuitionPending({revision:2},balance),'replay');
+assert.equal(classifyTuitionPending({revision:3},balance),'conflict');
+assert.equal(classifyTuitionPending({revision:3,balanceClose:{value:4,reason:'Đối chiếu'}},balance),'already-synced');
+assert.equal(classifyTuitionPending({revision:7},{...balance,baseRevision:null,values:{...balance.values,onlyIfUnclosed:true}}),'replay');
+assert.equal(classifyTuitionPending({revision:7,balanceClose:{value:5}},{...balance,baseRevision:null,values:{...balance.values,onlyIfUnclosed:true}}),'conflict');
+assert.equal(classifyTuitionPending({revision:3,unitFee:250000,note:'Mới',statsOverrides:{absent:1}},entry),'conflict','Same fee but different attendance must not discard pending edits');

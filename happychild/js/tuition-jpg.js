@@ -1,4 +1,4 @@
-import {monthLabel,previousMonth,tuitionMoney} from './tuition-model.js';
+import {monthLabel,previousMonth,tuitionMoney,monthNow} from './tuition-model.js?v=20261105-closed-only1';
 
 const currency=value=>typeof value==='number'&&Number.isFinite(value)?`${new Intl.NumberFormat('vi-VN').format(value)} ₫`:'—';
 const value=value=>value===null||value===undefined||value===''?'—':String(value);
@@ -15,7 +15,8 @@ export function tuitionJpgData({name,month,status='',stats=null,config={},source
     name:String(name||imported[0]||'Học sinh'),month,status,
     previousMonth:monthLabel(previousMonth(month)),
     previousRegistered:stats?.previousRegistered??imported[1]??null,
-    balance:stats?.balance??imported[2]??null,
+    balance:month<monthNow()&&!config.balanceClose?null:stats?.balance??config.balanceClose?.value??null,
+    balanceDisplay:stats?.balanceLabel||(month<monthNow()&&!config.balanceClose?'Chưa chốt số dư':stats?.balance??config.balanceClose?.value??'—'),
     madeUp:stats?.madeUp??imported[3]??null,
     madeUpDates:stats?.madeUpDates??[],
     absent:stats?.absent??imported[4]??null,
@@ -61,7 +62,7 @@ export function drawTuitionJpg(ctx,data) {
   const W=1600,scale=4,left=48,tableWidth=W-left*2;
   const nameWidth=180,statWidth=150,adjustWidth=235,totalWidth=189;
   const headerH=82,subHeaderH=58,subDataH=64;
-  const rowValues=[value(data.previousRegistered),attendanceValue(data.absent,data.absentDates),attendanceValue(data.madeUp,data.madeUpDates),value(data.actual),value(data.balance),value(data.note)];
+  const rowValues=[value(data.previousRegistered),attendanceValue(data.absent,data.absentDates),attendanceValue(data.madeUp,data.madeUpDates),value(data.actual),value(data.balanceDisplay??data.balance),value(data.note)];
   // Notes and date lists must grow the row, not disappear or overlap nearby cells.
   ctx.font='600 17px Arial';
   const dataH=Math.max(78,...rowValues.map(text=>wrap(ctx,text,statWidth-20).length*27+24));

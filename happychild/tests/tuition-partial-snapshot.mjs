@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {mergeTuitionSnapshot,tuitionMoney} from '../js/tuition-model.js';
+const base={registered:27,balance:null,dates:[{date:'2026-10-01',start:'08:00',end:'09:00'}]};
+const merged=mergeTuitionSnapshot(base,{balance:4});
+assert.equal(merged.registered,27);assert.equal(merged.balance,4);assert.deepEqual(merged.dates,base.dates);
+assert.equal(tuitionMoney(270000,merged.registered,0).total,7290000);
+assert.equal(mergeTuitionSnapshot(null,{balance:4}),null,'Partial recovery waits for month schedule, not invalid fee or zero');
+assert.equal(mergeTuitionSnapshot(base,{registered:20,balance:2}).registered,20,'Complete historical registration is preserved');
+assert.deepEqual(mergeTuitionSnapshot(null,{registered:0,balance:0}).dates,[]);
+console.log('PASS partial snapshots, preserved registration/dates/balance, historical values, fee 7,290,000');
