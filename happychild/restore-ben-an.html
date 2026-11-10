@@ -1,0 +1,10 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Khôi phục BEN AN · HappyChild</title><style>
+body{font:16px/1.6 system-ui,sans-serif;background:#f4f6fa;color:#142136;margin:0;padding:24px}main{max-width:860px;margin:auto;background:white;border-radius:16px;padding:28px}h1{margin:0}button,input{font:inherit;padding:10px;border-radius:8px}button{cursor:pointer;background:#2857bd;color:white;border:0;margin:8px 8px 8px 0}button:disabled{opacity:.5;cursor:wait}input{border:1px solid #9aa8bd}label{display:block;margin:12px 0}.notice{padding:12px;border-radius:8px;background:#fff3d6}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2f8;padding:16px;border-radius:8px}a{color:#174fad}li{margin:5px 0}[hidden]{display:none!important}</style></head><body><main>
+<h1>Khôi phục BEN AN</h1><p>Hủy thao tác ngừng nhầm từ <strong>01/11/2026</strong>. Chỉ sửa đúng hồ sơ BEN AN; không tạo bé mới.</p>
+<p id="authStatus" role="status">Đang kiểm tra phiên đăng nhập…</p><p><a href="./#students" target="_blank" rel="noopener">Mở HappyChild để đăng nhập</a></p>
+<div class="notice">Bước kiểm tra không ghi Firebase. Chỉ nút xác nhận bên dưới mới khôi phục. Lịch sử cũ và số dư cần bù được giữ nguyên; học phí nhập tay không bị sửa. Buổi đã có được giữ nguyên, không ghi đè.</div>
+<button id="inspect" disabled>1. Kiểm tra lịch và xem trước</button><section id="preview" hidden><h2>Kết quả kiểm tra</h2><pre id="summary"></pre><ul id="issues"></ul>
+<label><input type="checkbox" id="confirm"> Tôi xác nhận BEN AN không thực sự ngừng học từ 01/11 và muốn khôi phục lịch từ ngày đó.</label>
+<button id="restore" disabled>2. Xác nhận khôi phục lên Firebase</button></section><pre id="result" role="status" aria-live="polite"></pre>
+<p>Trang này không bỏ qua quyền đăng nhập, không xóa dữ liệu và không tự chạy khi mở. Nếu có trùng cô/phòng, nút lưu sẽ bị khóa để đối chiếu trước.</p>
+</main><script type="module" src="./js/restore-ben-an.js?v=20261110-1"></script></body></html>

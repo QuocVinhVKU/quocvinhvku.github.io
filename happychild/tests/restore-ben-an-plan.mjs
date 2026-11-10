@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {BEN_AN_ID,planBenAnRestore} from '../js/restore-ben-an-plan.js';
+const source=[1,3,5].map(dayOfWeek=>({studentId:BEN_AN_ID,dateKey:`2026-10-${26+dayOfWeek}`,dayOfWeek,startTime:'19:00',endTime:'20:00',type:'regular',teacherId:'teacher-sheet5-tien'}));
+const base={student:{id:BEN_AN_ID,fullName:'BEN AN',active:false,stoppedDate:'2026-11-01',makeupBalance:4},source,templates:[],weeks:[{id:'w',startKey:'2026-11-02',endKey:'2026-11-08',sessions:[]}],teachers:[{id:'teacher-sheet5-tien',active:true}]};
+const before=JSON.stringify(base),p=planBenAnRestore(base);assert.equal(p.templates.length,3);assert.deepEqual(p.sessions.map(s=>s.dateKey),['2026-11-03','2026-11-05','2026-11-07']);assert.equal(p.issues.length,0);assert.equal(JSON.stringify(base),before);
+assert.throws(()=>planBenAnRestore({...base,student:{...base.student,id:'other'}}));
+assert.throws(()=>planBenAnRestore({...base,student:{...base.student,stoppedDate:'2026-11-02'}}));
+assert.throws(()=>planBenAnRestore({...base,source:source.slice(0,2)}));
+const existing={...p.sessions[0],id:'existing',status:'absent'};const repeat=planBenAnRestore({...base,templates:p.templates,weeks:[{...base.weeks[0],sessions:[existing]}]});assert.equal(repeat.templates.length,0);assert.equal(repeat.sessions.length,2);assert.equal(repeat.existing[0].session.status,'absent');
+assert.ok(planBenAnRestore({...base,weeks:[{...base.weeks[0],sessions:[{...existing,studentId:'other',status:'scheduled'}]}]}).issues.some(x=>x.includes('có buổi khác')));
+assert.ok(planBenAnRestore({...base,weeks:[{...base.weeks[0],sessions:Array.from({length:7},(_,i)=>({...existing,id:String(i),studentId:String(i),teacherId:'other',status:'scheduled'}))}]}).issues.some(x=>x.includes('7 phòng')));
+assert.ok(planBenAnRestore({...base,leaves:[{teacherId:'teacher-sheet5-tien',startDate:'2026-11-03',endDate:'2026-11-03',leaveType:'full_day'}]}).issues.some(x=>x.includes('nghỉ phép')));
+const h=planBenAnRestore({...base,holidays:[{startDate:'2026-11-03',endDate:'2026-11-03'}]});assert.equal(h.sessions[0].status,'holiday');
+console.log('PASS exact identity/date, historical source, idempotence, existing absence preservation, teacher/room/leave conflicts, holiday, no input/credit mutation');
